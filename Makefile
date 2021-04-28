@@ -1,7 +1,7 @@
 
 CC = gcc
 
-INC := -I include -I include/server -I include/Infra -I include/jsoncpp
+INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal
 
 CFLAGS = -Wall -lpthread -lstdc++ -std=c++11
 
@@ -10,6 +10,8 @@ SRC_DIR += \
 ./server \
 ./Infra \
 ./jsoncpp \
+./terminal \
+./screen \
 
 DIR_OBJ := ./obj
 TARGET := a.out
@@ -48,4 +50,6 @@ CHECKDIR:
 
 clean:
 	@rm -rf ${DIR_OBJ}
+ifeq ($(TARGET), $(wildcard $(TARGET)))
 	@rm $(TARGET)
+endif

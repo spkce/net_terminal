@@ -1,6 +1,6 @@
 
 #include "net_terminal.h"
-#include "NetServer.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -9,7 +9,7 @@ extern "C" {
 
 void net_termianl_init()
 {
-	NetServer::CNetServer::instance()->start(80);
+	//NetServer::CNetServer::instance()->start(8888, 5);
 
 }
 

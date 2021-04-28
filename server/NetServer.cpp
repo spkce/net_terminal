@@ -5,13 +5,15 @@
 #include <arpa/inet.h>
 #include "NetServer.h"
 #include "jsoncpp.h"
-
+#include "Session.h"
 
 namespace NetServer
 {
 
-CNetServer::CNetServer()
+CNetServer::CNetServer(unsigned int port, bool isTcp)
 :m_sockfd(-1)
+,m_port(port)
+,m_isTcp(isTcp)
 {
 	m_pThread = new Infra::CThread();
 	m_pThread->attachProc(Infra::ThreadProc_t(&CNetServer::server_task, this));
@@ -28,7 +30,7 @@ CNetServer::~CNetServer()
 	m_pThread = NULL;
 }
 
-CNetServer* CNetServer::instance()
+INetServer* CNetServer::create(unsigned int port, bool isTcp)
 {
 	static CNetServer* pInstance = NULL;
 	if (pInstance == NULL)
@@ -43,14 +45,24 @@ CNetServer* CNetServer::instance()
 	return pInstance;
 }
 
-bool CNetServer::start(unsigned int port, bool isTcp)
+bool CNetServer::attach(INetServer::ServerProc_t proc)
+{
+	if (!m_proc.isEmpty())
+	{
+		return false;
+	}
+	m_proc = proc;
+	return true;
+}
+
+bool CNetServer::start(unsigned int maxlisten)
 {
 	if (m_sockfd >= 0)
 	{
 		return false;
 	}
 
-	m_sockfd = socket(AF_INET, isTcp ? SOCK_STREAM : SOCK_DGRAM, 0);
+	m_sockfd = socket(AF_INET, m_isTcp ? SOCK_STREAM : SOCK_DGRAM, 0);
 	if (m_sockfd < 0)
 	{
 		return false;
@@ -59,12 +71,16 @@ bool CNetServer::start(unsigned int port, bool isTcp)
 	memset(&servAddr, 0, sizeof(servAddr));
 	servAddr.sin_family = AF_INET;
 	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servAddr.sin_port = htons(port);
+	servAddr.sin_port = htons(m_port);
 	if (bind(m_sockfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
 	{
 		return false;
 	}
 
+	if(listen(m_sockfd, maxlisten) < 0)
+	{
+		return false;
+	}
 	m_pThread->run();
 
 	return true;
@@ -84,6 +100,39 @@ bool CNetServer::stop()
 void CNetServer::server_task(void* arg)
 {
 
+	struct sockaddr_in cliaddr;
+	socklen_t clilen = sizeof(struct sockaddr_in);
+
+	//if(uWaitMsec != WAIT_FOREVER)
+	//{
+	//	stTimeout.tv_sec = uWaitMsec/1000;
+	//stTimeout.tv_usec = uWaitMsec%1000;
+    //    FD_ZERO(&rset);
+    //    FD_SET(iSockFd, &rset);
+    //    if(select(iSockFd + 1, &rset, NULL, NULL, &stTimeout) <= 0)
+    //    {
+    //        SYS_SOCKET_INFO("wait accept client connect failed, err:%s\n", strerror(errno));
+    //        return ERROR;
+    //	}
+    //}
+
+	int sock = accept(m_sockfd, (struct sockaddr *)&cliaddr, &clilen);
+	if (sock < 0 )
+	{
+		return;
+	}
+
+	if (!m_proc.isEmpty())
+	{
+		m_proc(sock, &cliaddr)
+	}
+	ISession* pSession = CSessionManager::instance()->createSession(sock, &cliaddr);
+	if (pSession == NULL)
+	{
+		//close(sock)
+		return;
+	}
+	//pSession->bind(fd)
 }
 
 }//NetServer
