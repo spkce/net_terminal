@@ -7,6 +7,7 @@ struct sockaddr_in;
 
 namespace NetServer {
 	class INetServer;
+	class ISession;
 }
 namespace Screen
 {
@@ -22,6 +23,7 @@ public:
 	bool init();
 
 	void serverTask(int sockfd, struct sockaddr_in* addr);
+	void sessionTask(char* buf, int len);
 private:
 	NetServer::INetServer* m_pServ;
 };

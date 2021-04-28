@@ -2,15 +2,14 @@
 #define __SESSION_H__
 
 #include "thread.h"
-#include "jsoncpp.h"
 
 namespace NetServer
 {
 
-typedef Infra::TFuncation2<void, Json::Value&, Json::Value&> SessionProc_t;
-
 class ISession
 {
+public:
+	typedef Infra::TFuncation2<void, char*, int> SessionProc_t;
 protected:
 	ISession(){};
 	virtual ~ISession(){};

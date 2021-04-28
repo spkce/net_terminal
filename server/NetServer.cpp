@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 #include "NetServer.h"
 #include "jsoncpp.h"
-#include "Session.h"
+
 
 namespace NetServer
 {
@@ -136,13 +136,6 @@ void CNetServer::server_task(void* arg)
 	{
 		m_proc(sock, &cliaddr);
 	}
-	ISession* pSession = CSessionManager::instance()->createSession(sock, &cliaddr);
-	if (pSession == NULL)
-	{
-		//close(sock)
-		return;
-	}
-	//pSession->bind(fd)
 }
 
 }//NetServer

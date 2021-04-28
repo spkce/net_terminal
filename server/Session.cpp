@@ -16,13 +16,13 @@ public:
 	CSession();
 	virtual ~CSession();
 	void set(int sockfd, struct sockaddr_in* addr);
-	virtual bool bind(const SessionProc_t & proc);
+	virtual bool bind(const ISession::SessionProc_t & proc);
 	virtual bool unbind();
 	void replyProc(void* arg);
 private:
 	Infra::CThread m_thread;
 	struct sockaddr_in m_addr;
-	SessionProc_t m_proc;
+	ISession::SessionProc_t m_proc;
 	int m_sockfd;
 	char* m_pRecvbuf;
 	const int m_RecvLen;
@@ -49,7 +49,7 @@ void CSession::set(int sockfd, struct sockaddr_in* addr)
 	memcpy(&m_addr, addr, sizeof(struct sockaddr_in));
 }
 
-bool CSession::bind(const SessionProc_t & proc)
+bool CSession::bind(const ISession::SessionProc_t & proc)
 {
 	if (!m_proc.isEmpty())
 	{
@@ -75,7 +75,7 @@ bool CSession::unbind()
 void CSession::replyProc(void* arg)
 {
 	memset(m_pRecvbuf, 0, m_RecvLen);
-	ssize_t len = recv(m_sockfd, m_pRecvbuf, m_RecvLen, 0);
+	int len = recv(m_sockfd, m_pRecvbuf, m_RecvLen, 0);
 
 	printf("\033[35m""len = %s""\033[0m\n", len);
 	if (m_proc.isEmpty())
@@ -83,6 +83,7 @@ void CSession::replyProc(void* arg)
 		return;
 	}
 
+	m_proc(m_pRecvbuf, len);
 	
 }
 
