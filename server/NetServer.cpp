@@ -4,7 +4,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "NetServer.h"
-#include "json.h"
+#include "jsoncpp.h"
 
 
 namespace NetServer

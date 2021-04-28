@@ -16,5 +16,19 @@ public:
 	virtual bool unbind(const Infra::ThreadProc_t & proc) = 0;
 };
 
+class CSessionManager
+{
+private:
+	CSessionManager();
+	~CSessionManager();
+public:
+	static CSessionManager* instance();
+
+	ISession* createSession();
+	bool cancelSession(ISession* pSession);
+};
+
+
+
 } //NetServer
 #endif //__SESSION_H__
