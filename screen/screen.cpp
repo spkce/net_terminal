@@ -20,7 +20,7 @@ CScreen::~CScreen()
 bool CScreen::init()
 {
 	m_pServ = CNetServer::create(8888);
-	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this))
+	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
 	m_pServ->start(5);
 }
 

@@ -1,7 +1,7 @@
 
 CC = gcc
 
-INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal
+INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal -I include/screen 
 
 CFLAGS = -Wall -lpthread -lstdc++ -std=c++11
 

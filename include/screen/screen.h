@@ -3,9 +3,14 @@
 
 #include "terminal.h"
 
+struct sockaddr_in;
+
+namespace NetServer {
+	class INetServer;
+}
 namespace Screen
 {
-class NetServer::INetServer;
+
 class CScreen : public Terminal::ITerminal
 {
 private:

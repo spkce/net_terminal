@@ -10,6 +10,16 @@
 namespace NetServer
 {
 
+INetServer::INetServer()
+{
+
+}
+
+INetServer::~INetServer()
+{
+
+}
+
 CNetServer::CNetServer(unsigned int port, bool isTcp)
 :m_sockfd(-1)
 ,m_port(port)
@@ -39,7 +49,7 @@ INetServer* CNetServer::create(unsigned int port, bool isTcp)
 		Infra::CGuard<Infra::CMutex> guard(sm_mutex);
 		if (pInstance == NULL)
 		{
-			pInstance = new CNetServer;
+			pInstance = new CNetServer(port, isTcp);
 		}
 	}
 	return pInstance;
@@ -124,7 +134,7 @@ void CNetServer::server_task(void* arg)
 
 	if (!m_proc.isEmpty())
 	{
-		m_proc(sock, &cliaddr)
+		m_proc(sock, &cliaddr);
 	}
 	ISession* pSession = CSessionManager::instance()->createSession(sock, &cliaddr);
 	if (pSession == NULL)

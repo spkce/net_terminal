@@ -3,12 +3,14 @@
 
 #include "thread.h"
 
+struct sockaddr_in;
+
 namespace NetServer
 {
 class INetServer
 {
 public:
-	typedef Infra::TFuncation2<void, int sockfd, struct sockaddr_in* addr> ServerProc_t;
+	typedef Infra::TFuncation2<void, int, struct sockaddr_in*> ServerProc_t;
 protected:
 	INetServer();
 	virtual ~INetServer();
@@ -17,7 +19,7 @@ public:
 	virtual bool attach(ServerProc_t proc) = 0;
 	virtual bool stop() = 0;
 
-}
+};
 
 class CNetServer : public INetServer
 {
