@@ -2,6 +2,7 @@
 #include "screen.h"
 #include "NetServer.h"
 #include "Session.h"
+#include "ScreenProtocl.h"
 
 using namespace Terminal;
 using namespace NetServer;
@@ -20,6 +21,7 @@ CScreen::~CScreen()
 
 bool CScreen::init()
 {
+	m_protocl = IScreenProtocl::getInstance();
 	m_pServ = CNetServer::create(8888);
 	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
 	m_pServ->start(5);
@@ -37,7 +39,7 @@ void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 
 void CScreen::sessionTask(char* buf, int len)
 {
-
+	m_protocl->parse(buf, len);
 }
 
 } // Screen

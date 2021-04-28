@@ -1,7 +1,7 @@
 
 CC = gcc
 
-INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal -I include/screen 
+INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal -I include/screen -I include/Protocol 
 
 CFLAGS = -Wall -lpthread -lstdc++ -std=c++11
 
@@ -12,6 +12,7 @@ SRC_DIR += \
 ./jsoncpp \
 ./terminal \
 ./screen \
+./Protocol \
 
 DIR_OBJ := ./obj
 TARGET := a.out

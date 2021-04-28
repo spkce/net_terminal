@@ -12,6 +12,7 @@ namespace NetServer {
 namespace Screen
 {
 
+class IScreenProtocl;
 class CScreen : public Terminal::ITerminal
 {
 private:
@@ -26,6 +27,7 @@ public:
 	void sessionTask(char* buf, int len);
 private:
 	NetServer::INetServer* m_pServ;
+	IScreenProtocl* m_protocl;
 };
 
 
