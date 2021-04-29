@@ -1,4 +1,4 @@
-
+#include "stdio.h"
 #include "screen.h"
 #include "NetServer.h"
 #include "Session.h"
@@ -22,7 +22,7 @@ CScreen::~CScreen()
 bool CScreen::init()
 {
 	m_protocl = IScreenProtocl::getInstance();
-	m_pServ = CNetServer::create(8888);
+	m_pServ = CNetServer::create(7877);
 	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
 	m_pServ->start(5);
 

@@ -110,7 +110,7 @@ bool CNetServer::stop()
 void CNetServer::server_task(void* arg)
 {
 
-	struct sockaddr_in cliaddr;
+	struct sockaddr_in cliaddr = {0};
 	socklen_t clilen = sizeof(struct sockaddr_in);
 
 	//if(uWaitMsec != WAIT_FOREVER)
@@ -131,7 +131,7 @@ void CNetServer::server_task(void* arg)
 	{
 		return;
 	}
-
+	printf("\033[35m""connect:%s:%d""\033[0m\n", (char*)inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 	if (!m_proc.isEmpty())
 	{
 		m_proc(sock, &cliaddr);

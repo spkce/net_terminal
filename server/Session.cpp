@@ -77,12 +77,13 @@ void CSession::replyProc(void* arg)
 	memset(m_pRecvbuf, 0, m_RecvLen);
 	int len = recv(m_sockfd, m_pRecvbuf, m_RecvLen, 0);
 
-	printf("\033[35m""len = %s""\033[0m\n", len);
-	if (m_proc.isEmpty())
+	if (len <= 0 || m_proc.isEmpty())
 	{
+		// len == 0时为对端关闭，应该关闭套接字
 		return;
 	}
 
+	printf("\033[35m""recv:%s:%d len=%d""\033[0m\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port), len);
 	m_proc(m_pRecvbuf, len);
 	
 }
