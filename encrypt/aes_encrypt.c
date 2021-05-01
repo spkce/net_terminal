@@ -414,14 +414,14 @@ void  Encrypt (unsigned char state[16], unsigned char *expkey, unsigned int roun
 
 /** @fn	int Inter_Aes128Encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, unsigned char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey, unsigned int iRound)
  *  @brief
- *  @param (in)	unsigned char * pInput    ÊäÈëÔ­ÎÄ»º³åÇø  
- *  @param (in)	int iInputMaxLen		  ÊäÈëÔ­ÎÄ»º³åÇø³¤¶È
- *  @param (in)	int iInputLen			  ÊäÈëÔ­ÎÄÊı¾İ³¤¶È
- *  @param (in)	unsigned char * pOutput   Êä³ö»º³åÇø
- *  @param (in)	int iOutputMaxLen         Êä³ö»º³åÇø´óĞ¡
- *  @param (in)	int * iOutputLen          ¼ÓÃÜºóÊı¾İ³¤¶È
- *  @param (in)	unsigned char * pKey      ¼ÓÃÜÃÜÔ¿
- *  @param (in)	unsigned int iRound       ¼ÓÃÜÂÖÊı£¬±ê×¼ÊÇ10ÂÖ£¬SDKË½ÓĞĞ­ÒéÖĞ£¬ÓĞÓÃ4ÂÖµÄ
+ *  @param (in)	unsigned char * pInput    è¾“å…¥åŸæ–‡ç¼“å†²åŒº  
+ *  @param (in)	int iInputMaxLen		  è¾“å…¥åŸæ–‡ç¼“å†²åŒºé•¿åº¦
+ *  @param (in)	int iInputLen			  è¾“å…¥åŸæ–‡æ•°æ®é•¿åº¦
+ *  @param (in)	unsigned char * pOutput   è¾“å‡ºç¼“å†²åŒº
+ *  @param (in)	int iOutputMaxLen         è¾“å‡ºç¼“å†²åŒºå¤§å°
+ *  @param (in)	int * iOutputLen          åŠ å¯†åæ•°æ®é•¿åº¦
+ *  @param (in)	unsigned char * pKey      åŠ å¯†å¯†é’¥
+ *  @param (in)	unsigned int iRound       åŠ å¯†è½®æ•°ï¼Œæ ‡å‡†æ˜¯10è½®ï¼ŒSDKç§æœ‰åè®®ä¸­ï¼Œæœ‰ç”¨4è½®çš„
  *  @return	int
  */
 int Inter_Aes128Encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, unsigned char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey, unsigned int iRound)
@@ -437,10 +437,10 @@ int Inter_Aes128Encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, 
     {
         return -1;
     }
-    //Èç¹ûÍâ²¿Ã»ÓĞ´«ÈëÃÜÔ¿£¬Ä¬ÈÏÊ¹ÓÃÄÚ²¿µÄÃÜÔ¿
+    //å¦‚æœå¤–éƒ¨æ²¡æœ‰ä¼ å…¥å¯†é’¥ï¼Œé»˜è®¤ä½¿ç”¨å†…éƒ¨çš„å¯†é’¥
     if (NULL != pKey)
     {
-		//AES128Ëã·¨£¬keyµÄ³¤¶ÈÎª16¸ö×Ö½Ú¡£SDKÈÏÎªÍâ²¿´«ÈëµÄkeyÖĞµÄ16¸ö×Ö½Ú¶¼ÊÇÓĞĞ§µÄ
+		//AES128ç®—æ³•ï¼Œkeyçš„é•¿åº¦ä¸º16ä¸ªå­—èŠ‚ã€‚SDKè®¤ä¸ºå¤–éƒ¨ä¼ å…¥çš„keyä¸­çš„16ä¸ªå­—èŠ‚éƒ½æ˜¯æœ‰æ•ˆçš„
         memset(sPrivateKey, 0, sizeof(sPrivateKey));
         memcpy(sPrivateKey, pKey, 16);
     }
@@ -458,27 +458,27 @@ int Inter_Aes128Encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, 
 		iBlock = (iInputLen-iLeft)/iMaxEncryptLen+1;
 	}
 	
-	if (iBlock == 0) //´¦Àíµ±¼ÓÃÜÊı¾İ³¤¶ÈÎª0Ê±£¬È«²¿Ìî³äÎª0x00Ö®ºó¼ÓÃÜ
+	if (iBlock == 0) //å¤„ç†å½“åŠ å¯†æ•°æ®é•¿åº¦ä¸º0æ—¶ï¼Œå…¨éƒ¨å¡«å……ä¸º0x00ä¹‹ååŠ å¯†
 	{
 		iBlock += 1;
 	}
-	/*Ô­ÎÄÌî³äºóµÄ³¤¶È*/
+	/*åŸæ–‡å¡«å……åçš„é•¿åº¦*/
 	iFill = iBlock * iMaxEncryptLen;
 	
 	if (iInputMaxLen < iFill)
 	{
-		/*Ô­ÎÄ»º³åÇø¿Õ¼ä²»×ã*/
+		/*åŸæ–‡ç¼“å†²åŒºç©ºé—´ä¸è¶³*/
 		return -1;
 	}
 	
 	if (iOutputMaxLen < iFill)
 	{
-		/*¼ÓÃÜºó±¨ÎÄ»º³åÇø¿Õ¼ä²»×ã*/
+		/*åŠ å¯†åæŠ¥æ–‡ç¼“å†²åŒºç©ºé—´ä¸è¶³*/
 		return -1;
 	}
 	
 	
-	/*ÓÃ0x00½øĞĞÌî³ä*/
+	/*ç”¨0x00è¿›è¡Œå¡«å……*/
 	if (iFill > iInputLen)
 	{
 		memset(pInput+iInputLen, 0, iFill - iInputLen);
@@ -501,13 +501,13 @@ int Inter_Aes128Encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, 
 
 /** @fn	int Inter_Aes128Decrypt(char *pInput, int iInputLen, char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey, unsigned int iRound)
  *  @brief
- *  @param (in)	char * pInput			ÃÜÎÄÊäÈë»º³åÇø  
- *  @param (in)	int iInputLen			ÃÜÎÄ³¤¶È
- *  @param (in)	char * pOutput			½âÃÜºóÊı¾İ»º³åÇø
- *  @param (in)	int iOutputMaxLen		½âÃÜºóÊı¾İ»º³åÇø´óĞ¡
- *  @param (in)	int * iOutputLen		½âÃÜºóÊı¾İ³¤¶È
- *  @param (in)	unsigned char * pKey    ½âÃÜÃÜÔ¿
- *  @param (in)	unsigned int iRound     ½âÃÜÂÖÊı
+ *  @param (in)	char * pInput			å¯†æ–‡è¾“å…¥ç¼“å†²åŒº  
+ *  @param (in)	int iInputLen			å¯†æ–‡é•¿åº¦
+ *  @param (in)	char * pOutput			è§£å¯†åæ•°æ®ç¼“å†²åŒº
+ *  @param (in)	int iOutputMaxLen		è§£å¯†åæ•°æ®ç¼“å†²åŒºå¤§å°
+ *  @param (in)	int * iOutputLen		è§£å¯†åæ•°æ®é•¿åº¦
+ *  @param (in)	unsigned char * pKey    è§£å¯†å¯†é’¥
+ *  @param (in)	unsigned int iRound     è§£å¯†è½®æ•°
  *  @return	int
  */
 int Inter_Aes128Decrypt(char *pInput, int iInputLen, char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey, unsigned int iRound)
@@ -522,24 +522,24 @@ int Inter_Aes128Decrypt(char *pInput, int iInputLen, char *pOutput, int iOutputM
     	printf("error0\n");
         return -1;
     }
-    //Èç¹ûÍâ²¿Ã»ÓĞ´«ÈëÃÜÔ¿£¬Ä¬ÈÏÊ¹ÓÃÄÚ²¿µÄÃÜÔ¿
+    //å¦‚æœå¤–éƒ¨æ²¡æœ‰ä¼ å…¥å¯†é’¥ï¼Œé»˜è®¤ä½¿ç”¨å†…éƒ¨çš„å¯†é’¥
     if (NULL != pKey)
     {
-		//AES128Ëã·¨£¬keyµÄ³¤¶ÈÎª16¸ö×Ö½Ú¡£SDKÈÏÎªÍâ²¿´«ÈëµÄkeyÖĞµÄ16¸ö×Ö½Ú¶¼ÊÇÓĞĞ§µÄ
+		//AES128ç®—æ³•ï¼Œkeyçš„é•¿åº¦ä¸º16ä¸ªå­—èŠ‚ã€‚SDKè®¤ä¸ºå¤–éƒ¨ä¼ å…¥çš„keyä¸­çš„16ä¸ªå­—èŠ‚éƒ½æ˜¯æœ‰æ•ˆçš„
         memset(sPrivateKey, 0, sizeof(sPrivateKey));
         memcpy(sPrivateKey, pKey, 16);
     }
     
     if (iInputLen%iMaxEncryptLen != 0)
     {
-        /*Ó¦¸ÃÊÇiMaxEncryptLenµÄ±¶Êı*/
+        /*åº”è¯¥æ˜¯iMaxEncryptLençš„å€æ•°*/
 		printf("error1\n");
         return -1;
     }
     
     if (iOutputMaxLen < iInputLen)
     {
-        /*½âÃÜºó±¨ÎÄ»º³åÇø¿Õ¼ä²»×ã*/
+        /*è§£å¯†åæŠ¥æ–‡ç¼“å†²åŒºç©ºé—´ä¸è¶³*/
 		printf("error2\n");
         return -1;
     }
@@ -593,7 +593,7 @@ int Inter_Aes128Decrypt(char *pInput, int iInputLen, char *pOutput, int iOutputM
 ************************************************************************/
 int ENCRYPT_LevelFourEncrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, unsigned char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey)
 {
-	//aes¼ÓÃÜÂÖÊı£¬ÂÖÊıÎª4£¬Õâ¸öÊÇ·Ç±ê×¼µÄ£¬SDK±¨ÎÄĞ£ÑéÖĞÓÃµ½ÁËÕâ¸ö½Ó¿Ú
+	//aesåŠ å¯†è½®æ•°ï¼Œè½®æ•°ä¸º4ï¼Œè¿™ä¸ªæ˜¯éæ ‡å‡†çš„ï¼ŒSDKæŠ¥æ–‡æ ¡éªŒä¸­ç”¨åˆ°äº†è¿™ä¸ªæ¥å£
     return Inter_Aes128Encrypt(pInput, iInputMaxLen, iInputLen, pOutput, iOutputMaxLen, iOutputLen, pKey, 4);
 }
 
@@ -628,7 +628,7 @@ int ENCRYPT_LevelFourEncrypt(unsigned char *pInput, int iInputMaxLen, int iInput
 ************************************************************************/
 int ENCRYPT_LevelFourDecrypt(char *pInput, int iInputLen, char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey)
 {
-   //aes¼ÓÃÜÂÖÊı£¬ÂÖÊıÎª4£¬Õâ¸öÊÇ·Ç±ê×¼µÄ£¬SDK±¨ÎÄĞ£ÑéÖĞÓÃµ½ÁËÕâ¸ö½Ó¿Ú
+   //aesåŠ å¯†è½®æ•°ï¼Œè½®æ•°ä¸º4ï¼Œè¿™ä¸ªæ˜¯éæ ‡å‡†çš„ï¼ŒSDKæŠ¥æ–‡æ ¡éªŒä¸­ç”¨åˆ°äº†è¿™ä¸ªæ¥å£
    return Inter_Aes128Decrypt(pInput, iInputLen, pOutput, iOutputMaxLen, iOutputLen, pKey, 4);
 }
 
@@ -646,7 +646,7 @@ int ENCRYPT_LevelFourDecrypt(char *pInput, int iInputLen, char *pOutput, int iOu
 
 int aes_encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, unsigned char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey)
 {
-	//aes¼ÓÃÜÂÖÊı£¬ÂÖÊıÎª10
+	//aesåŠ å¯†è½®æ•°ï¼Œè½®æ•°ä¸º10
     return Inter_Aes128Encrypt(pInput, iInputMaxLen, iInputLen, pOutput, iOutputMaxLen, iOutputLen, pKey, 10);
 }
 
@@ -663,7 +663,7 @@ int aes_encrypt(unsigned char *pInput, int iInputMaxLen, int iInputLen, unsigned
  */
 int aes_decrypt(char *pInput, int iInputLen, char *pOutput, int iOutputMaxLen, int *iOutputLen, unsigned char* pKey)
 {
-	//aes¼ÓÃÜÂÖÊı£¬ÂÖÊıÎª10
+	//aesåŠ å¯†è½®æ•°ï¼Œè½®æ•°ä¸º10
 	return Inter_Aes128Decrypt(pInput, iInputLen, pOutput, iOutputMaxLen, iOutputLen, pKey, 10);
 }
 
