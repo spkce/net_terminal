@@ -1,9 +1,9 @@
 
 CC = gcc
 
-INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal -I include/screen -I include/Protocol -I encrypt -I include/crypto
+INC := -I include -I include/server -I include/Infra -I include/jsoncpp -I include/terminal -I include/screen -I include/Protocol -I encrypt -I include/crypto -I include/rsa  
 
-CFLAGS = -L./lib -Wall -lssl -lcrypto -lpthread -lstdc++ -std=c++11 
+CFLAGS = -L./lib -Wall -lssl -lcrypto -lpthread -lstdc++ -std=c++11 -ldl 
 
 SRC_DIR += \
 ./		\
@@ -13,6 +13,7 @@ SRC_DIR += \
 ./terminal \
 ./screen \
 ./Protocol \
+./rsa \
 
 DIR_OBJ := ./obj
 TARGET := a.out

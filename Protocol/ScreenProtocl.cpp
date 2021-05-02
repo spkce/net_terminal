@@ -5,6 +5,8 @@
 #include "openssl/rand.h"
 #include "openssl/evp.h"
 #include "aes_encrypt.h"
+#include "rsa_app.h"
+
 namespace Screen
 {
 
