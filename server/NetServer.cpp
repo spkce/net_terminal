@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <map>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -7,55 +8,69 @@
 #include "jsoncpp.h"
 
 
+
 namespace NetServer
 {
 
-INetServer::INetServer()
+class CTcpServer : public INetServer
 {
+	friend class INetServer;
+private:
+	CTcpServer(unsigned int port);
+	virtual ~CTcpServer();
+	static CTcpServer* getServer(unsigned int port);
+public:
+	virtual bool attach(INetServer::ServerProc_t proc);
+	bool start(unsigned int maxlisten);
+	bool stop();
+private:
+	void server_task(void* arg);
 
-}
+	INetServer::ServerProc_t m_proc;
+	Infra::CThread* m_pThread;
+	int m_sockfd;
+	int m_port;
+	
+	static std::map<unsigned int, CTcpServer*> sm_mapServer;
+};
 
-INetServer::~INetServer()
-{
+std::map<unsigned int, CTcpServer*> CTcpServer::sm_mapServer;
 
-}
-
-CNetServer::CNetServer(unsigned int port, bool isTcp)
+CTcpServer::CTcpServer(unsigned int port)
 :m_sockfd(-1)
 ,m_port(port)
-,m_isTcp(isTcp)
 {
 	m_pThread = new Infra::CThread();
-	m_pThread->attachProc(Infra::ThreadProc_t(&CNetServer::server_task, this));
+	m_pThread->attachProc(Infra::ThreadProc_t(&CTcpServer::server_task, this));
 	m_pThread->createTread();
 	
 }
 
-CNetServer::~CNetServer()
+CTcpServer::~CTcpServer()
 {
 	stop();
-	m_pThread->detachProc(Infra::ThreadProc_t(&CNetServer::server_task, this));
+	m_pThread->detachProc(Infra::ThreadProc_t(&CTcpServer::server_task, this));
 
 	delete m_pThread;
 	m_pThread = NULL;
 }
 
-INetServer* CNetServer::create(unsigned int port, bool isTcp)
+CTcpServer* CTcpServer::getServer(unsigned int port)
 {
-	static CNetServer* pInstance = NULL;
-	if (pInstance == NULL)
+	static Infra::CMutex sm_mutex;
+	Infra::CGuard<Infra::CMutex> guard(sm_mutex);
+	std::map<unsigned int, CTcpServer*>::iterator iter = sm_mapServer.find(port);
+	if (iter == sm_mapServer.end())
 	{
-		static Infra::CMutex sm_mutex;
-		Infra::CGuard<Infra::CMutex> guard(sm_mutex);
-		if (pInstance == NULL)
-		{
-			pInstance = new CNetServer(port, isTcp);
-		}
+		CTcpServer* p = new CTcpServer(port);
+		sm_mapServer.insert(std::pair<unsigned int, CTcpServer*>(port, p));
+		return p;
 	}
-	return pInstance;
+
+	return iter->second;
 }
 
-bool CNetServer::attach(INetServer::ServerProc_t proc)
+bool CTcpServer::attach(INetServer::ServerProc_t proc)
 {
 	if (!m_proc.isEmpty())
 	{
@@ -65,14 +80,14 @@ bool CNetServer::attach(INetServer::ServerProc_t proc)
 	return true;
 }
 
-bool CNetServer::start(unsigned int maxlisten)
+bool CTcpServer::start(unsigned int maxlisten)
 {
 	if (m_sockfd >= 0)
 	{
 		return false;
 	}
 
-	m_sockfd = socket(AF_INET, m_isTcp ? SOCK_STREAM : SOCK_DGRAM, 0);
+	m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (m_sockfd < 0)
 	{
 		return false;
@@ -96,7 +111,7 @@ bool CNetServer::start(unsigned int maxlisten)
 	return true;
 }
 
-bool CNetServer::stop()
+bool CTcpServer::stop()
 {
 	if (m_sockfd >= 0)
 	{
@@ -107,7 +122,7 @@ bool CNetServer::stop()
 	return m_pThread->stop(true);
 }
 
-void CNetServer::server_task(void* arg)
+void CTcpServer::server_task(void* arg)
 {
 
 	struct sockaddr_in cliaddr = {0};
@@ -138,4 +153,23 @@ void CNetServer::server_task(void* arg)
 	}
 }
 
+
+INetServer::INetServer()
+{
+
+}
+
+INetServer::~INetServer()
+{
+
+}
+
+INetServer* INetServer::create(unsigned int port, Type_t type)
+{
+	if (type == emTCPServer)
+	{
+		return CTcpServer::getServer(port);
+	}
+	return NULL;
+}
 }//NetServer
