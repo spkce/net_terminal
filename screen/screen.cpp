@@ -31,7 +31,7 @@ bool CScreen::init()
 
 void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 {
-	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr);
+	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
 
 	pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this));
 
