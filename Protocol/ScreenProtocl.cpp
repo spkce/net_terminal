@@ -7,20 +7,21 @@
 #include "aes_encrypt.h"
 #include "rsa_app.h"
 
+using namespace NetServer;
 namespace Screen
 {
 
-class CNetProtocl: public IScreenProtocl
+class CNetProtocl: public IProtocl
 {
 public:
 	CNetProtocl();
 	virtual ~CNetProtocl();
 
-	virtual bool parse(char* buf, int len);
+	virtual bool parse(ISession* session, char* buf, int len);
 
-	bool hub(Json::Value &request, Json::Value &response);
+	bool hub(ISession * session, Json::Value &request, Json::Value &response);
 
-	bool start_session(Json::Value &request, Json::Value &response);
+	bool start_session(ISession* session, Json::Value &request, Json::Value &response);
 };
 
 CNetProtocl::CNetProtocl()
@@ -32,7 +33,7 @@ CNetProtocl::~CNetProtocl()
 }
 
 
-bool CNetProtocl::parse(char* buf, int len)
+bool CNetProtocl::parse(ISession * session, char* buf, int len)
 {
 	std::string recv = buf;
 	Json::String errs;
@@ -49,13 +50,13 @@ bool CNetProtocl::parse(char* buf, int len)
 	if (request.isMember("token") && request.isMember("msg_id"))
 	{
 		Json::Value response;
-		hub(request, response);
+		hub(session, request, response);
 	}
 
 	return true;
 }
 
-bool CNetProtocl::hub(Json::Value &request, Json::Value &response)
+bool CNetProtocl::hub(ISession* session, Json::Value &request, Json::Value &response)
 {
 	if (!request.isMember("msg_id"))
 	{
@@ -67,13 +68,13 @@ bool CNetProtocl::hub(Json::Value &request, Json::Value &response)
 	switch(msgID)
 	{
 		case 257:
-			start_session(request, response);
+			start_session(session, request, response);
 		break;
 	}
 	return true;
 }
 
-bool CNetProtocl::start_session(Json::Value &request, Json::Value &response)
+bool CNetProtocl::start_session(ISession* session, Json::Value &request, Json::Value &response)
 {
 
 	std::string rsaKey = request["rsaKey"].asString();
@@ -100,18 +101,30 @@ bool CNetProtocl::start_session(Json::Value &request, Json::Value &response)
 	response["productType"] = 1;
 }
 
-IScreenProtocl * IScreenProtocl::getInstance()
+IProtocl * IProtocl::createInstance(protocl_t type)
 {
-	static CNetProtocl inst;
-	return &inst;
+	if (type == emProtocl_hk)
+	{
+		return new CNetProtocl;
+	}
+	
+	return NULL;
 }
 
-IScreenProtocl::IScreenProtocl()
+void IProtocl::cancelInstance(IProtocl * protocl)
+{
+	if (protocl != NULL)
+	{
+		delete protocl;
+	}
+}
+
+IProtocl::IProtocl()
 {
 
 }
 
-IScreenProtocl::~IScreenProtocl()
+IProtocl::~IProtocl()
 {
 
 }

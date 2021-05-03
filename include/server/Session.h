@@ -9,7 +9,7 @@ namespace NetServer
 class ISession
 {
 public:
-	typedef Infra::TFuncation2<void, char*, int> SessionProc_t;
+	typedef Infra::TFuncation3<void, ISession*, char*, int> SessionProc_t;
 	typedef  enum state_t
 	{
 		emStateCreated,

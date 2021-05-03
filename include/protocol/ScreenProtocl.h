@@ -1,18 +1,28 @@
 #ifndef __SCREEN_PROTOCL_H__
 #define __SCREEN_PROTOCL_H__
 
+namespace NetServer {
+	class ISession;
+}
+
 namespace Screen
 {
 
-class IScreenProtocl
-{
-protected:
-	IScreenProtocl();
-	virtual ~IScreenProtocl();
+class IProtocl
+{	
 public:
-	static IScreenProtocl * getInstance();
+	typedef  enum protocl_t
+	{
+		emProtocl_hk,
+	}protocl_t;
+protected:
+	IProtocl();
+	virtual ~IProtocl();
+public:
+	static IProtocl * createInstance(protocl_t type);
+	static void cancelInstance(IProtocl * protocl);
 
-	virtual bool parse(char* buf, int len) = 0;
+	virtual bool parse(NetServer::ISession* session, char* buf, int len) = 0;
 };
 
 

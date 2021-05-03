@@ -165,7 +165,7 @@ void CSession::replyProc(void* arg)
 	}
 
 	printf("\033[35m""recv:%s:%d len=%d""\033[0m\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port), len);
-	m_proc(m_pRecvbuf, len);
+	m_proc(this, m_pRecvbuf, len);
 	
 }
 

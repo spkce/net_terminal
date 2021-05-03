@@ -12,7 +12,7 @@ namespace NetServer {
 namespace Screen
 {
 
-class IScreenProtocl;
+class IProtocl;
 class CScreen : public Terminal::ITerminal
 {
 private:
@@ -24,10 +24,10 @@ public:
 	bool init();
 
 	void serverTask(int sockfd, struct sockaddr_in* addr);
-	void sessionTask(char* buf, int len);
+	void sessionTask(NetServer::ISession* session, char* buf, int len);
 private:
 	NetServer::INetServer* m_pServ;
-	IScreenProtocl* m_protocl;
+	IProtocl* m_protocl;
 };
 
 

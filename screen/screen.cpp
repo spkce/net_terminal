@@ -13,15 +13,16 @@ CScreen::CScreen()
 :m_pServ(NULL)
 {
 	m_type = ITerminal::emTerminalScree;
+	m_protocl = IProtocl::createInstance(IProtocl::emProtocl_hk);
 }
 
 CScreen::~CScreen()
 {
+	IProtocl::cancelInstance(m_protocl);
 }
 
 bool CScreen::init()
 {
-	m_protocl = IScreenProtocl::getInstance();
 	m_pServ = INetServer::create(7877, INetServer::emTCPServer);
 	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
 	m_pServ->start(5);
@@ -37,9 +38,9 @@ void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 
 }
 
-void CScreen::sessionTask(char* buf, int len)
+void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 {
-	m_protocl->parse(buf, len);
+	m_protocl->parse(session, buf, len);
 }
 
 } // Screen
