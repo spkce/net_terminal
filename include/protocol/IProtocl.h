@@ -1,5 +1,5 @@
-#ifndef __SCREEN_PROTOCL_H__
-#define __SCREEN_PROTOCL_H__
+#ifndef __I_PROTOCL_H__
+#define __I_PROTOCL_H__
 
 namespace NetServer {
 	class ISession;
@@ -31,4 +31,4 @@ public:
 
 } //Screen
 
-#endif //__SCREEN_PROTOCL_H__
+#endif //__I_PROTOCL_H__
