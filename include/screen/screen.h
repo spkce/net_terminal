@@ -1,6 +1,7 @@
 #ifndef __SCREEN_H__
 #define __SCREEN_H__
-
+#include <vector>
+#include "thread.h"
 #include "terminal.h"
 
 struct sockaddr_in;
@@ -21,13 +22,18 @@ public:
 	CScreen();
 	virtual ~CScreen();
 
-	bool init();
-
+	virtual bool init();
+	virtual bool connect(NetServer::ISession* session);
+	virtual bool disconnet(NetServer::ISession* session);
 	void serverTask(int sockfd, struct sockaddr_in* addr);
 	void sessionTask(NetServer::ISession* session, char* buf, int len);
 private:
+	const int m_maxSession;
 	NetServer::INetServer* m_pServ;
 	IProtocl* m_protocl;
+	Infra::CMutex m_mutex;
+	//std::map<int, NetServer::ISession*> m_mapSession;
+	std::vector<NetServer::ISession*> m_vecSession;
 };
 
 

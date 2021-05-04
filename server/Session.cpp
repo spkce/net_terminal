@@ -13,9 +13,11 @@ namespace NetServer
 
 class CSession : public ISession
 {
-public:
+	//friend class CSessionManager;
+protected: 
 	CSession();
 	virtual ~CSession();
+public:
 	void set(int sockfd, struct sockaddr_in* addr, int timeout);
 	virtual bool bind(const ISession::SessionProc_t & proc);
 	virtual bool unbind();
@@ -29,6 +31,8 @@ public:
 	
 	virtual bool close();
 
+	static CSession* create();
+	virtual void destroy();
 	void replyProc(void* arg);
 
 private:
@@ -152,6 +156,15 @@ bool CSession::close()
 		return false;
 	}
 }
+CSession* CSession::create()
+{
+	return new CSession();
+}
+
+void CSession::destroy()
+{
+	delete this;
+}
 
 void CSession::replyProc(void* arg)
 {
@@ -198,7 +211,7 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 	{
 		return NULL;
 	}
-	CSession* pSession = new CSession;
+	CSession* pSession = CSession::create();
 	
 	pSession->set(sockfd, addr, timeout);
 	
@@ -207,12 +220,12 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 
 bool CSessionManager::cancelSession(ISession* session)
 {
-//	if (session == NULL)
-//	{
-//		return false;
-//	}
+	if (session == NULL)
+	{
+		return false;
+	}
 
-//	delete session;
+	session->destroy();
 
 	return true;
 }

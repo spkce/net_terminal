@@ -9,13 +9,17 @@ namespace NetServer {
 	class ISession;
 }
 
+namespace Terminal {
+	class ITerminal;
+}
+
 namespace Screen
 {
 
 class CNetProtocl: public IProtocl
 {
 public:
-	CNetProtocl();
+	CNetProtocl(Terminal::ITerminal* terminal);
 	virtual ~CNetProtocl();
 
 	virtual bool parse(NetServer::ISession* session, char* buf, int len);
@@ -27,6 +31,8 @@ public:
 	bool logout(NetServer::ISession* session, Json::Value &request, Json::Value &response);
 
 	bool keepAlive(NetServer::ISession* session, Json::Value &request, Json::Value &response);
+private:
+	Terminal::ITerminal* m_pTerminal;
 };
 
 

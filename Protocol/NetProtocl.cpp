@@ -8,6 +8,7 @@
 #include "rsa_app.h"
 #include "Session.h"
 #include "NetProtocl.h"
+#include "terminal.h"
 
 using namespace NetServer;
 namespace Screen
@@ -214,7 +215,7 @@ namespace Screen
 		AE_GET_RECORD_DAYS = 2311,			   /*获取当前设备所有录像的日期*/
 
 		/*透传类命令*/
-		AE_GET_CUSTOM = 2401, /*获取自定义命令*/
+		AE_GET_CUSTOM = 2401, /*获取自定义命令*/ 
 		AE_SET_CUSTOM = 2402, /*设置自定义命令*/
 
 		/*媒体类命令*/
@@ -233,8 +234,11 @@ namespace Screen
 		/*工厂测试*/
 		AE_FACTORY = 5001, /*工厂测试*/
 	};
-	CNetProtocl::CNetProtocl()
-	{
+
+CNetProtocl::CNetProtocl(Terminal::ITerminal* terminal)
+:m_pTerminal(terminal)
+{
+
 }
 
 CNetProtocl::~CNetProtocl()
@@ -314,12 +318,14 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 	response["timeout"] = 15;
 	response["productType"] = 1;
 
-	
+	m_pTerminal->connect(session);
+
 	return session->login();
 }
 
 bool CNetProtocl::logout(NetServer::ISession* session, Json::Value &request, Json::Value &response)
 {
+	m_pTerminal->disconnet(session);
 	return session->logout();
 }
 

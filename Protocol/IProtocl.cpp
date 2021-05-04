@@ -1,15 +1,16 @@
 
 #include "IProtocl.h"
 #include "NetProtocl.h"
+#include "terminal.h"
 
 namespace Screen
 {
 
-IProtocl * IProtocl::createInstance(protocl_t type)
+IProtocl * IProtocl::createInstance(protocl_t type, Terminal::ITerminal* termial)
 {
 	if (type == emProtocl_hk)
 	{
-		return new CNetProtocl;
+		return new CNetProtocl(termial);
 	}
 	
 	return NULL;

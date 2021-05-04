@@ -5,6 +5,10 @@ namespace NetServer {
 	class ISession;
 }
 
+namespace Terminal {
+	class ITerminal;
+}
+
 namespace Screen
 {
 
@@ -19,7 +23,7 @@ protected:
 	IProtocl();
 	virtual ~IProtocl();
 public:
-	static IProtocl * createInstance(protocl_t type);
+	static IProtocl * createInstance(protocl_t type, Terminal::ITerminal* termial);
 	static void cancelInstance(IProtocl * protocl);
 
 	virtual bool parse(NetServer::ISession* session, char* buf, int len) = 0;

@@ -31,7 +31,7 @@ public:
 	virtual state_t getState() = 0;
 	
 	virtual bool close() = 0;
-//virtual bool destroy() = 0;
+	virtual void destroy() = 0;
 };
 
 class CSessionManager
