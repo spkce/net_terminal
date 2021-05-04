@@ -184,8 +184,9 @@ void CSession::replyProc(void* arg)
 }
 
 CSessionManager::CSessionManager()
+:m_timer("SessionManager")
 {
-	m_timer.setTimerAttr(Infra::CTimer::TimerProc_t(CSessionManager::timerProc, this), 3000);
+	m_timer.setTimerAttr(Infra::CTimer::TimerProc_t(&CSessionManager::timerProc, this), 3000);
 	m_timer.run();
 }
 
@@ -224,17 +225,17 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 
 bool CSessionManager::cancelSession(ISession* session)
 {
-	if (session == NULL)
-	{
-		return false;
-	}
-
-	session->destroy();
+	//if (session == NULL)
+	//{
+	//	return false;
+	//}
+//
+	//session->destroy();
 
 	return true;
 }
 
-void CSessionManager::recoverySession(ISession* session)
+void CSessionManager::registerSession(ISession* session)
 {
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
 
@@ -255,7 +256,7 @@ void CSessionManager::timerProc(int arg)
 		if (p->getState() == ISession::emStateClose)
 		{
 			p->destroy(); 
-			it = vecStr.erase(it);
+			it = m_vecSession.erase(it);
 		}
 		else
 		{

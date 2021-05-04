@@ -46,6 +46,7 @@ public:
 	ISession* createSession(int sockfd, struct sockaddr_in* addr, int timeout);
 
 private:
+	void registerSession(ISession* session);
 	bool cancelSession(ISession* session);
 
 	void timerProc(int arg);
