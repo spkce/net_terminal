@@ -32,7 +32,6 @@ private:
 	NetServer::INetServer* m_pServ;
 	IProtocl* m_protocl;
 	Infra::CMutex m_mutex;
-	//std::map<int, NetServer::ISession*> m_mapSession;
 	std::vector<NetServer::ISession*> m_vecSession;
 };
 

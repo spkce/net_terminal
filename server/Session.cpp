@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <algorithm>
  #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -184,6 +185,8 @@ void CSession::replyProc(void* arg)
 
 CSessionManager::CSessionManager()
 {
+	m_timer.setTimerAttr(Infra::CTimer::TimerProc_t(CSessionManager::timerProc, this), 3000);
+	m_timer.run();
 }
 
 CSessionManager::~CSessionManager()
@@ -215,6 +218,7 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 	
 	pSession->set(sockfd, addr, timeout);
 	
+	registerSession(pSession);
 	return pSession;
 }
 
@@ -230,5 +234,35 @@ bool CSessionManager::cancelSession(ISession* session)
 	return true;
 }
 
+void CSessionManager::recoverySession(ISession* session)
+{
+	Infra::CGuard<Infra::CMutex> guard(m_mutex);
+
+	std::vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
+	if (iter == m_vecSession.end())
+	{
+		m_vecSession.push_back(session);
+	}
+}
+
+void CSessionManager::timerProc(int arg)
+{
+	Infra::CGuard<Infra::CMutex> guard(m_mutex);
+	std::vector<ISession*>::iterator it;
+	for (it = m_vecSession.begin(); it != m_vecSession.end();)
+	{
+		ISession* p = *it;
+		if (p->getState() == ISession::emStateClose)
+		{
+			p->destroy(); 
+			it = vecStr.erase(it);
+		}
+		else
+		{
+			it++;
+		}
+	}
+
+}
 
 } //NetServer

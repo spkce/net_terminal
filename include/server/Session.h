@@ -2,7 +2,8 @@
 #define __SESSION_H__
 
 #include "thread.h"
-
+#include "timer.h"
+#include <vector>
 namespace NetServer
 {
 
@@ -43,8 +44,16 @@ public:
 	static CSessionManager* instance();
 
 	ISession* createSession(int sockfd, struct sockaddr_in* addr, int timeout);
+
+private:
 	bool cancelSession(ISession* session);
 
+	void timerProc(int arg);
+
+	Infra::CTimer m_timer;
+	Infra::CMutex m_mutex;
+	std::vector<ISession*> m_vecSession;
+	
 };
 
 
