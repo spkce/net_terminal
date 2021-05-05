@@ -19,6 +19,7 @@ private:
 	CTcpServer(unsigned int port);
 	virtual ~CTcpServer();
 	static CTcpServer* getServer(unsigned int port);
+	static bool closeServer(unsigned int port);
 public:
 	virtual bool attach(INetServer::ServerProc_t proc);
 	bool start(unsigned int maxlisten);
@@ -31,9 +32,11 @@ private:
 	int m_sockfd;
 	int m_port;
 	
+	static Infra::CMutex sm_mutex;
 	static std::map<unsigned int, CTcpServer*> sm_mapServer;
 };
 
+Infra::CMutex CTcpServer::sm_mutex;
 std::map<unsigned int, CTcpServer*> CTcpServer::sm_mapServer;
 
 CTcpServer::CTcpServer(unsigned int port)
@@ -57,7 +60,6 @@ CTcpServer::~CTcpServer()
 
 CTcpServer* CTcpServer::getServer(unsigned int port)
 {
-	static Infra::CMutex sm_mutex;
 	Infra::CGuard<Infra::CMutex> guard(sm_mutex);
 	std::map<unsigned int, CTcpServer*>::iterator iter = sm_mapServer.find(port);
 	if (iter == sm_mapServer.end())
@@ -68,6 +70,19 @@ CTcpServer* CTcpServer::getServer(unsigned int port)
 	}
 
 	return iter->second;
+}
+
+bool CTcpServer::closeServer(unsigned int port)
+{
+	Infra::CGuard<Infra::CMutex> guard(sm_mutex);
+	std::map<unsigned int, CTcpServer*>::iterator iter = sm_mapServer.find(port);
+	if (iter != sm_mapServer.end())
+	{
+		sm_mapServer.erase(iter);
+		return true;
+	}
+
+	return false;
 }
 
 bool CTcpServer::attach(INetServer::ServerProc_t proc)
@@ -115,11 +130,13 @@ bool CTcpServer::stop()
 {
 	if (m_sockfd >= 0)
 	{
+		closeServer(m_port);
 		::close(m_sockfd);
 		m_sockfd = -1;
+		return m_pThread->stop(true);
 	}
 
-	return m_pThread->stop(true);
+	return false;
 }
 
 void CTcpServer::server_task(void* arg)

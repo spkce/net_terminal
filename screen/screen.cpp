@@ -22,6 +22,7 @@ CScreen::CScreen()
 CScreen::~CScreen()
 {
 	IProtocl::cancelInstance(m_protocl);
+	m_pServ->stop();
 }
 
 bool CScreen::init()
