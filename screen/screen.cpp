@@ -63,6 +63,8 @@ bool CScreen::disconnet(ISession* session)
 	}
 
 	m_vecSession.erase(iter);
+
+	session->close();
 	return true;
 }
 

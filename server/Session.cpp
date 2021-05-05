@@ -152,6 +152,7 @@ bool CSession::close()
 			m_sockfd = -1;
 		}
 		m_state = emStateClose;
+	case emStateClose:
 		return true;
 	default:
 		return false;
