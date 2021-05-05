@@ -117,6 +117,9 @@ bool CTcpServer::start(unsigned int maxlisten)
 		return false;
 	}
 
+	struct timeval timeout={3,0};    //设置超时时间为3秒
+	setsockopt(m_sockfd, SOL_SOCKET, SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval));
+
 	if(listen(m_sockfd, maxlisten) < 0)
 	{
 		return false;
