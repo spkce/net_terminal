@@ -483,39 +483,34 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 	stRespMsg.uMsgIndex = BigLittleSwap32(param->uReqIdx);
 	stRespMsg.uMsgLength = BigLittleSwap32(len);
 
-#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
-#define AES_MAX_IN_LEN                          16384        /*16KB*/
-#define AES_MAX_OUT_LEN                         ((AES_MAX_IN_LEN) + (NET_APP_EXTRA_LEN))
-#define AES_MAX_OUT_LEN_BASE64                  (AES_MAX_OUT_LEN*2)
-#define MSG_HEADER_LENGTH                       12          /*消息头字节*/
-    unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
-    char sEncOut[AES_MAX_OUT_LEN_BASE64] = {0};
+	unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
+	char sEncOut[AES_MAX_OUT_LEN_BASE64] = {0};
 
 	char* pMsgBody = (sEncOut + MSG_HEADER_LENGTH);
-    if(len > AES_MAX_IN_LEN)
-    {
+	if(len > AES_MAX_IN_LEN)
+	{
 		printf("\033[35m""encrypt str too large""\033[0m\n");
-        return false;
-    }
+		return false;
+	}
 
 	int iAesOutLen = 0;
 	int iRet = aes_encrypt((unsigned char*)buf, AES_MAX_IN_LEN, len, sAesOut, AES_MAX_OUT_LEN, &iAesOutLen, m_AesKey);
-    if(iRet < 0)
-    {
+	if(iRet < 0)
+	{
 		printf("\033[35m""app_aes_encrypt ERR: %d""\033[0m\n", iRet);
-        return false;
-    }
+		return false;
+	}
 
-	if(iAesOutLen > AES_MAX_IN_LEN)
-    {
-        printf("\033[35m""encode str too large""\033[0m\n");
-        return false;
-    }
+	if (iAesOutLen > AES_MAX_IN_LEN)
+	{
+		printf("\033[35m""encode str too large""\033[0m\n");
+		return false;
+	}
 
-    int iBase64OutLen = EVP_EncodeBlock((unsigned char *)pMsgBody, sAesOut, iAesOutLen); //base64编码
-    stRespMsg.uMsgLength = BigLittleSwap32(iBase64OutLen);
-    int iDataLen = strlen(pMsgBody) + MSG_HEADER_LENGTH;
-    memcpy(sEncOut, &stRespMsg, MSG_HEADER_LENGTH);
+	int iBase64OutLen = EVP_EncodeBlock((unsigned char *)pMsgBody, sAesOut, iAesOutLen); //base64编码
+	stRespMsg.uMsgLength = BigLittleSwap32(iBase64OutLen);
+	int iDataLen = strlen(pMsgBody) + MSG_HEADER_LENGTH;
+	memcpy(sEncOut, &stRespMsg, MSG_HEADER_LENGTH);
 
 	session->send(sEncOut, iDataLen);
 	return true;

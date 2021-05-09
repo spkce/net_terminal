@@ -18,12 +18,16 @@ namespace Screen
 
 class CNetProtocl: public IProtocl
 {
+#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
+#define AES_MAX_IN_LEN                          16384        /*16KB*/
+#define AES_MAX_OUT_LEN                         ((AES_MAX_IN_LEN) + (NET_APP_EXTRA_LEN))
+#define AES_MAX_OUT_LEN_BASE64                  (AES_MAX_OUT_LEN*2)
+#define MSG_HEADER_LENGTH                       12          /*消息头字节*/
+
 	enum
 	{
 		aesKeyLength = 16,
 	};
-
-public:
 	/**
 	* @brief 返回APP端参数
 	*/
