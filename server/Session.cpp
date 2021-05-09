@@ -34,6 +34,9 @@ public:
 
 	static CSession* create();
 	virtual void destroy();
+
+	virtual int send(const char* buf, int len);
+
 	void replyProc(void* arg);
 
 private:
@@ -165,7 +168,44 @@ CSession* CSession::create()
 
 void CSession::destroy()
 {
+	printf("\033[35m""CSession:%s:%d destory""\033[0m\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
 	delete this;
+}
+
+int CSession::send(const char* buf, int len)
+{
+	if (m_sockfd < 0)
+	{
+		return m_sockfd;
+	}
+
+	if (buf == NULL || len <= 0)
+	{
+		return -1;
+	}
+
+	char* p = (char*)buf;
+
+	while (len > 0)
+	{
+		int sendlen = ::send(m_sockfd, p, len, MSG_NOSIGNAL);
+		if (sendlen > 0 )
+		{
+			len -= sendlen;
+			p += sendlen;
+		}
+		else if (errno == EINTR)
+		{
+			continue;
+		}
+		else
+		{
+			printf("\033[35m""send err : %s""\033[0m\n", strerror(errno));
+			return -1;
+		}
+	}
+
+	return len;
 }
 
 void CSession::replyProc(void* arg)

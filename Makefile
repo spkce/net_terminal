@@ -13,6 +13,7 @@ SRC_DIR += \
 ./terminal \
 ./screen \
 ./Protocol \
+./encrypt \
 ./rsa \
 
 DIR_OBJ := ./obj

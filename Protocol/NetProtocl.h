@@ -18,13 +18,30 @@ namespace Screen
 
 class CNetProtocl: public IProtocl
 {
+	enum
+	{
+		aesKeyLength = 16,
+	};
+
+public:
+	/**
+	* @brief 返回APP端参数
+	*/
+	typedef struct Param_t
+	{
+		unsigned int uTokenId;	/*令牌ID*/
+		unsigned int uMsgId;	/*命令ID*/
+		unsigned int uReqIdx;	/*消息索引*/
+		unsigned int uEncrypt;	/*是否需要加密*/
+	} Param_t;
+
 public:
 	CNetProtocl(Terminal::ITerminal* terminal);
 	virtual ~CNetProtocl();
 
 	virtual bool parse(NetServer::ISession* session, char* buf, int len);
 
-	bool hub(NetServer::ISession * session, Json::Value &request, Json::Value &response);
+	bool hub(NetServer::ISession * session, Param_t* param, Json::Value &request, Json::Value &response);
 
 	bool login(NetServer::ISession* session, Json::Value &request, Json::Value &response);
 
@@ -32,7 +49,21 @@ public:
 
 	bool keepAlive(NetServer::ISession* session, Json::Value &request, Json::Value &response);
 private:
+
+	bool headerCheck(const char *buf, unsigned int *index, unsigned int * len);
+
+	bool decode(const char* buf, int len, char* decodeBuf, int* Length);
+
+	bool reply(NetServer::ISession* session, Param_t* param, const char *buf, int len);
+
+
+
 	Terminal::ITerminal* m_pTerminal;
+
+	unsigned char m_AesKey[aesKeyLength];
+
+	unsigned int m_tokenId;
+	unsigned int m_reqIndex;
 };
 
 

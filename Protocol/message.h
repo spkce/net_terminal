@@ -1,297 +1,297 @@
 
-/*APP -> DEVICEæ¶ˆæ¯ID*/
+/*APP -> DEVICEÏûÏ¢ID*/
 /****************************************BEGIN****************************************/
-/*æ‰©å±•EHOMEåè®®*/
-/*ç³»ç»Ÿç±»å‘½ä»¤*/
-#define AE_GET_ALL_CURRENT_SETTINGS             (1)         /*è·å–æ‰€æœ‰è®¾ç½®çš„å½“å‰å‚æ•°*/
-#define AE_GET_BATTERY_LEVEL		            (2)         /*è·å–ç”µæ± çŠ¶æ€*/
-#define AE_GET_CAMERAS_STATUS                   (3)         /*è·å–æ‰€æœ‰é€šé“æ¥å…¥å’Œå½•åƒçŠ¶æ€*/
-#define AE_GET_GSENSOR_DATA                     (4)         /*è·å–è®¾å¤‡G-sensoræ•°æ®*/
-#define AE_GET_GPS                              (5)         /*è·å–å½“å‰GPSåæ ‡*/
-#define AE_GET_DEVICE_INFO                      (6)         /*è·å–è®¾å¤‡ä¿¡æ¯*/
-#define AE_GET_VEHICLE_INFO                     (8)         /*è·å–è½¦è¾†ç›¸å…³ä¿¡æ¯*/
-#define AE_SET_VEHICLE_INFO                     (9)         /*è®¾ç½®è½¦è¾†ç›¸å…³ä¿¡æ¯*/
-#define AE_GET_DRIVER_INFO                      (10)        /*è·å–é©¾é©¶å‘˜ç›¸å…³ä¿¡æ¯*/
-#define AE_SET_DRIVER_INFO                      (11)        /*è®¾ç½®é©¾é©¶å‘˜ç›¸å…³ä¿¡æ¯*/
+/*À©Õ¹EHOMEĞ­Òé*/
+/*ÏµÍ³ÀàÃüÁî*/
+#define AE_GET_ALL_CURRENT_SETTINGS             (1)         /*»ñÈ¡ËùÓĞÉèÖÃµÄµ±Ç°²ÎÊı*/
+#define AE_GET_BATTERY_LEVEL		            (2)         /*»ñÈ¡µç³Ø×´Ì¬*/
+#define AE_GET_CAMERAS_STATUS                   (3)         /*»ñÈ¡ËùÓĞÍ¨µÀ½ÓÈëºÍÂ¼Ïñ×´Ì¬*/
+#define AE_GET_GSENSOR_DATA                     (4)         /*»ñÈ¡Éè±¸G-sensorÊı¾İ*/
+#define AE_GET_GPS                              (5)         /*»ñÈ¡µ±Ç°GPS×ø±ê*/
+#define AE_GET_DEVICE_INFO                      (6)         /*»ñÈ¡Éè±¸ĞÅÏ¢*/
+#define AE_GET_VEHICLE_INFO                     (8)         /*»ñÈ¡³µÁ¾Ïà¹ØĞÅÏ¢*/
+#define AE_SET_VEHICLE_INFO                     (9)         /*ÉèÖÃ³µÁ¾Ïà¹ØĞÅÏ¢*/
+#define AE_GET_DRIVER_INFO                      (10)        /*»ñÈ¡¼İÊ»Ô±Ïà¹ØĞÅÏ¢*/
+#define AE_SET_DRIVER_INFO                      (11)        /*ÉèÖÃ¼İÊ»Ô±Ïà¹ØĞÅÏ¢*/
 
-#define AE_GET_SATELLITE_INFO                   (19)        /*è·å–è®¾å¤‡å½“å‰çš„æœæ˜Ÿä¿¡æ¯*/
+#define AE_GET_SATELLITE_INFO                   (19)        /*»ñÈ¡Éè±¸µ±Ç°µÄËÑĞÇĞÅÏ¢*/
 
-#define AE_GET_PICTURE_SETTING                  (186)       /*è·å–å›¾åƒè®¾ç½®*/
-#define AE_SET_PICTURE_SETTING                  (187)       /*è®¾ç½®å›¾åƒè®¾ç½®*/
-#define AE_GET_COMPRESS_SETTING                 (188)       /*è·å–å‹ç¼©è®¾ç½®*/
-#define AE_SET_COMPRESS_SETTING                 (189)       /*è®¾ç½®å‹ç¼©è®¾ç½®*/
+#define AE_GET_PICTURE_SETTING                  (186)       /*»ñÈ¡Í¼ÏñÉèÖÃ*/
+#define AE_SET_PICTURE_SETTING                  (187)       /*ÉèÖÃÍ¼ÏñÉèÖÃ*/
+#define AE_GET_COMPRESS_SETTING                 (188)       /*»ñÈ¡Ñ¹ËõÉèÖÃ*/
+#define AE_SET_COMPRESS_SETTING                 (189)       /*ÉèÖÃÑ¹ËõÉèÖÃ*/
 
-#define AE_GET_IMAGE_SETTING                    (190)       /*è·å–å›¾ç‰‡è®¾ç½®*/
-#define AE_SET_IMAGE_SETTING                    (191)       /*è®¾ç½®å›¾ç‰‡è®¾ç½®*/
-#define AE_GET_GENERIC_SETTING                  (192)       /*è·å–é€šç”¨è®¾ç½®*/
-#define AE_SET_GENERIC_SETTING                  (193)       /*è®¾ç½®é€šç”¨è®¾ç½®*/
-#define AE_GET_PROMPT_SETTING                   (194)       /*è·å–æé†’è®¾ç½®*/
-#define AE_SET_PROMPT_SETTING                   (195)       /*è®¾ç½®æé†’è®¾ç½®*/
-#define AE_GET_ALERT_SETTING                    (196)       /*è·å–å‘Šè­¦è®¾ç½®*/
-#define AE_SET_ALERT_SETTING                    (197)       /*è®¾ç½®å‘Šè­¦è®¾ç½®*/
-#define AE_GET_SENSOR_SETTING                   (198)       /*è·å–ä¼ æ„Ÿè®¾ç½®*/
-#define AE_SET_SENSOR_SETTING                   (199)       /*è®¾ç½®ä¼ æ„Ÿè®¾ç½®*/
+#define AE_GET_IMAGE_SETTING                    (190)       /*»ñÈ¡Í¼Æ¬ÉèÖÃ*/
+#define AE_SET_IMAGE_SETTING                    (191)       /*ÉèÖÃÍ¼Æ¬ÉèÖÃ*/
+#define AE_GET_GENERIC_SETTING                  (192)       /*»ñÈ¡Í¨ÓÃÉèÖÃ*/
+#define AE_SET_GENERIC_SETTING                  (193)       /*ÉèÖÃÍ¨ÓÃÉèÖÃ*/
+#define AE_GET_PROMPT_SETTING                   (194)       /*»ñÈ¡ÌáĞÑÉèÖÃ*/
+#define AE_SET_PROMPT_SETTING                   (195)       /*ÉèÖÃÌáĞÑÉèÖÃ*/
+#define AE_GET_ALERT_SETTING                    (196)       /*»ñÈ¡¸æ¾¯ÉèÖÃ*/
+#define AE_SET_ALERT_SETTING                    (197)       /*ÉèÖÃ¸æ¾¯ÉèÖÃ*/
+#define AE_GET_SENSOR_SETTING                   (198)       /*»ñÈ¡´«¸ĞÉèÖÃ*/
+#define AE_SET_SENSOR_SETTING                   (199)       /*ÉèÖÃ´«¸ĞÉèÖÃ*/
 
-/*åª’ä½“å‘½ä»¤*/
-#define AE_RECORD_START                         (201)       /*å¼€å¯å½•åƒ*/
-#define AE_RECORD_STOP                          (202)       /*å…³é—­å½•åƒ*/
-#define AE_EVENT_RECORD_START                   (203)       /*å¼€å¯ç´§æ€¥å½•åƒ*/
-#define AE_AUDIO_RECORD_START                   (204)       /*å¼€å¯éŸ³é¢‘å½•åƒ*/
-#define AE_AUDIO_RECORD_STOP                    (205)       /*å…³é—­éŸ³é¢‘å½•åƒ*/
+/*Ã½ÌåÃüÁî*/
+#define AE_RECORD_START                         (201)       /*¿ªÆôÂ¼Ïñ*/
+#define AE_RECORD_STOP                          (202)       /*¹Ø±ÕÂ¼Ïñ*/
+#define AE_EVENT_RECORD_START                   (203)       /*¿ªÆô½ô¼±Â¼Ïñ*/
+#define AE_AUDIO_RECORD_START                   (204)       /*¿ªÆôÒôÆµÂ¼Ïñ*/
+#define AE_AUDIO_RECORD_STOP                    (205)       /*¹Ø±ÕÒôÆµÂ¼Ïñ*/
 
-/*ç½‘ç»œæ¥å£ç±»å‘½ä»¤*/
-#define AE_WIFI_RESTART                         (301)       /*å¯åŠ¨wifi*/
-#define AE_GET_STA_PARAM                        (302)       /*è·å–STAå‚æ•°*/
-#define AE_SET_STA_PARAM                        (303)       /*è®¾ç½®STAå‚æ•°*/
-#define AE_GET_AP_PARAM                         (304)       /*è·å–APå‚æ•°*/
-#define AE_SET_AP_PARAM                         (305)       /*è®¾ç½®APå‚æ•°*/
-#define AE_GET_4G_PARAM                         (306)       /*è·å–4Gå‚æ•°*/
-#define AE_SET_4G_PARAM                         (307)       /*è®¾ç½®4Gå‚æ•°*/
-#define AE_GET_NETWORK_SETTING                  (398)       /*è·å–ç½‘ç»œè®¾ç½®*/
-#define AE_SET_NETWORK_SETTING                  (399)       /*è®¾ç½®ç½‘ç»œè®¾ç½®*/
+/*ÍøÂç½Ó¿ÚÀàÃüÁî*/
+#define AE_WIFI_RESTART                         (301)       /*Æô¶¯wifi*/
+#define AE_GET_STA_PARAM                        (302)       /*»ñÈ¡STA²ÎÊı*/
+#define AE_SET_STA_PARAM                        (303)       /*ÉèÖÃSTA²ÎÊı*/
+#define AE_GET_AP_PARAM                         (304)       /*»ñÈ¡AP²ÎÊı*/
+#define AE_SET_AP_PARAM                         (305)       /*ÉèÖÃAP²ÎÊı*/
+#define AE_GET_4G_PARAM                         (306)       /*»ñÈ¡4G²ÎÊı*/
+#define AE_SET_4G_PARAM                         (307)       /*ÉèÖÃ4G²ÎÊı*/
+#define AE_GET_NETWORK_SETTING                  (398)       /*»ñÈ¡ÍøÂçÉèÖÃ*/
+#define AE_SET_NETWORK_SETTING                  (399)       /*ÉèÖÃÍøÂçÉèÖÃ*/
 
-/*å­˜å‚¨ç±»å‘½ä»¤*/
-#define AE_GET_SD_LETTER                        (401)       /*è·å–å·²æ’å…¥ç›˜ç¬¦*/
-#define AE_GET_SD_INFO                          (402)       /*è·å–SDä¿¡æ¯*/
-#define AE_SET_SD_LOCK_STATUS                   (403)       /*è®¾ç½®SDé”çŠ¶æ€*/
-#define AE_SET_SD_PASSWD                        (404)       /*è®¾ç½®SDå¯†ç */
-#define AE_FORMAT                               (405)       /*æ ¼å¼åŒ–SDå¡*/
-#define AE_GET_RECORD_SCHEDILE                  (406)       /*è·å–å½•åƒè®¡åˆ’*/
-#define AE_SET_RECORD_SCHEDILE                  (407)       /*è®¾ç½®å½•åƒè®¡åˆ’*/
-#define AE_COPY_DAY_SCHEDILE                    (408)       /*å¤åˆ¶ä¸€å¤©çš„å½•åƒè®¡åˆ’*/
-#define AE_COPY_CHANNEL_SCHEDILE                (409)       /*å¤åˆ¶ä¸€ä¸ªé€šé“çš„å½•åƒè®¡åˆ’*/
-#define AE_GET_STORAGE_SETTING                  (498)       /*è·å–å­˜å‚¨è®¾ç½®*/
-#define AE_SET_STORAGE_SETTING                  (499)       /*è®¾ç½®å­˜å‚¨è®¾ç½®*/
-#define AE_EXPORT_MEDIA_FILE					(410)		/*è®¾å¤‡åª’ä½“æ–‡ä»¶å¯¼å‡ºåˆ°å¤–éƒ¨å­˜å‚¨è®¾å¤‡*/
-#define AE_EXPORT_LOG							(411)		/*è®¾å¤‡æ—¥å¿—å¯¼å‡ºåˆ°å¤–éƒ¨å­˜å‚¨è®¾å¤‡*/
-#define AE_EXPORT_CONFIG                        (414)       /*å°†è®¾å¤‡ä¸­çš„é…ç½®æ–‡ä»¶å¯¼å…¥åˆ°å¤–éƒ¨è®¾å¤‡*/
-#define AE_INPORT_CONFIG						(415)		/*å°†å¤–éƒ¨è®¾å¤‡ä¸­çš„é…ç½®æ–‡ä»¶å¯¼å…¥åˆ°è®¾å¤‡*/
-#define AE_CONCEL_EXPORT						(416)		/*å–æ¶ˆæ–‡ä»¶å¯¼å‡º*/
+/*´æ´¢ÀàÃüÁî*/
+#define AE_GET_SD_LETTER                        (401)       /*»ñÈ¡ÒÑ²åÈëÅÌ·û*/
+#define AE_GET_SD_INFO                          (402)       /*»ñÈ¡SDĞÅÏ¢*/
+#define AE_SET_SD_LOCK_STATUS                   (403)       /*ÉèÖÃSDËø×´Ì¬*/
+#define AE_SET_SD_PASSWD                        (404)       /*ÉèÖÃSDÃÜÂë*/
+#define AE_FORMAT                               (405)       /*¸ñÊ½»¯SD¿¨*/
+#define AE_GET_RECORD_SCHEDILE                  (406)       /*»ñÈ¡Â¼Ïñ¼Æ»®*/
+#define AE_SET_RECORD_SCHEDILE                  (407)       /*ÉèÖÃÂ¼Ïñ¼Æ»®*/
+#define AE_COPY_DAY_SCHEDILE                    (408)       /*¸´ÖÆÒ»ÌìµÄÂ¼Ïñ¼Æ»®*/
+#define AE_COPY_CHANNEL_SCHEDILE                (409)       /*¸´ÖÆÒ»¸öÍ¨µÀµÄÂ¼Ïñ¼Æ»®*/
+#define AE_GET_STORAGE_SETTING                  (498)       /*»ñÈ¡´æ´¢ÉèÖÃ*/
+#define AE_SET_STORAGE_SETTING                  (499)       /*ÉèÖÃ´æ´¢ÉèÖÃ*/
+#define AE_EXPORT_MEDIA_FILE					(410)		/*Éè±¸Ã½ÌåÎÄ¼şµ¼³öµ½Íâ²¿´æ´¢Éè±¸*/
+#define AE_EXPORT_LOG							(411)		/*Éè±¸ÈÕÖ¾µ¼³öµ½Íâ²¿´æ´¢Éè±¸*/
+#define AE_EXPORT_CONFIG                        (414)       /*½«Éè±¸ÖĞµÄÅäÖÃÎÄ¼şµ¼Èëµ½Íâ²¿Éè±¸*/
+#define AE_INPORT_CONFIG						(415)		/*½«Íâ²¿Éè±¸ÖĞµÄÅäÖÃÎÄ¼şµ¼Èëµ½Éè±¸*/
+#define AE_CONCEL_EXPORT						(416)		/*È¡ÏûÎÄ¼şµ¼³ö*/
 
-/*æ—¶é—´ç±»å‘½ä»¤*/
-#define AE_GET_DAYLIGHT_TIME                    (501)       /*è·å–å¤ä»¤æ—¶*/
-#define AE_SET_DAYLIGHT_TIME                    (502)       /*è®¾ç½®å¤ä»¤æ—¶*/
-#define AE_GET_TIMEZONE                         (503)       /*è·å–æ—¶åŒº*/
-#define AE_SET_TIMEZONE                         (504)       /*è®¾ç½®æ—¶åŒº*/
-#define AE_GET_TIME_SETTING                     (598)       /*è·å–æ—¶é—´è®¾ç½®*/
-#define AE_SET_TIME_SETTING                     (599)       /*è®¾ç½®æ—¶é—´è®¾ç½®*/
+/*Ê±¼äÀàÃüÁî*/
+#define AE_GET_DAYLIGHT_TIME                    (501)       /*»ñÈ¡ÏÄÁîÊ±*/
+#define AE_SET_DAYLIGHT_TIME                    (502)       /*ÉèÖÃÏÄÁîÊ±*/
+#define AE_GET_TIMEZONE                         (503)       /*»ñÈ¡Ê±Çø*/
+#define AE_SET_TIMEZONE                         (504)       /*ÉèÖÃÊ±Çø*/
+#define AE_GET_TIME_SETTING                     (598)       /*»ñÈ¡Ê±¼äÉèÖÃ*/
+#define AE_SET_TIME_SETTING                     (599)       /*ÉèÖÃÊ±¼äÉèÖÃ*/
 
-/*é€šçŸ¥ç±»å‘½ä»¤*/
-#define AE_NOTIFICATION                         (601)       /*é€šçŸ¥ç±»æ¶ˆæ¯*/
+/*Í¨ÖªÀàÃüÁî*/
+#define AE_NOTIFICATION                         (601)       /*Í¨ÖªÀàÏûÏ¢*/
 
-/*å¹³å°è¿æ¥ç±»å‘½ä»¤*/
-#define AE_GET_PLATFORM_CONN_INFO               (701)       /*è·å–å¹³å°ä¿¡æ¯*/
-#define AE_SET_PLATFORM_CONN_INFO               (702)       /*è®¾ç½®å¹³å°ä¿¡æ¯*/
-#define AE_GET_808_CONN_INFO                    (703)       /*è·å–808å‚æ•°ä¿¡æ¯*/
-#define AE_SET_808_CONN_INFO                    (704)       /*è®¾ç½®808å‚æ•°ä¿¡æ¯*/
-#define AE_GET_808_CONN_INFO_2                  (705)       /*è·å–808_2å‚æ•°ä¿¡æ¯*/
-#define AE_SET_808_CONN_INFO_2                  (706)       /*è®¾ç½®808_2å‚æ•°ä¿¡æ¯*/
-#define AE_GET_OPERATE_PLATFORM_INFO            (707)       /*è·å–è¿ç»´å¹³å°å‚æ•°ä¿¡æ¯*/
-#define AE_SET_OPERATE_PLATFORM_INFO            (708)       /*è®¾ç½®è¿ç»´å¹³å°å‚æ•°ä¿¡æ¯*/
-#define AE_GET_NTP_PLATFORM_INFO                (709)       /*è·å–NTPå¹³å°å‚æ•°ä¿¡æ¯*/
-#define AE_SET_NTP_PLATFORM_INFO                (710)       /*è®¾ç½®NTPå¹³å°å‚æ•°ä¿¡æ¯*/
+/*Æ½Ì¨Á¬½ÓÀàÃüÁî*/
+#define AE_GET_PLATFORM_CONN_INFO               (701)       /*»ñÈ¡Æ½Ì¨ĞÅÏ¢*/
+#define AE_SET_PLATFORM_CONN_INFO               (702)       /*ÉèÖÃÆ½Ì¨ĞÅÏ¢*/
+#define AE_GET_808_CONN_INFO                    (703)       /*»ñÈ¡808²ÎÊıĞÅÏ¢*/
+#define AE_SET_808_CONN_INFO                    (704)       /*ÉèÖÃ808²ÎÊıĞÅÏ¢*/
+#define AE_GET_808_CONN_INFO_2                  (705)       /*»ñÈ¡808_2²ÎÊıĞÅÏ¢*/
+#define AE_SET_808_CONN_INFO_2                  (706)       /*ÉèÖÃ808_2²ÎÊıĞÅÏ¢*/
+#define AE_GET_OPERATE_PLATFORM_INFO            (707)       /*»ñÈ¡ÔËÎ¬Æ½Ì¨²ÎÊıĞÅÏ¢*/
+#define AE_SET_OPERATE_PLATFORM_INFO            (708)       /*ÉèÖÃÔËÎ¬Æ½Ì¨²ÎÊıĞÅÏ¢*/
+#define AE_GET_NTP_PLATFORM_INFO                (709)       /*»ñÈ¡NTPÆ½Ì¨²ÎÊıĞÅÏ¢*/
+#define AE_SET_NTP_PLATFORM_INFO                (710)       /*ÉèÖÃNTPÆ½Ì¨²ÎÊıĞÅÏ¢*/
 
-/*äººè„¸å‘½ä»¤*/
-#define AE_GET_FACE_INFO                        (922)      /*è·å–è®¾å¤‡å­˜å‚¨çš„äººè„¸ä¿¡æ¯*/
-#define AE_SET_FACE_INFO                        (923)      /*è®¾ç½®è®¾å¤‡å­˜å‚¨çš„äººè„¸ä¿¡æ¯*/
-#define AE_GET_OVERTIME_DRIVING_SETTING         (924)      /*ç”¨äºè·å–é•¿æ—¶é—´é©¾é©¶æ—¶é—´æ®µå‚æ•°*/
-#define AE_SET_OVERTIME_DRIVING_SETTING         (925)      /*ç”¨äºè®¾ç½®é•¿æ—¶é—´é©¾é©¶æ—¶é—´æ®µå‚æ•°*/
+/*ÈËÁ³ÃüÁî*/
+#define AE_GET_FACE_INFO                        (922)      /*»ñÈ¡Éè±¸´æ´¢µÄÈËÁ³ĞÅÏ¢*/
+#define AE_SET_FACE_INFO                        (923)      /*ÉèÖÃÉè±¸´æ´¢µÄÈËÁ³ĞÅÏ¢*/
+#define AE_GET_OVERTIME_DRIVING_SETTING         (924)      /*ÓÃÓÚ»ñÈ¡³¤Ê±¼ä¼İÊ»Ê±¼ä¶Î²ÎÊı*/
+#define AE_SET_OVERTIME_DRIVING_SETTING         (925)      /*ÓÃÓÚÉèÖÃ³¤Ê±¼ä¼İÊ»Ê±¼ä¶Î²ÎÊı*/
 
-/*IPCé…ç½®*/
-#define AE_GET_ADDED_IPC_LIST                   (1001)      /*è·å–å·²ç»æ·»åŠ çš„ipcåˆ—è¡¨*/
-#define AE_GET_ADDABLE_IPC_LIST                 (1002)      /*è·å–åœ¨çº¿çš„ipcåˆ—è¡¨*/
-#define AE_ADD_IPC                              (1003)      /*å¿«é€Ÿæ·»åŠ IPC*/
-#define AE_DEL_IPC                              (1004)      /*åˆ é™¤IPC*/
+/*IPCÅäÖÃ*/
+#define AE_GET_ADDED_IPC_LIST                   (1001)      /*»ñÈ¡ÒÑ¾­Ìí¼ÓµÄipcÁĞ±í*/
+#define AE_GET_ADDABLE_IPC_LIST                 (1002)      /*»ñÈ¡ÔÚÏßµÄipcÁĞ±í*/
+#define AE_ADD_IPC                              (1003)      /*¿ìËÙÌí¼ÓIPC*/
+#define AE_DEL_IPC                              (1004)      /*É¾³ıIPC*/
 
-/*è®¾å¤‡èƒ½åŠ›é›†å¤§ç±»*/
-#define AE_CAPABILITY_GET                       (1901)      /*è·å–èƒ½åŠ›é›†å¤§ç±»*/
-#define AE_CAPABILITY_IMAGE_GET                 (1911)      /*è·å–å›¾åƒèƒ½åŠ›é›†*/
-#define AE_CAPABILITY_BASIC_GET                 (1921)      /*è·å–åŸºç¡€èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_NETWORK_GET               (1931)      /*è·å–ç½‘ç»œèƒ½åŠ›é›†*/
-#define AE_CAPABILITY_STORAGE_GET               (1941)      /*è·å–å­˜å‚¨èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_INTELLIGENCE_GET          (1951)      /*è·å–æ™ºèƒ½é©¾é©¶èƒ½åŠ›é›†å¤§ç±»*/
-#define AE_CAPABILITY_PROMPT_GET                (1952)      /*è·å–æé†’èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_ALERT_GET                 (1953)      /*è·å–å‘Šè­¦èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_SENSOR_GET                (1954)      /*è·å–ä¼ æ„Ÿèƒ½åŠ›é›†*/
-#define AE_CAPABILITY_ADAS_GET                  (1955)      /*è·å–ADASèƒ½åŠ›é›†*/
-#define AE_CAPABILITY_DBA_GET                   (1956)      /*è·å–DBAèƒ½åŠ›é›†*/
-#define AE_CAPABILITY_VSD_GET                   (1957)      /*è·å–VSDèƒ½åŠ›é›†, å·²å¼ƒç”¨ï¼Œèƒ½åŠ›é›†å½’äºDBA*/
-#define AE_CAPABILITY_BSD_GET                   (1958)      /*è·å–BSDèƒ½åŠ›é›†*/
+/*Éè±¸ÄÜÁ¦¼¯´óÀà*/
+#define AE_CAPABILITY_GET                       (1901)      /*»ñÈ¡ÄÜÁ¦¼¯´óÀà*/
+#define AE_CAPABILITY_IMAGE_GET                 (1911)      /*»ñÈ¡Í¼ÏñÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_BASIC_GET                 (1921)      /*»ñÈ¡»ù´¡ÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_NETWORK_GET               (1931)      /*»ñÈ¡ÍøÂçÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_STORAGE_GET               (1941)      /*»ñÈ¡´æ´¢ÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_INTELLIGENCE_GET          (1951)      /*»ñÈ¡ÖÇÄÜ¼İÊ»ÄÜÁ¦¼¯´óÀà*/
+#define AE_CAPABILITY_PROMPT_GET                (1952)      /*»ñÈ¡ÌáĞÑÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_ALERT_GET                 (1953)      /*»ñÈ¡¸æ¾¯ÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_SENSOR_GET                (1954)      /*»ñÈ¡´«¸ĞÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_ADAS_GET                  (1955)      /*»ñÈ¡ADASÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_DBA_GET                   (1956)      /*»ñÈ¡DBAÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_VSD_GET                   (1957)      /*»ñÈ¡VSDÄÜÁ¦¼¯, ÒÑÆúÓÃ£¬ÄÜÁ¦¼¯¹éÓÚDBA*/
+#define AE_CAPABILITY_BSD_GET                   (1958)      /*»ñÈ¡BSDÄÜÁ¦¼¯*/
 
 
-#define AE_CAPABILITY_FACE_GET                  (1959)      /*è·å–äººè„¸è¯†åˆ«èƒ½åŠ›é›†*/
+#define AE_CAPABILITY_FACE_GET                  (1959)      /*»ñÈ¡ÈËÁ³Ê¶±ğÄÜÁ¦¼¯*/
 
-#define AE_CAPABILITY_TIME_GET                  (1961)      /*è·å–æ—¶é—´èƒ½åŠ›é›†*/
+#define AE_CAPABILITY_TIME_GET                  (1961)      /*»ñÈ¡Ê±¼äÄÜÁ¦¼¯*/
 
-#define AE_CAPABILITY_WHD_GET                   (1962)      /*è·å–WHDèƒ½åŠ›é›†*/
+#define AE_CAPABILITY_WHD_GET                   (1962)      /*»ñÈ¡WHDÄÜÁ¦¼¯*/
 
-#define AE_CAPABILITY_PICTURE_GET               (1971)      /*è·å–å›¾ç‰‡èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_COMPRESS_GET              (1981)      /*è·å–å‹ç¼©èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_BLUETOOTH_GET             (1991)      /*è·å–è“ç‰™èƒ½åŠ›é›†*/
-#define AE_CAPABILITY_IPC_GET                   (1993)      /*ipcèƒ½åŠ›é›†*/
+#define AE_CAPABILITY_PICTURE_GET               (1971)      /*»ñÈ¡Í¼Æ¬ÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_COMPRESS_GET              (1981)      /*»ñÈ¡Ñ¹ËõÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_BLUETOOTH_GET             (1991)      /*»ñÈ¡À¶ÑÀÄÜÁ¦¼¯*/
+#define AE_CAPABILITY_IPC_GET                   (1993)      /*ipcÄÜÁ¦¼¯*/
 
-/*æ™ºèƒ½ç±»å‘½ä»¤*/
-#define AE_GET_ADAS_SETTING                     (901)       /*è·å–ADASè®¾ç½®*/
-#define AE_SET_ADAS_SETTING                     (902)       /*è®¾ç½®ADASè®¾ç½®*/
-#define AE_GET_ADAS_CALIBRATION                 (903)       /*è·å–ADASæ ‡å®š*/
-#define AE_SET_ADAS_CALIBRATION                 (904)       /*è®¾ç½®ADASæ ‡å®š*/
-#define AE_GET_DBA_SETTING                      (905)       /*è·å–DBAè®¾ç½®*/
-#define AE_SET_DBA_SETTING                      (906)       /*è®¾ç½®DBAè®¾ç½®*/
-#define AE_ENTER_SPEED_CALIBRATION              (907)       /*è¿›å…¥é€Ÿåº¦æ ‡å®š*/
-#define AE_EXIT_SPEED_CALIBRATION               (908)       /*ç¦»å¼€é€Ÿåº¦æ ‡å®š*/
-#define AE_START_SPEED_CALIBRATION              (909)       /*å¼€å§‹é€Ÿåº¦æ ‡å®š*/
-#define AE_GET_SPEED_CALIBRATION_STATUS         (910)       /*è·å–é€Ÿåº¦æ ‡å®šçŠ¶æ€*/
-#define AE_GET_CAR_STATUS                       (911)       /*è·å–è½¦è¾†çŠ¶æ€*/
-#define AE_GET_VSD_SETTING                      (912)       /*è·å–VSDè®¾ç½®*/
-#define AE_SET_VSD_SETTING                      (913)       /*è®¾ç½®VSDè®¾ç½®*/
-#define AE_START_ADAS_CALIBRATION               (914)       /*å¼€å§‹ADASç›¸æœºæ ‡å®š*/
-#define AE_GET_SPEED_CALIBRATION                (915)       /*è·å–é€Ÿåº¦æ ‡å®š*/
-#define AE_SET_SPEED_CALIBRATION                (916)       /*è®¾ç½®é€Ÿåº¦æ ‡å®š*/
-#define AE_TURN_CALIBRATION                     (917)       /*è½¬å¼¯æ ‡å®š*/
-#define AE_BREAK_CALIBRATION                    (918)       /*åˆ¹è½¦æ ‡å®š*/
-#define AE_GET_SPEED                            (919)       /*è·å–è½¦é€Ÿ*/
-#define AE_GET_BSD_SETTING                      (920)       /*è·å–BSDè®¾ç½®*/
-#define AE_SET_BSD_SETTING                      (921)       /*è®¾ç½®BSDè®¾ç½®*/
-#define AE_GET_IO_WARN_INFO                     (928)       /*è·å–IOæŠ¥è­¦è®¾ç½®*/
-#define AE_SET_IO_WARN_INFO                     (929)       /*è®¾ç½®IOæŠ¥è­¦é€šé“è®¾ç½®*/
-#define AE_GET_PULSE_SETTING                    (930)       /*è·å–è„‰å†²è®¾ç½®*/
-#define AE_SET_PULSE_SETTING                    (931)       /*è®¾ç½®è„‰å†²å‚æ•°*/
-#define AE_GET_IO_OUTPUT_SETTING                (934)       /*è·å–IOæŠ¥è­¦è¾“å‡º*/
-#define AE_SET_IO_OUTPUT_SETTING                (935)       /*è®¾ç½®IOæŠ¥è­¦è¾“å‡º*/
+/*ÖÇÄÜÀàÃüÁî*/
+#define AE_GET_ADAS_SETTING                     (901)       /*»ñÈ¡ADASÉèÖÃ*/
+#define AE_SET_ADAS_SETTING                     (902)       /*ÉèÖÃADASÉèÖÃ*/
+#define AE_GET_ADAS_CALIBRATION                 (903)       /*»ñÈ¡ADAS±ê¶¨*/
+#define AE_SET_ADAS_CALIBRATION                 (904)       /*ÉèÖÃADAS±ê¶¨*/
+#define AE_GET_DBA_SETTING                      (905)       /*»ñÈ¡DBAÉèÖÃ*/
+#define AE_SET_DBA_SETTING                      (906)       /*ÉèÖÃDBAÉèÖÃ*/
+#define AE_ENTER_SPEED_CALIBRATION              (907)       /*½øÈëËÙ¶È±ê¶¨*/
+#define AE_EXIT_SPEED_CALIBRATION               (908)       /*Àë¿ªËÙ¶È±ê¶¨*/
+#define AE_START_SPEED_CALIBRATION              (909)       /*¿ªÊ¼ËÙ¶È±ê¶¨*/
+#define AE_GET_SPEED_CALIBRATION_STATUS         (910)       /*»ñÈ¡ËÙ¶È±ê¶¨×´Ì¬*/
+#define AE_GET_CAR_STATUS                       (911)       /*»ñÈ¡³µÁ¾×´Ì¬*/
+#define AE_GET_VSD_SETTING                      (912)       /*»ñÈ¡VSDÉèÖÃ*/
+#define AE_SET_VSD_SETTING                      (913)       /*ÉèÖÃVSDÉèÖÃ*/
+#define AE_START_ADAS_CALIBRATION               (914)       /*¿ªÊ¼ADASÏà»ú±ê¶¨*/
+#define AE_GET_SPEED_CALIBRATION                (915)       /*»ñÈ¡ËÙ¶È±ê¶¨*/
+#define AE_SET_SPEED_CALIBRATION                (916)       /*ÉèÖÃËÙ¶È±ê¶¨*/
+#define AE_TURN_CALIBRATION                     (917)       /*×ªÍä±ê¶¨*/
+#define AE_BREAK_CALIBRATION                    (918)       /*É²³µ±ê¶¨*/
+#define AE_GET_SPEED                            (919)       /*»ñÈ¡³µËÙ*/
+#define AE_GET_BSD_SETTING                      (920)       /*»ñÈ¡BSDÉèÖÃ*/
+#define AE_SET_BSD_SETTING                      (921)       /*ÉèÖÃBSDÉèÖÃ*/
+#define AE_GET_IO_WARN_INFO                     (928)       /*»ñÈ¡IO±¨¾¯ÉèÖÃ*/
+#define AE_SET_IO_WARN_INFO                     (929)       /*ÉèÖÃIO±¨¾¯Í¨µÀÉèÖÃ*/
+#define AE_GET_PULSE_SETTING                    (930)       /*»ñÈ¡Âö³åÉèÖÃ*/
+#define AE_SET_PULSE_SETTING                    (931)       /*ÉèÖÃÂö³å²ÎÊı*/
+#define AE_GET_IO_OUTPUT_SETTING                (934)       /*»ñÈ¡IO±¨¾¯Êä³ö*/
+#define AE_SET_IO_OUTPUT_SETTING                (935)       /*ÉèÖÃIO±¨¾¯Êä³ö*/
 
-#define AE_GET_WHD_SETTING                      (938)       /*è·å–WHDè®¾ç½®*/
-#define AE_SET_WHD_SETTING                      (939)       /*è®¾ç½®WHDè®¾ç½®*/
-#define AE_SET_PFS_INFO                      	(940)       /*è·å–å®æ—¶å®¢æµä¿¡æ¯*/
+#define AE_GET_WHD_SETTING                      (938)       /*»ñÈ¡WHDÉèÖÃ*/
+#define AE_SET_WHD_SETTING                      (939)       /*ÉèÖÃWHDÉèÖÃ*/
+#define AE_SET_PFS_INFO                      	(940)       /*»ñÈ¡ÊµÊ±¿ÍÁ÷ĞÅÏ¢*/
 
-#define AE_GET_CUSTOM_SMART_CHAN_INFO           (941)       /*è·å–ç”¨æˆ·è‡ªå®šä¹‰æ™ºèƒ½æ‘„åƒå¤´ä¿¡æ¯*/
-#define AE_SET_CUSTOM_SMART_CHAN_INFO           (942)       /*è®¾ç½®ç”¨æˆ·è‡ªå®šä¹‰æ™ºèƒ½æ‘„åƒå¤´ä¿¡æ¯*/
+#define AE_GET_CUSTOM_SMART_CHAN_INFO           (941)       /*»ñÈ¡ÓÃ»§×Ô¶¨ÒåÖÇÄÜÉãÏñÍ·ĞÅÏ¢*/
+#define AE_SET_CUSTOM_SMART_CHAN_INFO           (942)       /*ÉèÖÃÓÃ»§×Ô¶¨ÒåÖÇÄÜÉãÏñÍ·ĞÅÏ¢*/
 
-/* äº‹ä»¶å…³è”ç±» */
-#define AE_GET_EVENT_DISPLAY_SETTING            (950)      /* è·å–äº‹ä»¶æ˜¾ç¤º */
+/* ÊÂ¼ş¹ØÁªÀà */
+#define AE_GET_EVENT_DISPLAY_SETTING            (950)      /* »ñÈ¡ÊÂ¼şÏÔÊ¾ */
 #define AE_SET_EVENT_DISPLAY_SETTING            (951)
 
-/*ç§æœ‰åè®®*/
-/*è¿‡ç¨‹æ§åˆ¶ç±»å‘½ä»¤*/
-#define AE_START_SESSION                        (257)       /*æ¡æ‰‹*/
-#define AE_STOP_SESSION                         (258)       /*æ–­å¼€*/
+/*Ë½ÓĞĞ­Òé*/
+/*¹ı³Ì¿ØÖÆÀàÃüÁî*/
+#define AE_START_SESSION                        (257)       /*ÎÕÊÖ*/
+#define AE_STOP_SESSION                         (258)       /*¶Ï¿ª*/
 
-/*ç³»ç»Ÿç±»å‘½ä»¤*/
-#define AE_RESET_DEFAULT                        (2201)      /*æ¢å¤é»˜è®¤å‚æ•°*/
-#define AE_REBOOT_SYSTEM                        (2202)      /*é‡å¯ç³»ç»Ÿ*/
-#define AE_SHUTDOWN_SYSTEM                      (2203)      /*å…³æœº*/
-#define AE_UPGRADE                              (2204)      /*å‡çº§*/
-#define AE_GET_SETTING                          (2205)      /*è·å–æŸé¡¹è®¾ç½®çš„å½“å‰å‚æ•°*/
-#define AE_SET_SETTING                          (2206)      /*é…ç½®æŸé¡¹è®¾ç½®çš„å½“å‰å‚æ•°*/
-#define AE_GET_UPGRADE_PATH                     (2207)      /*è·å–å‡çº§è·¯å¾„*/
-#define AE_GET_ACTIVE_STATUS                    (2208)      /*è·å–è®¾å¤‡æ¿€æ´»çŠ¶æ€*/
-#define AE_GET_CHANNEL_INFO                     (2209)      /*è·å–OSDé€šé“ä¿¡æ¯*/
-#define AE_SET_CHANNEL_INFO                     (2210)      /*è®¾ç½®OSDé€šé“ä¿¡æ¯*/
-#define AE_APK_UPGRADE                          (2211)      /*å¡å‡çº§å®‰å“*/
-#define AE_STARTUP_SYSTEM                       (2212)      /*å¼€æœºå‘½ä»¤*/
-#define AE_DOWNLOAD                             (2213)      /*ä¸‹è½½*/
+/*ÏµÍ³ÀàÃüÁî*/
+#define AE_RESET_DEFAULT                        (2201)      /*»Ö¸´Ä¬ÈÏ²ÎÊı*/
+#define AE_REBOOT_SYSTEM                        (2202)      /*ÖØÆôÏµÍ³*/
+#define AE_SHUTDOWN_SYSTEM                      (2203)      /*¹Ø»ú*/
+#define AE_UPGRADE                              (2204)      /*Éı¼¶*/
+#define AE_GET_SETTING                          (2205)      /*»ñÈ¡Ä³ÏîÉèÖÃµÄµ±Ç°²ÎÊı*/
+#define AE_SET_SETTING                          (2206)      /*ÅäÖÃÄ³ÏîÉèÖÃµÄµ±Ç°²ÎÊı*/
+#define AE_GET_UPGRADE_PATH                     (2207)      /*»ñÈ¡Éı¼¶Â·¾¶*/
+#define AE_GET_ACTIVE_STATUS                    (2208)      /*»ñÈ¡Éè±¸¼¤»î×´Ì¬*/
+#define AE_GET_CHANNEL_INFO                     (2209)      /*»ñÈ¡OSDÍ¨µÀĞÅÏ¢*/
+#define AE_SET_CHANNEL_INFO                     (2210)      /*ÉèÖÃOSDÍ¨µÀĞÅÏ¢*/
+#define AE_APK_UPGRADE                          (2211)      /*¿¨Éı¼¶°²×¿*/
+#define AE_STARTUP_SYSTEM                       (2212)      /*¿ª»úÃüÁî*/
+#define AE_DOWNLOAD                             (2213)      /*ÏÂÔØ*/
 
-/*æ–‡ä»¶ç±»å‘½ä»¤*/
-#define AE_GET_VIDEO_FILE_LIST                  (2301)      /*è·å–å½•åƒæ–‡ä»¶åˆ—è¡¨*/
-#define AE_GET_IMAGE_FILE_LIST                  (2302)      /*è·å–å›¾åƒæ–‡ä»¶åˆ—è¡¨*/
-#define AE_GET_AUDIO_FILE_LIST                  (2303)      /*è·å–éŸ³é¢‘æ–‡ä»¶åˆ—è¡¨*/
-#define AE_DELETE_FILE                          (2304)      /*åˆ é™¤æ–‡ä»¶*/
-#define AE_GET_TOTAL_NUM                        (2305)      /*è·å–æ€»æ–‡ä»¶æ•°ç›®*/
-#define AE_GET_RECORD_STATUS_BY_MONTH           (2306)      /*è·å–å½“æœˆæ¯å¤©çš„å½•åƒçŠ¶æ€*/
-#define AE_LOCK_FILE                            (2307)      /*æ–‡ä»¶åŠ é”*/
-#define AE_UNLOCK_FILE                          (2308)      /*æ–‡ä»¶è§£é”*/
-#define AE_GET_VIDEO_TIMETAMP                   (2309)      /*è·å–å½•åƒå¼€å§‹æ—¶é—´ç‚¹åŠç»“æŸæ—¶é—´ç‚¹*/
-#define AE_GET_VIDEO_FILE_LIST_BY_TIME          (2310)      /*è·å–æŸä¸€å¤©çš„å½•åƒæ—¶é—´æ®µ*/
-#define AE_GET_RECORD_DAYS                      (2311)      /*è·å–å½“å‰è®¾å¤‡æ‰€æœ‰å½•åƒçš„æ—¥æœŸ*/
+/*ÎÄ¼şÀàÃüÁî*/
+#define AE_GET_VIDEO_FILE_LIST                  (2301)      /*»ñÈ¡Â¼ÏñÎÄ¼şÁĞ±í*/
+#define AE_GET_IMAGE_FILE_LIST                  (2302)      /*»ñÈ¡Í¼ÏñÎÄ¼şÁĞ±í*/
+#define AE_GET_AUDIO_FILE_LIST                  (2303)      /*»ñÈ¡ÒôÆµÎÄ¼şÁĞ±í*/
+#define AE_DELETE_FILE                          (2304)      /*É¾³ıÎÄ¼ş*/
+#define AE_GET_TOTAL_NUM                        (2305)      /*»ñÈ¡×ÜÎÄ¼şÊıÄ¿*/
+#define AE_GET_RECORD_STATUS_BY_MONTH           (2306)      /*»ñÈ¡µ±ÔÂÃ¿ÌìµÄÂ¼Ïñ×´Ì¬*/
+#define AE_LOCK_FILE                            (2307)      /*ÎÄ¼ş¼ÓËø*/
+#define AE_UNLOCK_FILE                          (2308)      /*ÎÄ¼ş½âËø*/
+#define AE_GET_VIDEO_TIMETAMP                   (2309)      /*»ñÈ¡Â¼Ïñ¿ªÊ¼Ê±¼äµã¼°½áÊøÊ±¼äµã*/
+#define AE_GET_VIDEO_FILE_LIST_BY_TIME          (2310)      /*»ñÈ¡Ä³Ò»ÌìµÄÂ¼ÏñÊ±¼ä¶Î*/
+#define AE_GET_RECORD_DAYS                      (2311)      /*»ñÈ¡µ±Ç°Éè±¸ËùÓĞÂ¼ÏñµÄÈÕÆÚ*/
 
-/*é€ä¼ ç±»å‘½ä»¤*/
-#define AE_GET_CUSTOM                           (2401)      /*è·å–è‡ªå®šä¹‰å‘½ä»¤*/
-#define AE_SET_CUSTOM                           (2402)      /*è®¾ç½®è‡ªå®šä¹‰å‘½ä»¤*/
+/*Í¸´«ÀàÃüÁî*/
+#define AE_GET_CUSTOM                           (2401)      /*»ñÈ¡×Ô¶¨ÒåÃüÁî*/
+#define AE_SET_CUSTOM                           (2402)      /*ÉèÖÃ×Ô¶¨ÒåÃüÁî*/
 
-/*åª’ä½“ç±»å‘½ä»¤*/
-#define AE_START_PREVIEW                        (2501)      /*å¼€å§‹é¢„è§ˆ*/
-#define AE_STOP_PREVIEW                         (2502)      /*åœæ­¢é¢„è§ˆ*/
-#define AE_START_PLAYBACK                       (2503)      /*å¼€å§‹å›æ”¾*/
-#define AE_STOP_PLAYBACK                        (2504)      /*åœæ­¢å›æ”¾*/
-#define AE_START_AUDIO                          (2505)      /*å¼€å§‹éŸ³é¢‘å›æ”¾*/
-#define AE_STOP_AUDIO                           (2506)      /*åœæ­¢éŸ³é¢‘å›æ”¾*/
-#define AE_TAKE_PHOTO                           (2507)      /*æŠ“å›¾*/
-#define AE_SET_RECORD_LOCK_STATUS               (2508)      /*è®¾ç½®å½•åƒé”å®šçŠ¶æ€*/
-#define AE_GET_RTSP_INFO                        (2509)      /*è·å–RTSPç”¨æˆ·åå’Œå¯†ç */
+/*Ã½ÌåÀàÃüÁî*/
+#define AE_START_PREVIEW                        (2501)      /*¿ªÊ¼Ô¤ÀÀ*/
+#define AE_STOP_PREVIEW                         (2502)      /*Í£Ö¹Ô¤ÀÀ*/
+#define AE_START_PLAYBACK                       (2503)      /*¿ªÊ¼»Ø·Å*/
+#define AE_STOP_PLAYBACK                        (2504)      /*Í£Ö¹»Ø·Å*/
+#define AE_START_AUDIO                          (2505)      /*¿ªÊ¼ÒôÆµ»Ø·Å*/
+#define AE_STOP_AUDIO                           (2506)      /*Í£Ö¹ÒôÆµ»Ø·Å*/
+#define AE_TAKE_PHOTO                           (2507)      /*×¥Í¼*/
+#define AE_SET_RECORD_LOCK_STATUS               (2508)      /*ÉèÖÃÂ¼ÏñËø¶¨×´Ì¬*/
+#define AE_GET_RTSP_INFO                        (2509)      /*»ñÈ¡RTSPÓÃ»§ÃûºÍÃÜÂë*/
 
-#define AE_CAPABILITY_CALIBRATION_GET           (4101)      /*è·å–æ ‡å®šèƒ½åŠ›*/
+#define AE_CAPABILITY_CALIBRATION_GET           (4101)      /*»ñÈ¡±ê¶¨ÄÜÁ¦*/
 
-/*å·¥å‚æµ‹è¯•*/
-#define AE_FACTORY                              (5001)      /*å·¥å‚æµ‹è¯•*/
+/*¹¤³§²âÊÔ*/
+#define AE_FACTORY                              (5001)      /*¹¤³§²âÊÔ*/
 /****************************************END****************************************/
-/*é”™è¯¯ç */
+/*´íÎóÂë*/
 /****************************************BEGIN****************************************/
-/*ç³»ç»Ÿç±»é”™è¯¯ç */
-#define AE_SYS_NOERROR                          (0)         /*æ­£å¸¸*/
-#define AE_SYS_UNKNOWN_ERROR                    (1)         /*æ“ä½œå¼‚å¸¸ï¼Œæ— æ³•åˆ¤å®šåŸå› */
-#define AE_SYS_SESSION_START_FAIL               (2)         /*å»ºç«‹è¿æ¥å¤±è´¥*/
-#define AE_SYS_INVALID_TOKEN                    (3)         /*tokené”™è¯¯*/
-#define AE_SYS_REACH_MAX_CLINT                  (4)         /*å®¢æˆ·ç«¯è¿æ¥æ•°è¾¾åˆ°ä¸Šé™*/
-#define AE_SYS_HDMI_INSERTED                    (5)         /*APPè¯·æ±‚å»ºç«‹è¿æ¥æ—¶ï¼ŒHDMIç«¯å£æœ‰è¿æ¥å…¶ä»–å¤–è®¾*/
-#define AE_SYS_NO_MORE_MEMORY                   (6)         /*è®¾å¤‡å†…å­˜è€—å°½*/
-#define AE_SYS_PIV_NOT_ALLOWED                  (7)         /*å½“å‰åˆ†è¾¨ç‡å’Œå¸§ç‡ä¸æ”¯æŒåœ¨å½•åƒçš„æ—¶å€™æŠ“æ‹å›¾ç‰‡*/
-#define AE_SYS_SYSTEM_BUSY                      (8)         /*ç³»ç»Ÿç¹å¿™ï¼Œæ— æ³•å¤„ç†å½“å‰è¯·æ±‚*/
-#define AE_SYS_NOT_READY                        (9)         /*è®¾å¤‡åˆå§‹åŒ–æœªå®Œæˆ*/
-#define AE_SYS_RESET_FAILED                     (10)        /*è®¾å¤‡å¤ä½å¤±è´¥*/
-#define AE_SYS_GET_FILE_LIST_FAILED             (11)        /*è·å–æ–‡ä»¶åˆ—è¡¨å¤±è´¥*/
-#define AE_SYS_UNACTIVED                        (12)        /*è®¾å¤‡æœªæ¿€æ´»*/
-#define AE_SYS_DEMO_MODE                        (13)        /*è®¾å¤‡å¤„åœ¨æ¼”ç¤ºæ¨¡å¼ï¼Œæ— æ³•è®¾ç½®å‚æ•°*/
-#define AE_NO_BATTERY                           (14)        /*è®¾å¤‡æœªè£…è½½ç”µæ± */
-#define AE_NO_TRAIN_INFO                        (15)        /*æœªè¿æ¥å¤–éƒ¨è®¾å¤‡*/
+/*ÏµÍ³Àà´íÎóÂë*/
+#define AE_SYS_NOERROR                          (0)         /*Õı³£*/
+#define AE_SYS_UNKNOWN_ERROR                    (1)         /*²Ù×÷Òì³££¬ÎŞ·¨ÅĞ¶¨Ô­Òò*/
+#define AE_SYS_SESSION_START_FAIL               (2)         /*½¨Á¢Á¬½ÓÊ§°Ü*/
+#define AE_SYS_INVALID_TOKEN                    (3)         /*token´íÎó*/
+#define AE_SYS_REACH_MAX_CLINT                  (4)         /*¿Í»§¶ËÁ¬½ÓÊı´ïµ½ÉÏÏŞ*/
+#define AE_SYS_HDMI_INSERTED                    (5)         /*APPÇëÇó½¨Á¢Á¬½ÓÊ±£¬HDMI¶Ë¿ÚÓĞÁ¬½ÓÆäËûÍâÉè*/
+#define AE_SYS_NO_MORE_MEMORY                   (6)         /*Éè±¸ÄÚ´æºÄ¾¡*/
+#define AE_SYS_PIV_NOT_ALLOWED                  (7)         /*µ±Ç°·Ö±æÂÊºÍÖ¡ÂÊ²»Ö§³ÖÔÚÂ¼ÏñµÄÊ±ºò×¥ÅÄÍ¼Æ¬*/
+#define AE_SYS_SYSTEM_BUSY                      (8)         /*ÏµÍ³·±Ã¦£¬ÎŞ·¨´¦Àíµ±Ç°ÇëÇó*/
+#define AE_SYS_NOT_READY                        (9)         /*Éè±¸³õÊ¼»¯Î´Íê³É*/
+#define AE_SYS_RESET_FAILED                     (10)        /*Éè±¸¸´Î»Ê§°Ü*/
+#define AE_SYS_GET_FILE_LIST_FAILED             (11)        /*»ñÈ¡ÎÄ¼şÁĞ±íÊ§°Ü*/
+#define AE_SYS_UNACTIVED                        (12)        /*Éè±¸Î´¼¤»î*/
+#define AE_SYS_DEMO_MODE                        (13)        /*Éè±¸´¦ÔÚÑİÊ¾Ä£Ê½£¬ÎŞ·¨ÉèÖÃ²ÎÊı*/
+#define AE_NO_BATTERY                           (14)        /*Éè±¸Î´×°ÔØµç³Ø*/
+#define AE_NO_TRAIN_INFO                        (15)        /*Î´Á¬½ÓÍâ²¿Éè±¸*/
 
-#define AE_SYS_CHAN_NUM_OVER_FLOW     AE_SYS_UNKNOWN_ERROR  /*é€šé“å·è¶…å‡ºèŒƒå›´*/
+#define AE_SYS_CHAN_NUM_OVER_FLOW     AE_SYS_UNKNOWN_ERROR  /*Í¨µÀºÅ³¬³ö·¶Î§*/
 
-/*å­˜å‚¨ç±»é”™è¯¯ç */
-#define AE_SDCARD_UNKNOWN_ERROR                 (101)       /*SDå¡æœªçŸ¥é”™è¯¯*/
-#define AE_SDCARD_NOT_EXIST                     (102)       /*SDå¡ä¸å­˜åœ¨*/
-#define AE_SDCARD_DAMAGED                       (103)       /*SDå¡æŸå*/
-#define AE_SDCARD_MOUNT_FAILED                  (104)       /*SDå¡æŒ‚è½½å¤±è´¥*/
-#define AE_SDCARD_LOCK_STATUS_UNKNOWN           (105)       /*SDå¡åŠ è§£é”å›ºä»¶æœªçŸ¥é”™è¯¯*/
-#define AE_SDCARD_FS_ERROR                      (106)       /*SDå¡æ–‡ä»¶ç³»ç»Ÿé”™è¯¯*/
-#define AE_SDCARD_CREATE_FA_FAILED              (107)       /*SDå¡æ–‡ä»¶ç³»ç»Ÿåˆ›å»ºå¤±è´¥*/
-#define AE_SDCARD_CREATE_PARTITION_FAILED       (108)       /*SDå¡åˆ›å»ºåˆ†åŒºå¤±è´¥*/
-#define AE_SDCARD_NO_MORE_SPACE                 (109)       /*SDå¡å‰©ä½™ç©ºé—´ä¸è¶³*/
-#define AE_SDCARD_PROTECTED                     (110)       /*SDå¡å†™ä¿æŠ¤*/
-#define AE_SDCARD_DECRYPT_ERROR                 (111)       /*SDå¡è§£é”å¤±è´¥*/
-#define AE_FILE_NOT_EXIST                       (112)       /*æ–‡ä»¶ä¸å­˜åœ¨*/
-#define AE_USB_DISK_UNKNOWN_ERROR               (116)       /*Uç›˜æœªçŸ¥é”™è¯¯*/
-#define AE_USB_DISK_NOT_EXIST                   (117)       /*Uç›˜ä¸å­˜åœ¨*/
-#define AE_SCHEDULE_DUPLICATE                   (118)       /*å½•åƒè®¡åˆ’æ—¶é—´è®¾ç½®é”™è¯¯*/
+/*´æ´¢Àà´íÎóÂë*/
+#define AE_SDCARD_UNKNOWN_ERROR                 (101)       /*SD¿¨Î´Öª´íÎó*/
+#define AE_SDCARD_NOT_EXIST                     (102)       /*SD¿¨²»´æÔÚ*/
+#define AE_SDCARD_DAMAGED                       (103)       /*SD¿¨Ëğ»µ*/
+#define AE_SDCARD_MOUNT_FAILED                  (104)       /*SD¿¨¹ÒÔØÊ§°Ü*/
+#define AE_SDCARD_LOCK_STATUS_UNKNOWN           (105)       /*SD¿¨¼Ó½âËø¹Ì¼şÎ´Öª´íÎó*/
+#define AE_SDCARD_FS_ERROR                      (106)       /*SD¿¨ÎÄ¼şÏµÍ³´íÎó*/
+#define AE_SDCARD_CREATE_FA_FAILED              (107)       /*SD¿¨ÎÄ¼şÏµÍ³´´½¨Ê§°Ü*/
+#define AE_SDCARD_CREATE_PARTITION_FAILED       (108)       /*SD¿¨´´½¨·ÖÇøÊ§°Ü*/
+#define AE_SDCARD_NO_MORE_SPACE                 (109)       /*SD¿¨Ê£Óà¿Õ¼ä²»×ã*/
+#define AE_SDCARD_PROTECTED                     (110)       /*SD¿¨Ğ´±£»¤*/
+#define AE_SDCARD_DECRYPT_ERROR                 (111)       /*SD¿¨½âËøÊ§°Ü*/
+#define AE_FILE_NOT_EXIST                       (112)       /*ÎÄ¼ş²»´æÔÚ*/
+#define AE_USB_DISK_UNKNOWN_ERROR               (116)       /*UÅÌÎ´Öª´íÎó*/
+#define AE_USB_DISK_NOT_EXIST                   (117)       /*UÅÌ²»´æÔÚ*/
+#define AE_SCHEDULE_DUPLICATE                   (118)       /*Â¼Ïñ¼Æ»®Ê±¼äÉèÖÃ´íÎó*/
 
-/*ç½‘ç»œç±»é”™è¯¯ç */
-#define AE_WIFI_UNKNOWN_ERROR                   (201)       /*wifiæœªçŸ¥é”™è¯¯*/
+/*ÍøÂçÀà´íÎóÂë*/
+#define AE_WIFI_UNKNOWN_ERROR                   (201)       /*wifiÎ´Öª´íÎó*/
 
-/*åè®®ç±»é”™è¯¯ç */
-#define AE_PROT_JSON_PACKAGE_ERROR              (301)       /*jsonå­—ç¬¦ä¸²ä¸æ”¯æŒåµŒå¥—*/
-#define AE_PROT_JSON_PACKAGE_TIMEOUT            (302)       /*5ç§’å†…æœªæ”¶åˆ°jsonç»“æŸæ ‡å¿—*/
-#define AE_PROT_JSON_SYNTAX_ERROR               (303)       /*jsonå­—ç¬¦ä¸²çš„é”®å€¼å¯¹åŒ…å«è¯­æ³•é”™è¯¯*/
-#define AE_PROT_INVALID_OPTION_VALUE            (304)       /*AE_SET_SETTINGå‘½ä»¤çš„jsonå­—ç¬¦ä¸²ä¸­åŒ…å«ä¸æ”¯æŒçš„é€‰é¡¹*/
-#define AE_PROT_INVALID_OPERATION               (305)       /*ä¸æ”¯æŒçš„å‘½ä»¤å·*/
-#define AE_PROT_INVALID_TYPE                    (306)       /*åè®®å‘½ä»¤çš„typeéæ³•*/
-#define AE_PROT_INVALID_PARAM                   (307)       /*åè®®å‘½ä»¤çš„paraméæ³•*/
-#define AE_PROT_INVALID_PATH                    (308)       /*è¯·æ±‚çš„æ–‡ä»¶æˆ–ç›®å½•ä¸å­˜åœ¨*/
-#define AE_TIMEZONE_INTERVAL_ERROR              (309)       /*å¤ä»¤æ—¶é—´éš”å°äº30å¤©*/
-#define AE_TIMEZONE_WEEK_ERROR                  (310)       /*å¤ä»¤æ—¶æ˜ŸæœŸé”™è¯¯*/
-#define AE_TIMEZONE_DAY_ERROR                   (311)       /*å¤ä»¤æ—¶æ—¥æœŸé”™è¯¯*/
-#define AE_VOLTAGE_ERROR						(312)		/*è®¾ç½®å¤±è´¥ï¼Œå½“å‰ç”µå‹å°äºè®¾ç½®ç”µå‹*/
-#define AE_VOLTAGE_NOT_CONNECTED				(313)		/*è®¾ç½®å¤±è´¥ï¼Œæœªè¿æ¥é™å‹çº¿*/
-#define AE_SET_VALUE_TOO_LOW				    (314)		/*è®¾ç½®å‚æ•°è¿‡ä½*/
-#define AE_SET_VALUE_TOO_HIGH				    (314)		/*è®¾ç½®å‚æ•°è¿‡é«˜*/
+/*Ğ­ÒéÀà´íÎóÂë*/
+#define AE_PROT_JSON_PACKAGE_ERROR              (301)       /*json×Ö·û´®²»Ö§³ÖÇ¶Ì×*/
+#define AE_PROT_JSON_PACKAGE_TIMEOUT            (302)       /*5ÃëÄÚÎ´ÊÕµ½json½áÊø±êÖ¾*/
+#define AE_PROT_JSON_SYNTAX_ERROR               (303)       /*json×Ö·û´®µÄ¼üÖµ¶Ô°üº¬Óï·¨´íÎó*/
+#define AE_PROT_INVALID_OPTION_VALUE            (304)       /*AE_SET_SETTINGÃüÁîµÄjson×Ö·û´®ÖĞ°üº¬²»Ö§³ÖµÄÑ¡Ïî*/
+#define AE_PROT_INVALID_OPERATION               (305)       /*²»Ö§³ÖµÄÃüÁîºÅ*/
+#define AE_PROT_INVALID_TYPE                    (306)       /*Ğ­ÒéÃüÁîµÄtype·Ç·¨*/
+#define AE_PROT_INVALID_PARAM                   (307)       /*Ğ­ÒéÃüÁîµÄparam·Ç·¨*/
+#define AE_PROT_INVALID_PATH                    (308)       /*ÇëÇóµÄÎÄ¼ş»òÄ¿Â¼²»´æÔÚ*/
+#define AE_TIMEZONE_INTERVAL_ERROR              (309)       /*ÏÄÁîÊ±¼ä¸ôĞ¡ÓÚ30Ìì*/
+#define AE_TIMEZONE_WEEK_ERROR                  (310)       /*ÏÄÁîÊ±ĞÇÆÚ´íÎó*/
+#define AE_TIMEZONE_DAY_ERROR                   (311)       /*ÏÄÁîÊ±ÈÕÆÚ´íÎó*/
+#define AE_VOLTAGE_ERROR						(312)		/*ÉèÖÃÊ§°Ü£¬µ±Ç°µçÑ¹Ğ¡ÓÚÉèÖÃµçÑ¹*/
+#define AE_VOLTAGE_NOT_CONNECTED				(313)		/*ÉèÖÃÊ§°Ü£¬Î´Á¬½Ó½µÑ¹Ïß*/
+#define AE_SET_VALUE_TOO_LOW				    (314)		/*ÉèÖÃ²ÎÊı¹ıµÍ*/
+#define AE_SET_VALUE_TOO_HIGH				    (314)		/*ÉèÖÃ²ÎÊı¹ı¸ß*/
 /****************************************END****************************************/
 
 #if 0
 
 
 /**
- * @brief  å¤„ç†è¿œç¨‹å®¢æˆ·ç«¯çš„è¿æ¥æ¡æ‰‹è¯·æ±‚
- * @param  pstReqJson   ç½‘ç»œè¯·æ±‚JSONæ•°æ®åŒ…
- * @return æˆåŠŸï¼Œè¿”å›æ¶ˆæ¯IDï¼›å¤±è´¥ï¼Œè¿”å›é”™è¯¯ç 
+ * @brief  ´¦ÀíÔ¶³Ì¿Í»§¶ËµÄÁ¬½ÓÎÕÊÖÇëÇó
+ * @param  pstReqJson   ÍøÂçÇëÇóJSONÊı¾İ°ü
+ * @return ³É¹¦£¬·µ»ØÏûÏ¢ID£»Ê§°Ü£¬·µ»Ø´íÎóÂë
  * @see
- * @note   å†…éƒ¨ä½¿ç”¨ã€‚iSockFdä¸ºæœåŠ¡ç«¯å®é™…é€šä¿¡å¥—æ¥å­—ã€‚æ•°æ®æµå‘ï¼šè®¾å¤‡-->APPã€‚
+ * @note   ÄÚ²¿Ê¹ÓÃ¡£iSockFdÎª·şÎñ¶ËÊµ¼ÊÍ¨ĞÅÌ×½Ó×Ö¡£Êı¾İÁ÷Ïò£ºÉè±¸-->APP¡£
  */
 static INT32 net_app_session_start(SYS_JSON_OBJ_T *pstReqJson, SYS_JSON_OBJ_T *pstRespJson)
 {
@@ -359,10 +359,10 @@ static INT32 net_app_session_start(SYS_JSON_OBJ_T *pstReqJson, SYS_JSON_OBJ_T *p
 
 #if 0
 /**
- * @brief å¤„ç†æ¶ˆæ¯
- * @param iServFd é€šä¿¡å¥—æ¥å­—
- * @param iTokenID ä»¤ç‰ŒID
- * @return æˆåŠŸï¼Œè¿”å›OKï¼›å¤±è´¥ï¼Œè¿”å›ERROR
+ * @brief ´¦ÀíÏûÏ¢
+ * @param iServFd Í¨ĞÅÌ×½Ó×Ö
+ * @param iTokenID ÁîÅÆID
+ * @return ³É¹¦£¬·µ»ØOK£»Ê§°Ü£¬·µ»ØERROR
  */
 INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
 {
@@ -377,8 +377,8 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
     UINT32 uHeaderLen = 0;
     CHAR sHeader[MSG_HEADER_LENGTH + 4] = {0};
     CHAR sRecvBuf[NET_APP_RECV_SIZE] = {0};
-    CHAR sBaseBuf[NET_APP_RECV_SIZE] = {0};/*å­˜æ”¾è§£ç ä¹‹åçš„æ¶ˆæ¯*/
-    CHAR sDataBuf[NET_APP_RECV_SIZE] = {0};/*å­˜æ”¾è§£å¯†ä¹‹åçš„æ¶ˆæ¯*/
+    CHAR sBaseBuf[NET_APP_RECV_SIZE] = {0};/*´æ·Å½âÂëÖ®ºóµÄÏûÏ¢*/
+    CHAR sDataBuf[NET_APP_RECV_SIZE] = {0};/*´æ·Å½âÃÜÖ®ºóµÄÏûÏ¢*/
     NET_APP_QUEUE_T stQueue = {0};
     uHeaderLen = sizeof(sHeader);
 
@@ -399,7 +399,7 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
         return ERROR;
     }
 
-    /*æ¡æ‰‹æˆåŠŸï¼Œä¼ è¾“å¥—æ¥å­—å…¥é˜Ÿåˆ—ï¼Œè¿æ¥çŠ¶æ€ç½®ä½1*/
+    /*ÎÕÊÖ³É¹¦£¬´«ÊäÌ×½Ó×ÖÈë¶ÓÁĞ£¬Á¬½Ó×´Ì¬ÖÃÎ»1*/
     memset(&stQueue, 0, sizeof(NET_APP_QUEUE_T));
     stQueue.iServFd = iServFd;
     stQueue.uOnline = 1;
@@ -407,13 +407,13 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
     if(iRet != OK)
     {
         NET_APP_ERROR("set user[%d] state failed!\n", iServFd);
-        /*é€šçŸ¥APPæ–­å¼€è¿æ¥*/
-        net_app_send_user_notification(NOTE_DISCONNECT_DOWN, NULL, 0, iServFd);/*å‘ŠçŸ¥ç”¨æˆ·é€€å‡º*/
+        /*Í¨ÖªAPP¶Ï¿ªÁ¬½Ó*/
+        net_app_send_user_notification(NOTE_DISCONNECT_DOWN, NULL, 0, iServFd);/*¸æÖªÓÃ»§ÍË³ö*/
         SYS_SOCKET_SAFE_CLOSE(iServFd);
         return ERROR;
     }
 
-    /*æ¡æ‰‹æˆåŠŸä¹‹åæ¥æ”¶å…¶ä»–æ¶ˆæ¯*/
+    /*ÎÕÊÖ³É¹¦Ö®ºó½ÓÊÕÆäËûÏûÏ¢*/
     while(1)
     {
         memset(sHeader, 0, uHeaderLen);
@@ -430,7 +430,7 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
             continue;
         }
 
-        /*æ£€éªŒå¤´éƒ¨ï¼Œè·å–è¯·æ±‚ç´¢å¼•ä»¥åŠæ•°æ®é•¿åº¦*/
+        /*¼ìÑéÍ·²¿£¬»ñÈ¡ÇëÇóË÷ÒıÒÔ¼°Êı¾İ³¤¶È*/
         iRet = net_app_msg_header_judge(sHeader, &uReqIdx, &uDataLen);
         if(iRet == ERROR)
         {
@@ -452,12 +452,12 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
             continue;
         }
 
-        /* Base64è§£ç  */
+        /* Base64½âÂë */
         memset(sBaseBuf, 0, NET_APP_RECV_SIZE);
         iBaseLen = EVP_DecodeBlock((UINT8 *)sBaseBuf, (UINT8 *)sRecvBuf, uDataLen);
         iAesLen = ROUND_UP(iBaseLen, AES_KEY_LENGTH);
 
-        /* AESè§£å¯† */
+        /* AES½âÃÜ */
         memset(sDataBuf, 0, NET_APP_RECV_SIZE);
         iRet = aes_decrypt(sBaseBuf, iAesLen, sDataBuf, NET_APP_RECV_ADD, (INT32 *)&uDataLen, g_stHandleCtrl.sAesKey);
         if(iRet < 0)
@@ -482,7 +482,7 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
         }
     }
 
-    /*æ–­å¼€è¿æ¥ï¼Œå¥—æ¥å­—å‡ºåˆ—ï¼Œé‡Šæ”¾èµ„æºï¼Œè¿æ¥çŠ¶æ€ç½®ä½0*/
+    /*¶Ï¿ªÁ¬½Ó£¬Ì×½Ó×Ö³öÁĞ£¬ÊÍ·Å×ÊÔ´£¬Á¬½Ó×´Ì¬ÖÃÎ»0*/
     net_app_user_dequeue(uUserIdx);
 
     return iRet;
@@ -494,12 +494,12 @@ INT32 net_app_msg_handle(INT32 iServFd, INT32 iTokenID)
 
 
 **
- * @brief  å°†JSONæ•°æ®åŒ…å‘é€ç»™è¿œç¨‹å®¢æˆ·ç«¯APP
- * @param  iServFd ç½‘ç»œé€šä¿¡å¥—æ¥å­—
- * @param  pstRespJson   ç½‘ç»œJSONæ•°æ®åŒ…æŒ‡é’ˆ
- * @return æˆåŠŸï¼Œè¿”å›OKï¼›å¤±è´¥ï¼Œè¿”å›ERROR
+ * @brief  ½«JSONÊı¾İ°ü·¢ËÍ¸øÔ¶³Ì¿Í»§¶ËAPP
+ * @param  iServFd ÍøÂçÍ¨ĞÅÌ×½Ó×Ö
+ * @param  pstRespJson   ÍøÂçJSONÊı¾İ°üÖ¸Õë
+ * @return ³É¹¦£¬·µ»ØOK£»Ê§°Ü£¬·µ»ØERROR
  * @see
- * @note   æ¨¡å—å†…ä½¿ç”¨ã€‚iSockFdä¸ºæœåŠ¡ç«¯å®é™…é€šä¿¡å¥—æ¥å­—ã€‚æ•°æ®æµå‘ï¼šè®¾å¤‡-->APPã€‚
+ * @note   Ä£¿éÄÚÊ¹ÓÃ¡£iSockFdÎª·şÎñ¶ËÊµ¼ÊÍ¨ĞÅÌ×½Ó×Ö¡£Êı¾İÁ÷Ïò£ºÉè±¸-->APP¡£
  */
 INT32 net_app_send_json(const INT32 iServFd, SYS_JSON_OBJ_T *pstRespJson, NET_APP_RET_T *pstNetApp)
 {
@@ -550,18 +550,18 @@ INT32 net_app_send_json(const INT32 iServFd, SYS_JSON_OBJ_T *pstRespJson, NET_AP
         return ERROR;
     }
 
-    iBase64OutLen = EVP_EncodeBlock((UINT8 *)pMsgBody, (UINT8 *)sAesOut, iAesOutLen); //base64ç¼–ç 
+    iBase64OutLen = EVP_EncodeBlock((UINT8 *)pMsgBody, (UINT8 *)sAesOut, iAesOutLen); //base64±àÂë
     stRespMsg.uMsgLength = BigLittleSwap32(iBase64OutLen);
     iDataLen = strlen(pMsgBody) + MSG_HEADER_LENGTH;
     memcpy(sEncOut, &stRespMsg, MSG_HEADER_LENGTH);
-    //sys_mutex_lock(&g_stHandleCtrl.mLock, WAIT_FOREVER);/*åŠ é”*/
+    //sys_mutex_lock(&g_stHandleCtrl.mLock, WAIT_FOREVER);/*¼ÓËø*/
     if(sys_socket_writen(iServFd, sEncOut, iDataLen) != iDataLen)
     {
         NET_APP_ERROR("socket write failed!\n");
-        //sys_mutex_unlock(&g_stHandleCtrl.mLock);/*è§£é”*/
+        //sys_mutex_unlock(&g_stHandleCtrl.mLock);/*½âËø*/
         return ERROR;
     }
-    //sys_mutex_unlock(&g_stHandleCtrl.mLock);/*åŠ é”*/
+    //sys_mutex_unlock(&g_stHandleCtrl.mLock);/*¼ÓËø*/
 
     return iRet;
 }

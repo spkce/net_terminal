@@ -201,6 +201,7 @@ void CTimerManger::allocateIdleTimer(unsigned int n)
 
 void CTimerManger::thread_proc(void* arg)
 {
+	printf(" CTimerManger::thread_proc \n");
 	TimerInternal* p = NULL;
 
 	long timeout = 0;
@@ -210,6 +211,7 @@ void CTimerManger::thread_proc(void* arg)
 		
 		m_mutexWorkLink.lock();
 		p = (TimerInternal*)m_linkWorkTimer.get(0);
+		printf("m_curTime = %d <= Timeout =%d ms \n", getCurTime(), p->getTimeout());
 		if (p == NULL)
 		{
 			m_mutexWorkLink.unlock();

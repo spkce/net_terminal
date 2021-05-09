@@ -248,28 +248,92 @@ CNetProtocl::~CNetProtocl()
 
 bool CNetProtocl::parse(ISession * session, char* buf, int len)
 {
-	std::string recv = buf;
+	
 	Json::String errs;
 	Json::Value request;
 	Json::CharReaderBuilder readerBuilder;
 
-	std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
-	bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
-	if (!res || !errs.empty())
+	if (session->getState() == ISession::emStateLogin)
 	{
-		return false;
+		Param_t param;
+		unsigned int uReqIdx = 0;
+		unsigned int uDateLen = 0;
+		if (!headerCheck(buf, &uReqIdx, &uDateLen))
+		{
+			printf("\033[35m""header Check err""\033[0m\n");
+			return false;
+		}
+		
+		param.uReqIdx = uReqIdx;
+		param.uEncrypt = 0;
+		char dataBuf[2048] = {0};
+		int uLen = 0;
+		decode(buf + 12, uDateLen, dataBuf, &uLen);
+		std::string recv = dataBuf;
+		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
+		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
+		if (!res || !errs.empty())
+		{
+			printf("\033[35m""parse:%s""\033[0m\n", errs.c_str());
+			return false;
+		}
+
+		printf("\033[35m""request = %s""\033[0m\n", request.toStyledString().c_str());
+
+		if (request.isMember("token") && request.isMember("msg_id"))
+		{
+			Json::Value response = Json::nullValue;
+			
+			res = hub(session, &param, request, response);
+			if (res)
+			{
+				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
+				Json::StreamWriterBuilder writerBuilder;
+				std::ostringstream os;
+				std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
+    			jsonWriter->write(response, &os);
+    			std::string reString = os.str();
+
+				reply(session, &param, reString.c_str(), reString.length());
+				
+			}
+		}
+
 	}
-	
-	if (request.isMember("token") && request.isMember("msg_id"))
+	else
 	{
-		Json::Value response;
-		hub(session, request, response);
+		std::string recv = buf;
+
+		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
+		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
+		if (!res || !errs.empty())
+		{
+			return false;
+		}
+
+		if (request.isMember("token") && request.isMember("msg_id"))
+		{
+			Json::Value response = Json::nullValue;
+			Param_t param;
+			res = hub(session, &param, request, response);
+			if (res)
+			{
+				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
+				Json::StreamWriterBuilder writerBuilder;
+				std::ostringstream os;
+				std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
+    			jsonWriter->write(response, &os);
+    			std::string reString = os.str();
+
+				session->send(reString.c_str(), reString.length());
+			}
+		}
 	}
 
 	return true;
 }
 
-bool CNetProtocl::hub(ISession* session, Json::Value &request, Json::Value &response)
+bool CNetProtocl::hub(ISession* session, Param_t* param, Json::Value &request, Json::Value &response)
 {
 	if (!request.isMember("msg_id"))
 	{
@@ -277,6 +341,9 @@ bool CNetProtocl::hub(ISession* session, Json::Value &request, Json::Value &resp
 	}
 	printf("\033[35m""request = %s""\033[0m\n", request.toStyledString().c_str());
 	unsigned int msgID = request["msg_id"].asUInt();
+	
+	param->uTokenId = request["token"].asUInt();
+	param->uMsgId = msgID;
 
 	int ret = false;
 	switch(msgID)
@@ -300,23 +367,24 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 	response["rval"] = 0;
 	response["msg_id"] = request["msg_id"].asUInt();
 	response["param"] = 1;//TokenNumber
-	response["version"] = 1;
+	response["version"] = "V1.1.0";
 	
 	char sRsaEncodeKey[300] = {0};
  	char sKeyStr[100] = {0};
-	unsigned char AesKey[16] = {0};
-	RAND_pseudo_bytes(AesKey, 16);
+	
+	memset(m_AesKey, 0, aesKeyLength);
+	RAND_pseudo_bytes(m_AesKey, aesKeyLength);
 
-	for (size_t i = 0; i < 16; i++)
+	for (size_t i = 0; i < aesKeyLength; i++)
 	{
-		sprintf(sKeyStr + i * 2, "%02x", AesKey[i]);
+		sprintf(sKeyStr + i * 2, "%02x", m_AesKey[i]);
 	}
 	int iRet = app_rsa_encode(rsaKey.c_str(), sKeyStr, (unsigned char *)sRsaEncodeKey);
 
 	response["aesCode"] = std::string(sRsaEncodeKey);
 
 	response["timeout"] = 15;
-	response["productType"] = 1;
+	response["productType"] = 0;
 
 	m_pTerminal->connect(session);
 
@@ -332,6 +400,115 @@ bool CNetProtocl::logout(NetServer::ISession* session, Json::Value &request, Jso
 bool CNetProtocl::keepAlive(NetServer::ISession* session, Json::Value &request, Json::Value &response)
 {
 	return session->keepAlive();
+}
+
+bool CNetProtocl::headerCheck(const char *buf, unsigned int *index, unsigned int * len)
+{
+	/*消息头：ABBC，前4个字节*/
+	if (buf[0] != 0x41 || buf[1] != 0x42 || buf[2] != 0x42 || buf[3] != 0x43)
+	{
+		return false;
+	}
+	else
+	{
+		/*获取消息索引，跳过消息头再取4个字节*/
+		*index = (buf[4] << 24) + (buf[5] << 16) + (buf[6] << 8) + buf[7];
+		/*获取消息长度，跳过消息头及索引再取4个字节*/
+		*len = (buf[8] << 24) + (buf[9] << 16) + (buf[10] << 8) + buf[11];
+		return true;
+	}
+}
+#define MSG_HEADER_LENGTH 12
+#ifndef ROUND_UP
+#define ROUND_UP(x, align)       (((int)(x) + (align - 1)) & ~(align - 1))
+#endif
+
+#ifndef ROUND_DOWN
+#define ROUND_DOWN(x, align)    ((int)(x) & ~(align - 1))
+#endif
+#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
+#define NET_APP_RECV_SIZE                       2048        /*接收缓冲区大小*/
+#define NET_APP_RECV_ADD                        ((NET_APP_RECV_SIZE) + (NET_APP_EXTRA_LEN))
+
+bool CNetProtocl::decode(const char* buf, int len, char* decodeBuf, int* Length)
+{
+#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
+#define NET_APP_RECV_SIZE                       2048        /*接收缓冲区大小*/
+#define NET_APP_RECV_ADD                        ((NET_APP_RECV_SIZE) + (NET_APP_EXTRA_LEN))
+
+	char baseBuf[NET_APP_RECV_SIZE] = {0};
+	
+	int iBaseLen = EVP_DecodeBlock((unsigned char*)baseBuf, (const unsigned char*)buf, len);
+	int iAesLen = ROUND_UP(iBaseLen, aesKeyLength);
+
+	int iRet = aes_decrypt(baseBuf, iAesLen, decodeBuf, NET_APP_RECV_ADD, Length, m_AesKey);
+	if (iRet < 0)
+	{
+		printf("\033[35m""aes decrypt failed""\033[0m\n");
+		return false;
+	}
+
+	return true;
+}
+
+#define BigLittleSwap32(A) \
+    ((((unsigned int)(A) & 0xff000000) >> 24) | (((unsigned int)(A) & 0x00ff0000) >> 8) | \
+    (((unsigned int)(A) & 0x0000ff00) << 8) | (((unsigned int)(A) & 0x000000ff) << 24))
+
+bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char *buf, int len)
+{
+#define MSG_HEADER_CONS                         0x41424243  /*消息头*/
+	/**
+	 * @brief DEVICE->APP消息头部信息
+	 */
+	typedef struct
+	{
+		unsigned int uMsgConstant;    /*起始码ABBC*/
+		unsigned int uMsgIndex;       /*消息编号，1...n，与消息类型ID不同*/
+		unsigned int uMsgLength;      /*消息报文长度*/
+	}APP_MSG_PRIVATE;
+
+	 APP_MSG_PRIVATE stRespMsg;
+	stRespMsg.uMsgConstant = BigLittleSwap32(MSG_HEADER_CONS);
+	stRespMsg.uMsgIndex = BigLittleSwap32(param->uReqIdx);
+	stRespMsg.uMsgLength = BigLittleSwap32(len);
+
+#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
+#define AES_MAX_IN_LEN                          16384        /*16KB*/
+#define AES_MAX_OUT_LEN                         ((AES_MAX_IN_LEN) + (NET_APP_EXTRA_LEN))
+#define AES_MAX_OUT_LEN_BASE64                  (AES_MAX_OUT_LEN*2)
+#define MSG_HEADER_LENGTH                       12          /*消息头字节*/
+    unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
+    char sEncOut[AES_MAX_OUT_LEN_BASE64] = {0};
+
+	char* pMsgBody = (sEncOut + MSG_HEADER_LENGTH);
+    if(len > AES_MAX_IN_LEN)
+    {
+		printf("\033[35m""encrypt str too large""\033[0m\n");
+        return false;
+    }
+
+	int iAesOutLen = 0;
+	int iRet = aes_encrypt((unsigned char*)buf, AES_MAX_IN_LEN, len, sAesOut, AES_MAX_OUT_LEN, &iAesOutLen, m_AesKey);
+    if(iRet < 0)
+    {
+		printf("\033[35m""app_aes_encrypt ERR: %d""\033[0m\n", iRet);
+        return false;
+    }
+
+	if(iAesOutLen > AES_MAX_IN_LEN)
+    {
+        printf("\033[35m""encode str too large""\033[0m\n");
+        return false;
+    }
+
+    int iBase64OutLen = EVP_EncodeBlock((unsigned char *)pMsgBody, sAesOut, iAesOutLen); //base64编码
+    stRespMsg.uMsgLength = BigLittleSwap32(iBase64OutLen);
+    int iDataLen = strlen(pMsgBody) + MSG_HEADER_LENGTH;
+    memcpy(sEncOut, &stRespMsg, MSG_HEADER_LENGTH);
+
+	session->send(sEncOut, iDataLen);
+	return true;
 }
 
 }//Screen
