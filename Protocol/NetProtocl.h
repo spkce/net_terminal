@@ -39,6 +39,16 @@ class CNetProtocl: public IProtocl
 		unsigned int uEncrypt;	/*是否需要加密*/
 	} Param_t;
 
+#define MSG_HEADER_CONS                         0x41424243  /*消息头起始码ABBC*/
+	/**
+	 * @brief DEVICE->APP消息头部信息
+	 */
+	struct msgHeader
+	{
+		unsigned int uMsgConstant;    /*起始码ABBC*/
+		unsigned int uMsgIndex;       /*消息编号，1...n，与消息类型ID不同*/
+		unsigned int uMsgLength;      /*消息报文长度*/
+	}msgHeader;
 public:
 	CNetProtocl(Terminal::ITerminal* terminal);
 	virtual ~CNetProtocl();

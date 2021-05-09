@@ -9,6 +9,7 @@
 #include "Session.h"
 #include "NetProtocl.h"
 #include "terminal.h"
+#include <arpa/inet.h>
 
 using namespace NetServer;
 namespace Screen
@@ -461,32 +462,11 @@ bool CNetProtocl::decode(const char* buf, int len, char* decodeBuf, int* Length)
 	return true;
 }
 
-#define BigLittleSwap32(A) \
-    ((((unsigned int)(A) & 0xff000000) >> 24) | (((unsigned int)(A) & 0x00ff0000) >> 8) | \
-    (((unsigned int)(A) & 0x0000ff00) << 8) | (((unsigned int)(A) & 0x000000ff) << 24))
-
 bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char *buf, int len)
 {
-#define MSG_HEADER_CONS                         0x41424243  /*消息头*/
-	/**
-	 * @brief DEVICE->APP消息头部信息
-	 */
-	typedef struct
-	{
-		unsigned int uMsgConstant;    /*起始码ABBC*/
-		unsigned int uMsgIndex;       /*消息编号，1...n，与消息类型ID不同*/
-		unsigned int uMsgLength;      /*消息报文长度*/
-	}APP_MSG_PRIVATE;
-
-	 APP_MSG_PRIVATE stRespMsg;
-	stRespMsg.uMsgConstant = BigLittleSwap32(MSG_HEADER_CONS);
-	stRespMsg.uMsgIndex = BigLittleSwap32(param->uReqIdx);
-	stRespMsg.uMsgLength = BigLittleSwap32(len);
-
 	unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
-	char sEncOut[AES_MAX_OUT_LEN_BASE64] = {0};
+	char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
 
-	char* pMsgBody = (sEncOut + MSG_HEADER_LENGTH);
 	if(len > AES_MAX_IN_LEN)
 	{
 		printf("\033[35m""encrypt str too large""\033[0m\n");
@@ -506,13 +486,17 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 		printf("\033[35m""encode str too large""\033[0m\n");
 		return false;
 	}
-
+	
+	struct msgHeader* pHeader = (struct msgHeader*)sendbuf;
+	char* pMsgBody = (sendbuf + sizeof(struct msgHeader));
 	int iBase64OutLen = EVP_EncodeBlock((unsigned char *)pMsgBody, sAesOut, iAesOutLen); //base64编码
-	stRespMsg.uMsgLength = BigLittleSwap32(iBase64OutLen);
-	int iDataLen = strlen(pMsgBody) + MSG_HEADER_LENGTH;
-	memcpy(sEncOut, &stRespMsg, MSG_HEADER_LENGTH);
 
-	session->send(sEncOut, iDataLen);
+	pHeader->uMsgConstant = htonl(MSG_HEADER_CONS);
+	pHeader->uMsgIndex = htonl(param->uReqIdx);
+	pHeader->uMsgLength = htonl(iBase64OutLen);
+	int iDataLen = strlen(pMsgBody) + sizeof(struct msgHeader);
+
+	session->send(sendbuf, iDataLen);
 	return true;
 }
 
