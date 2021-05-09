@@ -41,7 +41,7 @@ public:
 
 	virtual bool parse(NetServer::ISession* session, char* buf, int len);
 
-	bool hub(NetServer::ISession * session, Param_t* param, Json::Value &request, Json::Value &response);
+	bool msgHub(NetServer::ISession * session, unsigned int msgID, Json::Value &request, Json::Value &response);
 
 	bool login(NetServer::ISession* session, Json::Value &request, Json::Value &response);
 
@@ -49,6 +49,9 @@ public:
 
 	bool keepAlive(NetServer::ISession* session, Json::Value &request, Json::Value &response);
 private:
+	bool messageProcess(NetServer::ISession* session, char* buf, int len);
+
+	bool handShake(NetServer::ISession* session, char* buf, int len);
 
 	bool headerCheck(const char *buf, unsigned int *index, unsigned int * len);
 

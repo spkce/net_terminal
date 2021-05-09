@@ -248,14 +248,19 @@ CNetProtocl::~CNetProtocl()
 
 bool CNetProtocl::parse(ISession * session, char* buf, int len)
 {
-	
-	Json::String errs;
-	Json::Value request;
-	Json::CharReaderBuilder readerBuilder;
-
 	if (session->getState() == ISession::emStateLogin)
 	{
-		Param_t param;
+		return messageProcess(session, buf, len);;
+	}
+	else
+	{
+		return handShake(session, buf, len);
+	}
+}
+
+bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int len)
+{
+		bool res = false;
 		unsigned int uReqIdx = 0;
 		unsigned int uDateLen = 0;
 		if (!headerCheck(buf, &uReqIdx, &uDateLen))
@@ -263,98 +268,68 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 			printf("\033[35m""header Check err""\033[0m\n");
 			return false;
 		}
-		
-		param.uReqIdx = uReqIdx;
-		param.uEncrypt = 0;
+
+
 		char dataBuf[2048] = {0};
 		int uLen = 0;
 		decode(buf + 12, uDateLen, dataBuf, &uLen);
 		std::string recv = dataBuf;
+		Json::String errs;
+		Json::Value request;
+		Json::CharReaderBuilder readerBuilder;
 		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
-		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
+		res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
 		if (!res || !errs.empty())
 		{
 			printf("\033[35m""parse:%s""\033[0m\n", errs.c_str());
 			return false;
 		}
-
+	
 		printf("\033[35m""request = %s""\033[0m\n", request.toStyledString().c_str());
 
 		if (request.isMember("token") && request.isMember("msg_id"))
 		{
+			Param_t stParam;
+			stParam.uTokenId = request["token"].asUInt();
+			stParam.uMsgId = request["msg_id"].asUInt();
+			stParam.uReqIdx = uReqIdx;
+			stParam.uEncrypt = 0;
+
 			Json::Value response = Json::nullValue;
-			
-			res = hub(session, &param, request, response);
+			res = msgHub(session, stParam.uMsgId, request, response);
 			if (res)
 			{
 				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
 				Json::StreamWriterBuilder writerBuilder;
 				std::ostringstream os;
 				std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
-    			jsonWriter->write(response, &os);
-    			std::string reString = os.str();
+				jsonWriter->write(response, &os);
+				std::string reString = os.str();
 
-				reply(session, &param, reString.c_str(), reString.length());
-				
+				reply(session, &stParam, reString.c_str(), reString.length());
+				return res;
 			}
+			res = false;
 		}
-
-	}
-	else
-	{
-		std::string recv = buf;
-
-		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
-		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
-		if (!res || !errs.empty())
+		else
 		{
-			return false;
+			res = false;
 		}
 
-		if (request.isMember("token") && request.isMember("msg_id"))
-		{
-			Json::Value response = Json::nullValue;
-			Param_t param;
-			res = hub(session, &param, request, response);
-			if (res)
-			{
-				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
-				Json::StreamWriterBuilder writerBuilder;
-				std::ostringstream os;
-				std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
-    			jsonWriter->write(response, &os);
-    			std::string reString = os.str();
 
-				session->send(reString.c_str(), reString.length());
-			}
-		}
-	}
+		return res;
 
-	return true;
 }
 
-bool CNetProtocl::hub(ISession* session, Param_t* param, Json::Value &request, Json::Value &response)
+bool CNetProtocl::msgHub(ISession* session, unsigned int msgID, Json::Value &request, Json::Value &response)
 {
-	if (!request.isMember("msg_id"))
-	{
-		return false;
-	}
-	printf("\033[35m""request = %s""\033[0m\n", request.toStyledString().c_str());
-	unsigned int msgID = request["msg_id"].asUInt();
-	
-	param->uTokenId = request["token"].asUInt();
-	param->uMsgId = msgID;
-
-	int ret = false;
+	bool ret = false;
 	switch(msgID)
 	{
-		case AE_START_SESSION:
-			ret = login(session, request, response);
-			break;
 		case AE_STOP_SESSION:
 			ret = logout(session, request, response);
 			break;
-		break;
+		default: break;
 	}
 	return ret;
 }
@@ -400,6 +375,41 @@ bool CNetProtocl::logout(NetServer::ISession* session, Json::Value &request, Jso
 bool CNetProtocl::keepAlive(NetServer::ISession* session, Json::Value &request, Json::Value &response)
 {
 	return session->keepAlive();
+}
+
+bool CNetProtocl::handShake(NetServer::ISession* session, char* buf, int len)
+{
+		std::string recv = buf;
+		Json::String errs;
+		Json::Value request;
+		Json::CharReaderBuilder readerBuilder;
+		
+		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
+		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
+		if (!res || !errs.empty())
+		{
+			return false;
+		}
+
+		if (request.isMember("token") && request.isMember("msg_id") && request["msg_id"].asUInt() == AE_START_SESSION)
+		{
+			Json::Value response = Json::nullValue;
+
+			if (login(session, request, response))
+			{
+				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
+				Json::StreamWriterBuilder writerBuilder;
+				std::ostringstream os;
+				std::unique_ptr<Json::StreamWriter> jsonWriter(writerBuilder.newStreamWriter());
+				jsonWriter->write(response, &os);
+				std::string reString = os.str();
+
+				session->send(reString.c_str(), reString.length());
+				return true;
+			}
+		}
+
+		return false;
 }
 
 bool CNetProtocl::headerCheck(const char *buf, unsigned int *index, unsigned int * len)
