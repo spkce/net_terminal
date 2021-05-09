@@ -23,7 +23,8 @@ class CNetProtocl: public IProtocl
 #define AES_MAX_OUT_LEN                         ((AES_MAX_IN_LEN) + (NET_APP_EXTRA_LEN))
 #define AES_MAX_OUT_LEN_BASE64                  (AES_MAX_OUT_LEN*2)
 #define MSG_HEADER_LENGTH                       12          /*消息头字节*/
-
+#define NET_APP_RECV_SIZE                       2048        /*接收缓冲区大小*/
+#define NET_APP_RECV_ADD                        ((NET_APP_RECV_SIZE) + (NET_APP_EXTRA_LEN))
 	enum
 	{
 		aesKeyLength = 16,
@@ -69,8 +70,10 @@ private:
 
 	bool headerCheck(const char *buf, unsigned int *index, unsigned int * len);
 
-	bool decode(const char* buf, int len, char* decodeBuf, int* Length);
+	bool decrypt(const char* buf, int len, char* decodeBuf, int* Length);
 
+	bool encrypt(const char* buf, int len, char* encryptBuf, int* Length);
+	
 	bool reply(NetServer::ISession* session, Param_t* param, const char *buf, int len);
 
 

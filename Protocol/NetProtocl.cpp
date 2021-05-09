@@ -270,10 +270,9 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 			return false;
 		}
 
-
-		char dataBuf[2048] = {0};
+		char dataBuf[NET_APP_RECV_SIZE] = {0};
 		int uLen = 0;
-		decode(buf + 12, uDateLen, dataBuf, &uLen);
+		decrypt(buf + sizeof(struct msgHeader), uDateLen, dataBuf, &uLen);
 		std::string recv = dataBuf;
 		Json::String errs;
 		Json::Value request;
@@ -415,21 +414,35 @@ bool CNetProtocl::handShake(NetServer::ISession* session, char* buf, int len)
 
 bool CNetProtocl::headerCheck(const char *buf, unsigned int *index, unsigned int * len)
 {
-	/*消息头：ABBC，前4个字节*/
+	struct msgHeader* pHeader = (struct msgHeader*)buf;
+
+	if (pHeader->uMsgConstant != htonl(MSG_HEADER_CONS))
+	{
+		return false;
+	}
+	else
+	{
+		*index = ntohl(pHeader->uMsgIndex);
+		*len = ntohl(pHeader->uMsgLength);
+		return true;
+	}
+	/*//消息头：ABBC，前4个字节
 	if (buf[0] != 0x41 || buf[1] != 0x42 || buf[2] != 0x42 || buf[3] != 0x43)
 	{
 		return false;
 	}
 	else
 	{
-		/*获取消息索引，跳过消息头再取4个字节*/
+		//获取消息索引，跳过消息头再取4个字节
 		*index = (buf[4] << 24) + (buf[5] << 16) + (buf[6] << 8) + buf[7];
-		/*获取消息长度，跳过消息头及索引再取4个字节*/
+		//获取消息长度，跳过消息头及索引再取4个字节
 		*len = (buf[8] << 24) + (buf[9] << 16) + (buf[10] << 8) + buf[11];
 		return true;
 	}
+	*/
 }
-#define MSG_HEADER_LENGTH 12
+
+
 #ifndef ROUND_UP
 #define ROUND_UP(x, align)       (((int)(x) + (align - 1)) & ~(align - 1))
 #endif
@@ -437,15 +450,9 @@ bool CNetProtocl::headerCheck(const char *buf, unsigned int *index, unsigned int
 #ifndef ROUND_DOWN
 #define ROUND_DOWN(x, align)    ((int)(x) & ~(align - 1))
 #endif
-#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
-#define NET_APP_RECV_SIZE                       2048        /*接收缓冲区大小*/
-#define NET_APP_RECV_ADD                        ((NET_APP_RECV_SIZE) + (NET_APP_EXTRA_LEN))
 
-bool CNetProtocl::decode(const char* buf, int len, char* decodeBuf, int* Length)
+bool CNetProtocl::decrypt(const char* buf, int len, char* decodeBuf, int* Length)
 {
-#define NET_APP_EXTRA_LEN                       16          /*附加编码缓冲区大小*/
-#define NET_APP_RECV_SIZE                       2048        /*接收缓冲区大小*/
-#define NET_APP_RECV_ADD                        ((NET_APP_RECV_SIZE) + (NET_APP_EXTRA_LEN))
 
 	char baseBuf[NET_APP_RECV_SIZE] = {0};
 	
@@ -460,6 +467,11 @@ bool CNetProtocl::decode(const char* buf, int len, char* decodeBuf, int* Length)
 	}
 
 	return true;
+}
+
+bool CNetProtocl::encrypt(const char* buf, int len, char* encryptBuf, int* Length)
+{
+
 }
 
 bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char *buf, int len)
