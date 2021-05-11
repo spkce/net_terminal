@@ -8,42 +8,6 @@ namespace Screen
 class COrderSysterm : public IOrder
 {
 public:
-	enum
-	{
-	/*系统类命令*/
-		AE_GET_ALL_CURRENT_SETTINGS = 1, /*获取所有设置的当前参数*/
-		AE_GET_BATTERY_LEVEL = 2,		 /*获取电池状态*/
-		AE_GET_CAMERAS_STATUS = 3,		 /*获取所有通道接入和录像状态*/
-		AE_GET_GSENSOR_DATA = 4,		 /*获取设备G-sensor数据*/
-		AE_GET_GPS = 5,					 /*获取当前GPS坐标*/
-		AE_GET_DEVICE_INFO = 6,			 /*获取设备信息*/
-		AE_GET_VEHICLE_INFO = 8,		 /*获取车辆相关信息*/
-		AE_SET_VEHICLE_INFO = 9,		 /*设置车辆相关信息*/
-		AE_GET_DRIVER_INFO = 10,		 /*获取驾驶员相关信息*/
-		AE_SET_DRIVER_INFO = 11,		 /*设置驾驶员相关信息*/
-
-		AE_GET_SATELLITE_INFO = 19, /*获取设备当前的搜星信息*/
-
-		AE_GET_VEHICLE_STATUS = 26, /*获取设备状态*/
-		AE_GET_DEVICE_STATUS = 27, /*获取车辆状态*/
-
-		AE_GET_PICTURE_SETTING = 186,  /*获取图像设置*/
-		AE_SET_PICTURE_SETTING = 187,  /*设置图像设置*/
-		AE_GET_COMPRESS_SETTING = 188, /*获取压缩设置*/
-		AE_SET_COMPRESS_SETTING = 189, /*设置压缩设置*/
-
-		AE_GET_IMAGE_SETTING = 190,	  /*获取图片设置*/
-		AE_SET_IMAGE_SETTING = 191,	  /*设置图片设置*/
-		AE_GET_GENERIC_SETTING = 192, /*获取通用设置*/
-		AE_SET_GENERIC_SETTING = 193, /*设置通用设置*/
-		AE_GET_PROMPT_SETTING = 194,  /*获取提醒设置*/
-		AE_SET_PROMPT_SETTING = 195,  /*设置提醒设置*/
-		AE_GET_ALERT_SETTING = 196,	  /*获取告警设置*/
-		AE_SET_ALERT_SETTING = 197,	  /*设置告警设置*/
-		AE_GET_SENSOR_SETTING = 198,  /*获取传感设置*/
-		AE_SET_SENSOR_SETTING = 199,  /*设置传感设置*/
-	};
-
 	enum ErrCode
 	{
 		/*系统类错误码*/

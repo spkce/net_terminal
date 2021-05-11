@@ -233,8 +233,9 @@ public:
 		/*工厂测试*/
 		AE_FACTORY = 5001, /*工厂测试*/
 	};
+	static int orderHub(unsigned int msgID, Json::Value &request, Json::Value &response);
 protected:
-	virtual ~IOrder() {};
+	virtual ~IOrder();
 };
 
 } //Screen
