@@ -76,7 +76,17 @@ private:
 	
 	bool reply(NetServer::ISession* session, Param_t* param, const char *buf, int len);
 
+	int getSetting(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam);
 
+	bool getCameraStatus(NetServer::ISession* session, Json::Value &request, Json::Value &response);
+
+	int getVehicleStatus(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam);
+
+	int getDeviceStatus(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam);
+
+	int sendAppInfo(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam);
+	
+	int sendTouchInfo(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam);
 
 	Terminal::ITerminal* m_pTerminal;
 
@@ -84,6 +94,8 @@ private:
 
 	unsigned int m_tokenId;
 	unsigned int m_reqIndex;
+	
+	//std::unique_ptr<Json::StreamWriter> m_uPtrJsonWriter;
 };
 
 
