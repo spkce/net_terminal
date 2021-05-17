@@ -49,7 +49,7 @@ TimerInternal::~TimerInternal()
 
 }
 
-class CTimerManger: public CThread
+class CTimerManger
 {
 #define PER_TIMER_ALLOCATE 10
 public:
@@ -89,6 +89,7 @@ private:
 	CMutex m_mutexIdleLink;
 	CMutex m_mutexCurTime;
 	long m_curTime;
+	CThread m_thread;
 };
 
 CTimerManger::CTimerManger()
@@ -103,12 +104,16 @@ CTimerManger::CTimerManger()
 	allocateIdleTimer(m_iIdleTimer);
 
 	m_curTime = getCurTime();
-	run();
+	
+	m_thread.attachProc(Infra::ThreadProc_t(&CTimerManger::thread_proc, this));
+	m_thread.createTread();
+	m_thread.run();
 }
 
 CTimerManger::~CTimerManger()
 {
-
+	m_thread.stop(true);
+	m_thread.detachProc(Infra::ThreadProc_t(&CTimerManger::thread_proc, this));
 }
 
 TimerInternal* CTimerManger::allocateTimer()
@@ -134,11 +139,10 @@ void CTimerManger::setupTimer(TimerInternal* p)
 	printf("setupTimer name: %s \n", p->name);
 	Infra::CGuard<Infra::CMutex> guard(m_mutexWorkLink);
 
-	unsigned int iEmployLink = m_linkWorkTimer.linkSize();
+	const unsigned int iEmployLink = m_linkWorkTimer.linkSize();
 
 	m_curTime = getCurTime();
 	
-	printf("setupTimer name: %s \n", p->name);
 	printf("m_curTime = %d ms \n", m_curTime);
 	
 	if (iEmployLink == 0)
@@ -201,7 +205,6 @@ void CTimerManger::allocateIdleTimer(unsigned int n)
 
 void CTimerManger::thread_proc(void* arg)
 {
-	printf(" CTimerManger::thread_proc \n");
 	TimerInternal* p = NULL;
 
 	long timeout = 0;
@@ -211,7 +214,6 @@ void CTimerManger::thread_proc(void* arg)
 		
 		m_mutexWorkLink.lock();
 		p = (TimerInternal*)m_linkWorkTimer.get(0);
-		printf("m_curTime = %d <= Timeout =%d ms \n", getCurTime(), p->getTimeout());
 		if (p == NULL)
 		{
 			m_mutexWorkLink.unlock();

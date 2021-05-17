@@ -34,8 +34,8 @@ public:
 
 		AE_GET_SATELLITE_INFO = 19, /*获取设备当前的搜星信息*/
 
-		AE_GET_VEHICLE_STATUS = 26, /*获取设备状态*/
-		AE_GET_DEVICE_STATUS = 27, /*获取车辆状态*/
+		AE_GET_DEVICE_STATUS = 26, /*获取设备状态*/
+		AE_GET_VEHICLE_STATUS = 27, /*获取车辆状态*/
 
 		AE_GET_PICTURE_SETTING = 186,  /*获取图像设置*/
 		AE_SET_PICTURE_SETTING = 187,  /*设置图像设置*/
@@ -81,14 +81,13 @@ public:
 		AE_SET_RECORD_SCHEDILE = 407,	/*设置录像计划*/
 		AE_COPY_DAY_SCHEDILE = 408,		/*复制一天的录像计划*/
 		AE_COPY_CHANNEL_SCHEDILE = 409, /*复制一个通道的录像计划*/
-		AE_GET_STORAGE_SETTING = 498,	/*获取存储设置*/
-		AE_SET_STORAGE_SETTING = 499,	/*设置存储设置*/
 		AE_EXPORT_MEDIA_FILE = 410,		/*设备媒体文件导出到外部存储设备*/
 		AE_EXPORT_LOG = 411,			/*设备日志导出到外部存储设备*/
 		AE_EXPORT_CONFIG = 414,			/*将设备中的配置文件导入到外部设备*/
-		AE_INPORT_CONFIG = 415,			/*将外部设备中的配置文件导入到设备*/
+		AE_IMPORT_CONFIG = 415,			/*将外部设备中的配置文件导入到设备*/
 		AE_CONCEL_EXPORT = 416,			/*取消文件导出*/
-
+		AE_GET_STORAGE_SETTING = 498,	/*获取存储设置*/
+		AE_SET_STORAGE_SETTING = 499,	/*设置存储设置*/
 		/*时间类命令*/
 		AE_GET_DAYLIGHT_TIME = 501, /*获取夏令时*/
 		AE_SET_DAYLIGHT_TIME = 502, /*设置夏令时*/
@@ -242,15 +241,8 @@ public:
 		/*工厂测试*/
 		AE_FACTORY = 5001, /*工厂测试*/
 	};
-	static bool orderHub(unsigned int msgID, Json::Value &request, Json::Value &response);
-protected:
-	virtual ~IOrder() {};
-};
 
-class COrderSysterm : public IOrder
-{
-public:
-	enum ErrCode
+	enum
 	{
 		/*系统类错误码*/
 		AE_SYS_NOERROR                          = 0,         /*正常*/
@@ -270,6 +262,33 @@ public:
 		AE_NO_BATTERY                           = 14,        /*设备未装载电池*/
 		AE_NO_TRAIN_INFO                        = 15,        /*未连接外部设备*/
 	};
+
+	/*协议类错误码*/
+	enum
+	{
+		AE_PROT_JSON_PACKAGE_ERROR              =301,       /*json字符串不支持嵌套*/
+		AE_PROT_JSON_PACKAGE_TIMEOUT            =302,       /*5秒内未收到json结束标志*/
+		AE_PROT_JSON_SYNTAX_ERROR               =303,       /*json字符串的键值对包含语法错误*/
+		AE_PROT_INVALID_OPTION_VALUE            =304,       /*AE_SET_SETTING命令的json字符串中包含不支持的选项*/
+		AE_PROT_INVALID_OPERATION               =305,       /*不支持的命令号*/
+		AE_PROT_INVALID_TYPE                    =306,       /*协议命令的type非法*/
+		AE_PROT_INVALID_PARAM                   =307,       /*协议命令的param非法*/
+		AE_PROT_INVALID_PATH                    =308,       /*请求的文件或目录不存在*/
+		AE_TIMEZONE_INTERVAL_ERROR              =309,       /*夏令时间隔小于30天*/
+		AE_TIMEZONE_WEEK_ERROR                  =310,       /*夏令时星期错误*/
+		AE_TIMEZONE_DAY_ERROR                   =311,       /*夏令时日期错误*/
+		AE_VOLTAGE_ERROR						=312,		/*设置失败，当前电压小于设置电压*/
+		AE_VOLTAGE_NOT_CONNECTED				=313,		/*设置失败，未连接降压线*/
+		AE_SET_VALUE_TOO_LOW				    =314,		/*设置参数过低*/
+		AE_SET_VALUE_TOO_HIGH				    =314,		/*设置参数过高*/
+	};
+	static bool orderHub(unsigned int msgID, Json::Value &request, Json::Value &response);
+protected:
+	virtual ~IOrder() {};
+};
+
+class COrderSysterm : public IOrder
+{
 public:
 	virtual ~COrderSysterm() {};
 
@@ -282,8 +301,24 @@ public:
 	static int getVehicleInfo(Json::Value &request, Json::Value &response);
 	static int setVehicleInfo(Json::Value &request, Json::Value &response);
 	static int getDriverInfo(Json::Value &request, Json::Value &response);
-
-	
+	static int setDriverInfo(Json::Value &request, Json::Value &response);
+	static int getSatelliteInfo(Json::Value &request, Json::Value &response);
+	static int getDeviceStatus(Json::Value &request, Json::Value &response);
+	static int getVehicleStatus(Json::Value &request, Json::Value &response);
+	static int getPictureSetting(Json::Value &request, Json::Value &response);
+	static int setPictureSetting(Json::Value &request, Json::Value &response);
+	static int getCompressSetting(Json::Value &request, Json::Value &response);
+	static int setCompressSetting(Json::Value &request, Json::Value &response);
+	static int getImageSetting(Json::Value &request, Json::Value &response);
+	static int setImageSetting(Json::Value &request, Json::Value &response);
+	static int getGenericSetting(Json::Value &request, Json::Value &response);
+	static int setGenericSetting(Json::Value &request, Json::Value &response);
+	static int getPromptSetting(Json::Value &request, Json::Value &response);
+	static int setPromptSetting(Json::Value &request, Json::Value &response);
+	static int getAlertSetting(Json::Value &request, Json::Value &response);
+	static int setAlertSetting(Json::Value &request, Json::Value &response);
+	static int getSensorSetting(Json::Value &request, Json::Value &response);
+	static int setSensorSetting(Json::Value &request, Json::Value &response);
 };
 
 int COrderSysterm::getDeviceSetting(Json::Value &request, Json::Value &response)
@@ -393,6 +428,795 @@ int COrderSysterm::setVehicleInfo(Json::Value &request, Json::Value &response)
 int COrderSysterm::getDriverInfo(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_DRIVER_INFO
+	response["licenseNumber"] = "12345678910";
+	response["validTime"] = "12345";
+	response["qualCert"] = "12345";
+	response["status"] = 1;
+	response["checkInTime"] = "2016.04.15";
+	response["certificationOrgan"] = "xxxxx"; //[1,13]
+	response["identityID"] = "123456789";
+	response["driverName"] = "self";
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setDriverInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_DRIVER_INFO
+
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getSatelliteInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_SATELLITE_INFO
+	if (!request.isMember("type"))
+	{
+		response = Json::nullValue;
+		return AE_PROT_INVALID_TYPE;
+	}
+	
+	response["satelliteCount"] = 3;
+	response["HDOP"] = 1.0;
+	//request["type"].asUInt();
+	for (int i = 0; i < 3;i++)
+	{
+		response["infos"][i]["index"] = i;
+		response["infos"][i]["radio"] = 30;
+		response["infos"][i]["type"] = 1;
+		response["infos"][i]["type"] = 1;
+	}
+	
+
+	
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getDeviceStatus(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_DEVICE_STATUS
+	if (!request.isMember("type") || !request["type"].isArray())
+	{
+		return -1;
+	}
+
+	for(int i = 0; i < (int)request["type"].size(); i++)
+	{
+		if (request["type"][i].asString() == "time")
+		{
+			response["time"] = "2021-05-10 17:00:01";
+		}
+		else if (request["type"][i].asString() == "CSQ")
+		{
+			response["CSQ"] = 1; // [0,31]
+		}
+		else if (request["type"][i].asString() == "accStatus")
+		{
+			response["accStatus"] = 1;
+		}
+		else if (request["type"][i].asString() == "locationStatus")
+		{
+			response["locationStatus"] = 1;
+		}
+		else if (request["type"][i].asString() == "bizPIfLoginStatus")
+		{
+			response["bizPIfLoginStatus"] = 1;
+		}
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getVehicleStatus(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_VEHICLE_STATUS
+	//if (!reqParam.isMember("type") || !reqParam["type"].isArray())
+	//{
+	//	return -1;
+	//}
+
+	//for(int i = 0; i < (int)reqParam["type"].size(); i++)
+	//{
+	//	if (reqParam["type"][i].asString() == "feedProtection")
+	//	{
+	//		resParam["feedProtection"] = 0;
+	//	}
+	//	else if (reqParam["type"][i].asString() == "gear")
+	//	{
+	//		resParam["gear"] = 1;
+	//	}
+	//}
+	//"feedecStatus";
+	//resParam["feedPro"] = 1;
+	response["gear"] = 1;
+	response["feedPro"] = 1;
+	
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getPictureSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_PICTURE_SETTING
+	if (!response.isMember("chanNo"))
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	response["OSDName"][0]["index"] = 1;
+	response["OSDName"][0]["str"] = "channel name"; 
+
+	return AE_SYS_NOERROR;
+}
+int COrderSysterm::setPictureSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_PICTURE_SETTING
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getCompressSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_COMPRESS_SETTING
+	if (!response.isMember("chanNo") || !response.isMember("streamType"))
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	response["resolution"] = 1;
+	response["aspectRatio"] = 1;
+	response["encodeMode"] = 1;
+	response["videoQuality"] = 1;
+	response["packageFormat"] = 0;
+	response["bitRateType"] = 1;
+	response["audioEncodeMode"] = 1;
+	response["audioBitRate"] = 1;
+	response["frameRate"] = 30;
+	response["audioSamplingRate"] = 1;
+	response["videoType"] = 1;
+	response["bitRateType"] = 1;
+	response["imageQuality"] = 1;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setCompressSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_COMPRESS_SETTING
+	
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getImageSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_IMAGE_SETTING
+	if (!response.isMember("chanNo") || !response.isMember("streamType"))
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	response["resolution"] = 0;
+	response["aspectRatio"] = 0;
+	response["encodeMode"] = 0;
+	response["videoQuality"] = 0;
+	response["distortionCalibration"] = 0;
+	response["videoFormat"] = 0;
+	response["packageFormat"] = 0;
+	response["WDR"] = 0;
+	response["linkageRec"] = 0;
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setImageSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_IMAGE_SETTING
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getGenericSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_GENERIC_SETTING
+	response["language"] = 0;
+	response["LCDRotate"] = 0;
+	response["LCDPoweroff"] = 0;
+	response["shutdownDelay"] = 0;
+	response["plateNumber"] = "浙A22455";
+	response["trainInfo"] = "aa/bbb-ccc";
+	response["btnPressTip"] = 0;
+	response["speakerSwitch"] = 0;
+	response["volume"] = 0;
+	response["waterMark"] = 0;
+	response["touchTip"] = 0;
+	response["enterScreenSaverTime"] = 0;
+	response["recordMode"] = 0;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setGenericSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_GENERIC_SETTING
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getPromptSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_PROMPT_SETTING
+	response["lightOnPrompt"] = 0;
+	response["greenLightPrompt"] = 0;
+	response["frontVehicleStartingPrompt"] = 0;
+	response["motionDetect"] = 0;
+	response["speedLimitDetection"] = 0;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setPromptSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_PROMPT_SETTING
+	return AE_SYS_NOERROR;
+}
+
+//		AE_GET_SENSOR_SETTING = 198,  /*获取传感设置*/
+//		AE_SET_SENSOR_SETTING = 199,  /*设置传感设置*/
+int COrderSysterm::getAlertSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_ALERT_SETTING
+	response["fatigueDrivingAlert"] = 0;
+	response["speedingPrompt"] = 0;
+	response["SDAbnormalTip"] = 0;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setAlertSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_ALERT_SETTING
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::getSensorSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_SENSOR_SETTING
+	response["gSensorSensitity"] = 0;
+	response["parkingSurveillance"] = 0;
+	response["parkMontorThreshold"] = "80";
+	response["gps"] = 0;
+	return AE_SYS_NOERROR;
+}
+
+int COrderSysterm::setSensorSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_SENSOR_SETTING
+	return AE_SYS_NOERROR;
+}
+
+class COrderMedia : public IOrder
+{
+	//媒体类命令
+public:
+	virtual ~COrderMedia() {};
+
+	static int recordStart(Json::Value &request, Json::Value &response);
+	static int recordStop(Json::Value &request, Json::Value &response);
+	static int eventRecordStart(Json::Value &request, Json::Value &response);
+	static int audioRecordStart(Json::Value &request, Json::Value &response);
+	static int audioRecordStop(Json::Value &request, Json::Value &response);
+};
+
+int COrderMedia::recordStart(Json::Value &request, Json::Value &response)
+{
+	//	AE_RECORD_START
+	if (!request.isMember("chanNo") || !request["chanNo"].isUInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	if (!request.isMember("type"))
+	{
+		return AE_PROT_INVALID_TYPE;
+	}
+	unsigned int chanNo = request["chanNo"].asUInt();
+	response["chanNo"] = chanNo;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderMedia::recordStop(Json::Value &request, Json::Value &response)
+{
+	//	AE_RECORD_STOP
+	if (!request.isMember("chanNo") || !request["chanNo"].isUInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	if (!request.isMember("type"))
+	{
+		return AE_PROT_INVALID_TYPE;
+	}
+
+	unsigned int chanNo = request["chanNo"].asUInt();
+	response["chanNo"] = chanNo;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderMedia::eventRecordStart(Json::Value &request, Json::Value &response)
+{
+	//	AE_EVENT_RECORD_START
+	if (!request.isMember("chanNo") || !request["chanNo"].isUInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	if (!request.isMember("type"))
+	{
+		return AE_PROT_INVALID_TYPE;
+	}
+	
+	unsigned int chanNo = request["chanNo"].asUInt();
+	response["chanNo"] = chanNo;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderMedia::audioRecordStart(Json::Value &request, Json::Value &response)
+{
+	//	AE_AUDIO_RECORD_START
+	if (!request.isMember("chanNo") || !request["chanNo"].isUInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	if (!request.isMember("type"))
+	{
+		return AE_PROT_INVALID_TYPE;
+	}
+	
+	unsigned int chanNo = request["chanNo"].asUInt();
+	response["chanNo"] = chanNo;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderMedia::audioRecordStop(Json::Value &request, Json::Value &response)
+{
+	//	AE_AUDIO_RECORD_STOP
+	if (!request.isMember("chanNo") || !request["chanNo"].isUInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	if (!request.isMember("type"))
+	{
+		return AE_PROT_INVALID_TYPE;
+	}
+	
+	unsigned int chanNo = request["chanNo"].asUInt();
+	response["chanNo"] = chanNo;
+
+	return AE_SYS_NOERROR;
+}
+
+class COrderNetwork : public IOrder
+{
+	//网络类命令
+public:
+	virtual ~COrderNetwork() {};
+
+	static int wifiRestart(Json::Value &request, Json::Value &response);
+	static int getSTAParam(Json::Value &request, Json::Value &response);
+	static int setSTAParam(Json::Value &request, Json::Value &response);
+	static int getAPParam(Json::Value &request, Json::Value &response);
+	static int setAPParam(Json::Value &request, Json::Value &response);
+	static int get4GParam(Json::Value &request, Json::Value &response);
+	static int set4GParam(Json::Value &request, Json::Value &response);
+	static int getNetworkSetting(Json::Value &request, Json::Value &response);
+	static int setNetworkSetting(Json::Value &request, Json::Value &response);
+};
+
+int COrderNetwork::wifiRestart(Json::Value &request, Json::Value &response)
+{
+	//AE_WIFI_RESTART
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::getSTAParam(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_STA_PARAM
+	response["ssid"] = "ADAS-DACD";
+	response["password"] = "0123456789";
+	response["frequency"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::setSTAParam(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_STA_PARAM
+	if (!response.isMember("ssid") || !response["ssid"].isString()
+		|| !response.isMember("password") || !response["password"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::getAPParam(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_AP_PARAM
+	response["ssid"] = "ADAS-DACD";
+	response["password"] = "0123456789";
+	response["frequency"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::setAPParam(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_AP_PARAM
+	if (!response.isMember("ssid") || !response["ssid"].isString()
+		|| !response.isMember("password") || !response["password"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::get4GParam(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_4G_PARAM
+	response["enable"] = 1;
+	response["apn"] = "this is an apn";
+	response["telephone"] = "12345678910";
+	response["username"] = "admin";
+	response["password"] = "12345678";
+	response["mtu"] = "1500";
+	response["verify"] = 0;
+	response["band"] = 0;
+	response["signal"] = 80;
+	response["ip"] = "192.168.1.1";
+	response["simStatus"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::set4GParam(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_4G_PARAM
+	if (!response.isMember("enable") || !response["enable"].isInt()
+		|| !response.isMember("apn") || !response["apn"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::getNetworkSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_NETWORK_SETTING
+
+	response["mobileData"] = 0;
+	response["wifiShutdown"] = 0;
+	response["wifiMode"] = 0;
+	return AE_SYS_NOERROR;
+}
+
+int COrderNetwork::setNetworkSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_NETWORK_SETTING
+	return AE_SYS_NOERROR;
+}
+
+class COrderStorage : public IOrder
+{
+	//存储类命令
+public:
+	virtual ~COrderStorage() {};
+
+	static int getSDLetter(Json::Value &request, Json::Value &response);
+	static int getSDInfo(Json::Value &request, Json::Value &response);
+	static int setSDLockStatus(Json::Value &request, Json::Value &response);
+	static int setSDPassword(Json::Value &request, Json::Value &response);
+	static int formatSD(Json::Value &request, Json::Value &response);
+	static int getRecodeSchedule(Json::Value &request, Json::Value &response);
+	static int setRecodeSchedule(Json::Value &request, Json::Value &response);
+	static int copyDaySchedule(Json::Value &request, Json::Value &response);
+	static int copyChannelSchedule(Json::Value &request, Json::Value &response);
+	static int getStorageSetting(Json::Value &request, Json::Value &response);
+	static int setStorageSetting(Json::Value &request, Json::Value &response);
+	static int exportMediaFile(Json::Value &request, Json::Value &response);
+	static int exportMediaLog(Json::Value &request, Json::Value &response);
+	static int exportConfig(Json::Value &request, Json::Value &response);
+	static int importConfig(Json::Value &request, Json::Value &response);
+	static int cancelExport(Json::Value &request, Json::Value &response);
+};
+
+int COrderStorage::getSDLetter(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_SD_LETTER
+	response["list"][0] = "A";
+	response["list"][1] = "B";
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::getSDInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_SD_INFO
+	if (!request.isMember("driver") || !request["driver"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	response["totalSpace"] = 30424;
+	response["freeSpace"] = 29650;
+	response["residualLife"] = "99";
+	response["healthStatus"] = "good";
+	response["status"] = "nonsupport";
+	return AE_SYS_NOERROR;
+
+}
+int COrderStorage::setSDLockStatus(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_SD_LOCK_STATUS
+	if (!request.isMember("SDEncrypt") || !request["SDEncrypt"].isString()
+		|| !request.isMember("reset") || !request["reset"].isString()
+		|| !request.isMember("driver") || !request["driver"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::setSDPassword(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_SD_PASSWD
+	if (!request.isMember("oldPasswd") || !request["oldPasswd"].isString()
+		|| !request.isMember("sdPasswd") || !request["sdPasswd"].isString()
+		|| !request.isMember("driver") || !request["driver"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::formatSD(Json::Value &request, Json::Value &response)
+{
+	//AE_FORMAT
+	if (!request.isMember("driver") || !request["driver"].isString()
+		|| !request.isMember("sdPasswd") || !request["sdPasswd"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::getRecodeSchedule(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_RECORD_SCHEDILE
+	if (!request.isMember("day") || !request["day"].isInt()
+		|| !request.isMember("chanNo") || !request["chanNo"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	int chanNo = request["chanNo"].asInt();
+	response["chanNo"] = chanNo;
+	response["listing"][0]["day"] = 1;
+	response["listing"][0]["timeslots"][0]["type"] = 1;
+	response["listing"][0]["timeslots"][0]["startTime"] = "00:00:00";
+	response["listing"][0]["timeslots"][0]["ensTime"] = "23:59:59";
+	
+	response["listing"][1]["day"] = 2;
+	response["listing"][1]["timeslots"][0]["type"] = 1;
+	response["listing"][1]["timeslots"][0]["startTime"] = "00:00:00";
+	response["listing"][1]["timeslots"][0]["ensTime"] = "23:59:59";
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::setRecodeSchedule(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_RECORD_SCHEDILE
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
+		|| !request.isMember("listing") || !request["listing"].isArray())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::copyDaySchedule(Json::Value &request, Json::Value &response)
+{
+	//AE_COPY_DAY_SCHEDILE
+	if (!request.isMember("fromDay") || !request["fromDay"].isInt()
+		|| !request.isMember("toDay") || !request["toDay"].isArray()
+		|| !request.isMember("chanNo") || !request["chanNo"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::copyChannelSchedule(Json::Value &request, Json::Value &response)
+{
+	//AE_COPY_CHANNEL_SCHEDILE
+	if (!request.isMember("fromChan") || !request["fromChan"].isInt()
+		|| !request.isMember("toChan") || !request["toChan"].isArray())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::exportMediaFile(Json::Value &request, Json::Value &response)
+{
+	//AE_EXPORT_MEDIA_FILE
+	if (!request.isMember("exportDevice") || !request["exportDevice"].isString()
+		|| !request.isMember("chanNo") || !request["chanNo"].isInt())
+
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	// !request.isMember("timeSlot") || !request["timeSlot"].isArray()
+	//!request.isMember("filelist") || !request["filelist"].isArray()
+	response["filelist"][0]["result"] = 1;
+	response["filelist"][0]["name"] = "a.mp4";
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::exportMediaLog(Json::Value &request, Json::Value &response)
+{
+	//AE_EXPORT_LOG
+	if (!request.isMember("exportDevice") || !request["exportDevice"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	if (request.isMember("timeSlot") && request["timeSlot"].isArray())
+	{
+		for (int i = 0; i < (int)request["timeSlot"].size(); i++)
+		{
+			if (!request["timeSlot"][i].isMember("startTime") 
+				|| !request["timeSlot"][i]["startTime"].isString()
+				|| !request["timeSlot"][i].isMember("endTime")
+				|| !request["timeSlot"][i]["endTime"].isString())
+			{
+				response == Json::nullValue;
+				return AE_SYS_UNKNOWN_ERROR;
+			}
+		}
+	} 
+
+	response["filelist"][0]["result"] = 1;
+	response["filelist"][0]["name"] = "a.mp4";
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::exportConfig(Json::Value &request, Json::Value &response)
+{
+	//AE_EXPORT_CONFIG
+	if (!request.isMember("type") || !request["type"].isInt()
+		|| !request.isMember("exportDevice") ||request["exportDevice"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::importConfig(Json::Value &request, Json::Value &response)
+{
+	//AE_IMPORT_CONFIG
+	if (!request.isMember("type") || !request["type"].isInt()
+		|| !request.isMember("importDevice") ||request["importDevice"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::cancelExport(Json::Value &request, Json::Value &response)
+{
+	//AE_CONCEL_EXPORT
+	if (!request.isMember("type") || !request["type"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::getStorageSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_STORAGE_SETTING
+	response["clipDuration"] = 1;
+	response["microphone"] = 1;
+	response["cycleRecord"] = 1;
+	response["subRec"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderStorage::setStorageSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_STORAGE_SETTING
+	return AE_SYS_NOERROR;
+}
+
+class COrderTime : public IOrder
+{
+	//时间类命令
+public:
+	virtual ~COrderTime() {};
+
+	static int getDayLightTime(Json::Value &request, Json::Value &response);
+	static int setDayLightTime(Json::Value &request, Json::Value &response);
+	static int getTimeZone(Json::Value &request, Json::Value &response);
+	static int setTimeZone(Json::Value &request, Json::Value &response);
+	static int getTimeSetting(Json::Value &request, Json::Value &response);
+	static int setTimeSetting(Json::Value &request, Json::Value &response);
+};
+
+int COrderTime::getDayLightTime(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_DAYLIGHT_TIME
+	
+	response["DST"] = 1;
+	response["startDate"] = "m04.5.1";
+	response["endDate"] = "m04.5.1";
+	response["startTime"] = "20:17";
+	response["endTime"] = "20:17";
+	response["DSTBias"] = "60";
+	return AE_SYS_NOERROR;
+}
+
+int COrderTime::setDayLightTime(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_DAYLIGHT_TIME
+	if (!request.isMember("DST") || !request["DST"].isInt()
+		|| request.isMember("startDate") || !request["startDate"].isString()
+		|| request.isMember("endDate") || !request["endDate"].isString()
+		|| request.isMember("startTime") || !request["startTime"].isString()
+		|| request.isMember("endTime") || !request["endTime"].isString()
+		|| request.isMember("DSTBias") || !request["DSTBias"].isString()
+		)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderTime::getTimeZone(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_TIMEZONE
+	response["timeZone"] = "GMT+08:00";
+	return AE_SYS_NOERROR;
+}
+
+int COrderTime::setTimeZone(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_TIMEZONE
+	if (!request.isMember("timeZone") || !request["timeZone"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderTime::getTimeSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_TIME_SETTING
+	response["dateTime"] = "2021-01-01 10:10:10";
+	response["DST"] = 0;
+	response["startDate"] = "m04.5.1";
+	response["endDate"] = "m04.5.1";
+	response["startTime"] = "20:17";
+	response["endTime"] = "20:17";
+	response["DSTBias"] = "60";
+	response["timeZone"] = "GMT+08:00";
+	return AE_SYS_NOERROR;
+}
+
+int COrderTime::setTimeSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_TIME_SETTING
 	return AE_SYS_NOERROR;
 }
 
@@ -607,6 +1431,10 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 		sprintf(sKeyStr + i * 2, "%02x", m_AesKey[i]);
 	}
 	int iRet = app_rsa_encode(rsaKey.c_str(), sKeyStr, (unsigned char *)sRsaEncodeKey);
+	if (iRet < 0)
+	{
+		return false;
+	}
 
 	response["aesCode"] = std::string(sRsaEncodeKey);
 
@@ -722,7 +1550,7 @@ bool CNetProtocl::decrypt(const char* buf, int len, char* decodeBuf, int* Length
 
 bool CNetProtocl::encrypt(const char* buf, int len, char* encryptBuf, int* Length)
 {
-
+	return true;
 }
 
 bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char *buf, int len)
