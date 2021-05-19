@@ -29,6 +29,7 @@ public:
 	void sessionTask(NetServer::ISession* session, char* buf, int len);
 private:
 	const int m_maxSession;
+	const int m_port;
 	NetServer::INetServer* m_pServ;
 	IProtocl* m_protocl;
 	Infra::CMutex m_mutex;

@@ -13,6 +13,7 @@ namespace Screen
 
 CScreen::CScreen()
 :m_maxSession(5)
+,m_port(7877)
 ,m_pServ(NULL)
 {
 	m_type = ITerminal::emTerminalScree;
@@ -27,7 +28,7 @@ CScreen::~CScreen()
 
 bool CScreen::init()
 {
-	m_pServ = INetServer::create(7877, INetServer::emTCPServer);
+	m_pServ = INetServer::create(m_port, INetServer::emTCPServer);
 	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
 	m_pServ->start(m_maxSession);
 
@@ -36,6 +37,11 @@ bool CScreen::init()
 
 bool CScreen::connect(ISession* session)
 {
+	if (session == NULL)
+	{
+		return false;
+	}
+
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
 	if (m_vecSession.size() >= (unsigned int)m_maxSession)
 	{
@@ -54,6 +60,11 @@ bool CScreen::connect(ISession* session)
 
 bool CScreen::disconnet(ISession* session)
 {
+	if (session == NULL)
+	{
+		return false;
+	}
+
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
 
 	vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
@@ -72,6 +83,10 @@ bool CScreen::disconnet(ISession* session)
 void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 {
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
+	if (pSession == NULL)
+	{
+		return ;
+	}
 
 	pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this));
 
@@ -81,6 +96,10 @@ void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 
 void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 {
+	if (session == NULL || buf == NULL || len <= 0)
+	{
+		return ;
+	}
 	m_protocl->parse(session, buf, len);
 }
 

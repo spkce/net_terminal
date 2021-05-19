@@ -278,6 +278,11 @@ bool CSessionManager::cancelSession(ISession* session)
 
 void CSessionManager::registerSession(ISession* session)
 {
+	if (session == NULL)
+	{
+		return ;
+	}
+
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
 
 	std::vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);

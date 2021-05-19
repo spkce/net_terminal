@@ -1220,6 +1220,389 @@ int COrderTime::setTimeSetting(Json::Value &request, Json::Value &response)
 	return AE_SYS_NOERROR;
 }
 
+
+class COrderPlatform : public IOrder
+{
+	//平台类命令
+public:
+	virtual ~COrderPlatform() {};
+
+	static int getPlatformConnInfo(Json::Value &request, Json::Value &response);
+	static int setPlatformConnInfo(Json::Value &request, Json::Value &response);
+	static int get808ConnInfo(Json::Value &request, Json::Value &response);
+	static int set808ConnInfo(Json::Value &request, Json::Value &response);
+	static int get808ConnInfo2(Json::Value &request, Json::Value &response);
+	static int set808ConnInfo2(Json::Value &request, Json::Value &response);
+	static int getOperateConnInfo(Json::Value &request, Json::Value &response);
+	static int setOperateConnInfo(Json::Value &request, Json::Value &response);
+	static int getNtpConnInfo(Json::Value &request, Json::Value &response);
+	static int setNtpConnInfo(Json::Value &request, Json::Value &response);
+};
+
+int COrderPlatform::getPlatformConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_PLATFORM_CONN_INFO
+	if (!request.isMember("type") || !request["type"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	response["enable"] = 0;
+	response["type"] = 0;
+	response["ip"] = "www.baidu.com";
+	response["prot"] = 80;
+	response["id"] = "sssssss";
+	response["status"] = 1;
+
+	return AE_SYS_NOERROR;
+}
+
+/*设置平台信息*/
+int COrderPlatform::setPlatformConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_PLATFORM_CONN_INFO
+	if (!request.isMember("enable") || !request["enable"].isInt()
+		||!request.isMember("type") || !request["type"].isInt()
+		||!request.isMember("ip") || !request["ip"].isString()
+		||!request.isMember("prot") || !request["prot"].isInt()
+		||!request.isMember("id") || !request["id"].isString()
+		)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderPlatform::get808ConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_808_CONN_INFO
+	if (!request.isMember("platformOrder") || !request["platformOrder"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	response["enable"] = 0;
+	response["type"] = 0;
+	response["ip"] = "www.baidu.com";
+	response["prot"] = 80;
+	response["id"] = "sssssss";
+	response["serial"] = "sssssss";
+	response["status"] = 1;
+	response["platformOrder"] = 1;
+	response["uploadEnable"] = 1;
+	response["protocol"] = 0;
+	return AE_SYS_NOERROR;
+}
+int COrderPlatform::set808ConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_808_CONN_INFO
+	if (!request.isMember("enable") || !request["enable"].isInt()
+		||!request.isMember("type") || !request["type"].isInt()
+		||!request.isMember("ip") || !request["ip"].isString()
+		||!request.isMember("prot") || !request["prot"].isInt()
+		||!request.isMember("id") || !request["id"].isString()
+		||!request.isMember("serial") || !request["serial"].isString()
+		)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+int COrderPlatform::get808ConnInfo2(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_808_CONN_INFO_2
+	if (!request.isMember("platformOrder") || !request["platformOrder"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	response["enable"] = 0;
+	response["type"] = 0;
+	response["ip"] = "www.baidu.com";
+	response["prot"] = 80;
+	response["id"] = "sssssss";
+	response["serial"] = "sssssss";
+	response["status"] = 1;
+	response["platformOrder"] = 1;
+	response["uploadEnable"] = 1;
+	response["protocol"] = 0;
+	return AE_SYS_NOERROR;
+}
+int COrderPlatform::set808ConnInfo2(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_808_CONN_INFO_2
+	if (!request.isMember("enable") || !request["enable"].isInt()
+		||!request.isMember("type") || !request["type"].isInt()
+		||!request.isMember("ip") || !request["ip"].isString()
+		||!request.isMember("prot") || !request["prot"].isInt()
+		||!request.isMember("id") || !request["id"].isString()
+		||!request.isMember("serial") || !request["serial"].isString()
+		)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+int COrderPlatform::getOperateConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_OPERATE_PLATFORM_INFO
+	response["enable"] = 0;
+	response["type"] = 0;
+	response["ip"] = "www.baidu.com";
+	return AE_SYS_NOERROR;
+}
+
+int COrderPlatform::setOperateConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_OPERATE_PLATFORM_INFO
+	if (!request.isMember("enable") || !request["enable"].isInt()
+		||!request.isMember("ip") || !request["ip"].isString()
+		||!request.isMember("prot") || !request["prot"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderPlatform::getNtpConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_NTP_PLATFORM_INFO
+	if (!request.isMember("type") || !request["type"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	response["enable"] = 0;
+	response["ip"] = "www.baidu.com";
+	response["prot"] = 80;
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderPlatform::setNtpConnInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_NTP_PLATFORM_INFO
+	if (!request.isMember("enable") || !request["enable"].isInt()
+		||!request.isMember("ip") || !request["ip"].isString()
+		||!request.isMember("prot") || !request["prot"].isInt())
+	{
+			return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+class COrderFace : public IOrder
+{
+	//人脸类命令
+public:
+	virtual ~COrderFace() {};
+
+	static int getFaceInfo(Json::Value &request, Json::Value &response);
+	static int setFaceInfo(Json::Value &request, Json::Value &response);
+	static int getOverTimeDrivingSetting(Json::Value &request, Json::Value &response);
+	static int setOverTimeDrivingSetting(Json::Value &request, Json::Value &response);
+};
+
+int COrderFace::getFaceInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_FACE_INFO
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
+		||!request.isMember("pageSize") || !request["pageSize"].isInt()
+		||!request.isMember("index") || !request["index"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	
+	response["totalFileNum"] = 3;
+	response["index"] = 1;
+	response["listing"][0]["faceID"] = 1;
+	response["listing"][0]["name"] = "nico";
+	response["listing"][0]["identityID"] = "5xxxxxx";
+	response["listing"][0]["FaceUrl"] = "http://xxxx";
+	return AE_SYS_NOERROR;
+}
+
+int COrderFace::setFaceInfo(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_FACE_INFO
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
+		||!request.isMember("faceID") || !request["faceID"].isInt()
+		||!request.isMember("name") || !request["name"].isString()
+		||!request.isMember("identityID") || !request["identityID"].isString()
+		||!request.isMember("mod") || !request["mod"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+int COrderFace::getOverTimeDrivingSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_OVERTIME_DRIVING_SETTING
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	response["daylightDrivingTimeMax"] = 8;
+	response["nightDrivingTimeMax"] = 4;
+	response["restTimeMin"] = 20;
+	response["allDayDrivingTimeMax"] = 1;
+	response["daylightStartTime"] = 480;
+	response["daylightEndTime"] = 1050;
+	return AE_SYS_NOERROR;
+}
+
+int COrderFace::setOverTimeDrivingSetting(Json::Value &request, Json::Value &response)
+{
+	//AE_SET_OVERTIME_DRIVING_SETTING
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
+		|| !request.isMember("daylightDrivingTimeMax") || !request["daylightDrivingTimeMax"].isInt()
+		|| !request.isMember("nightDrivingTimeMax") || !request["nightDrivingTimeMax"].isInt()
+		|| !request.isMember("restTimeMin") || !request["restTimeMin"].isInt()
+		|| !request.isMember("allDayDrivingTimeMax") || !request["allDayDrivingTimeMax"].isInt()
+		|| !request.isMember("daylightStartTime") || !request["daylightStartTime"].isInt()
+		|| !request.isMember("daylightEndTime") || !request["daylightEndTime"].isInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
+class COrderPeripheral : public IOrder
+{
+	//外接设备类命令
+public:
+	virtual ~COrderPeripheral() {};
+
+	static int getAddedIPCList(Json::Value &request, Json::Value &response);
+	static int setAddableIPCList(Json::Value &request, Json::Value &response);
+	static int addIPC(Json::Value &request, Json::Value &response);
+	static int delIPC(Json::Value &request, Json::Value &response);
+};
+
+int COrderPeripheral::getAddedIPCList(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_ADDED_IPC_LIST
+	response["list"][0]["model"] = "UNKOWN";
+	response["list"][0]["ip"] = "192.168.1.150";
+	response["list"][0]["port"] = 122;
+	response["list"][0]["bindChanNo"] = 7;
+	response["list"][0]["activeMode"] = 1;
+	response["list"][0]["firmVer"] = "V1.0.1";
+	response["list"][0]["status"] = 1;
+	response["list"][0]["IPv4Gateway"] = "192.168.0.1";
+	response["list"][0]["HTTPPort"] = 8000;
+	response["list"][0]["serialNum"] = "ipc8000";
+	response["list"][0]["mac"] = "00:77:ba:aa:77";
+	return AE_SYS_NOERROR;
+}
+
+int COrderPeripheral::setAddableIPCList(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_ADDABLE_IPC_LIST
+	response["list"][0]["model"] = "UNKOWN";
+	response["list"][0]["ip"] = "192.168.1.150";
+	response["list"][0]["port"] = 122;
+	response["list"][0]["activeMode"] = 1;
+	response["list"][0]["firmVer"] = "V1.0.1";
+	response["list"][0]["status"] = 1;
+	response["list"][0]["IPv4Gateway"] = "192.168.0.1";
+	response["list"][0]["HTTPPort"] = 8000;
+	response["list"][0]["serialNum"] = "ipc8000";
+	response["list"][0]["mac"] = "00:77:ba:aa:77";
+	return AE_SYS_NOERROR;
+}
+
+int COrderPeripheral::addIPC(Json::Value &request, Json::Value &response)
+{
+	//AE_ADD_IPC
+	if (!request.isMember("mac") || !request["mac"].isString()
+		|| !request.isMember("userName") || !request["userName"].isString()
+		|| !request.isMember("password") || !request["password"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	response["list"][0]["model"] = "UNKOWN";
+	response["list"][0]["ip"] = "192.168.1.150";
+	response["list"][0]["port"] = 122;
+	response["list"][0]["bindChanNo"] = 7;
+	response["list"][0]["activeMode"] = 1;
+	response["list"][0]["firmVer"] = "V1.0.1";
+	response["list"][0]["status"] = 1;
+	response["list"][0]["IPv4Gateway"] = "192.168.0.1";
+	response["list"][0]["HTTPPort"] = 8000;
+	response["list"][0]["serialNum"] = "ipc8000";
+	response["list"][0]["mac"] = "00:77:ba:aa:77";
+	return AE_SYS_NOERROR;
+}
+
+int COrderPeripheral::delIPC(Json::Value &request, Json::Value &response)
+{
+	//AE_DEL_IPC
+	if (!request.isMember("chanNo") || !request["chanNo"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	return AE_SYS_NOERROR;
+}
+
+class COrderCapability : public IOrder
+{
+	//外接设备类命令
+public:
+	virtual ~COrderCapability() {};
+
+	static int getCapability(Json::Value &request, Json::Value &response);
+	static int getCapabilityImage(Json::Value &request, Json::Value &response);
+	static int getCapabilityBasic(Json::Value &request, Json::Value &response);
+	static int getCapabilityNetwork(Json::Value &request, Json::Value &response);
+	static int getCapabilityStorage(Json::Value &request, Json::Value &response);
+	static int getCapabilityIntelligence(Json::Value &request, Json::Value &response);
+	static int getCapabilityPrompt(Json::Value &request, Json::Value &response);
+	static int getCapabilityAlert(Json::Value &request, Json::Value &response);
+	static int getCapabilitySensor(Json::Value &request, Json::Value &response);
+	static int getCapabilityADAS(Json::Value &request, Json::Value &response);
+	static int getCapabilityDBA(Json::Value &request, Json::Value &response);
+	static int getCapabilityVSD(Json::Value &request, Json::Value &response);
+	static int getCapabilityBSD(Json::Value &request, Json::Value &response);
+	static int getCapabilityFace(Json::Value &request, Json::Value &response);
+	static int getCapabilityTime(Json::Value &request, Json::Value &response);
+	static int getCapabilityWHD(Json::Value &request, Json::Value &response);
+	static int getCapabilityPicture(Json::Value &request, Json::Value &response);
+	static int getCapabilityCompress(Json::Value &request, Json::Value &response);
+	static int getCapabilityBluetooth(Json::Value &request, Json::Value &response);
+	static int getCapabilityIPC(Json::Value &request, Json::Value &response);
+};
+//		/*设备能力集大类*/
+//		AE_CAPABILITY_GET = 1901,			   /*获取能力集大类*/
+//		AE_CAPABILITY_IMAGE_GET = 1911,		   /*获取图像能力集*/
+//		AE_CAPABILITY_BASIC_GET = 1921,		   /*获取基础能力集*/
+//		AE_CAPABILITY_NETWORK_GET = 1931,	   /*获取网络能力集*/
+//		AE_CAPABILITY_STORAGE_GET = 1941,	   /*获取存储能力集*/
+//		AE_CAPABILITY_INTELLIGENCE_GET = 1951, /*获取智能驾驶能力集大类*/
+//		AE_CAPABILITY_PROMPT_GET = 1952,	   /*获取提醒能力集*/
+//		AE_CAPABILITY_ALERT_GET = 1953,		   /*获取告警能力集*/
+//		AE_CAPABILITY_SENSOR_GET = 1954,	   /*获取传感能力集*/
+//		AE_CAPABILITY_ADAS_GET = 1955,		   /*获取ADAS能力集*/
+//		AE_CAPABILITY_DBA_GET = 1956,		   /*获取DBA能力集*/
+//		AE_CAPABILITY_VSD_GET = 1957,		   /*获取VSD能力集, 已弃用，能力集归于DBA*/
+//		AE_CAPABILITY_BSD_GET = 1958,		   /*获取BSD能力集*/
+//
+//		AE_CAPABILITY_FACE_GET = 1959, /*获取人脸识别能力集*/
+//
+//		AE_CAPABILITY_TIME_GET = 1961, /*获取时间能力集*/
+//
+//		AE_CAPABILITY_WHD_GET = 1962, /*获取WHD能力集*/
+//
+//		AE_CAPABILITY_PICTURE_GET = 1971,	/*获取图片能力集*/
+//		AE_CAPABILITY_COMPRESS_GET = 1981,	/*获取压缩能力集*/
+//		AE_CAPABILITY_BLUETOOTH_GET = 1991, /*获取蓝牙能力集*/
+//		AE_CAPABILITY_IPC_GET = 1993,		/*ipc能力集*/
 bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &response)
 {
 	printf("\033[35m""msgID = %d""\033[0m\n", msgID);
@@ -1557,6 +1940,11 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 {
 	unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
 	char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
+
+	if (buf == NULL || len <= 0)
+	{
+		return false;
+	}
 
 	if(len > AES_MAX_IN_LEN)
 	{
