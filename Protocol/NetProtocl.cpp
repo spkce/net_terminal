@@ -1578,10 +1578,85 @@ public:
 	static int getCapabilityBluetooth(Json::Value &request, Json::Value &response);
 	static int getCapabilityIPC(Json::Value &request, Json::Value &response);
 };
-//		/*设备能力集大类*/
-//		AE_CAPABILITY_GET = 1901,			   /*获取能力集大类*/
-//		AE_CAPABILITY_IMAGE_GET = 1911,		   /*获取图像能力集*/
-//		AE_CAPABILITY_BASIC_GET = 1921,		   /*获取基础能力集*/
+
+int COrderCapability::getCapability(Json::Value &request, Json::Value &response)
+{
+	//AE_CAPABILITY_GET
+	//if (!request.isMember("chanNo") || !request["chanNo"].isString())
+	//{
+	//	return AE_SYS_UNKNOWN_ERROR;
+	//}
+	
+	response["generic"] = 1;
+	response["image"] = 1;
+	response["network"] = 1;
+	response["storage"] = 1;
+	response["interlliDrive"] = 1;
+	response["time"] = 1;
+	response["picture"] = 1;
+	response["compress"] = 1;
+	response["bluetooth"] = 1;
+	response["peripheral"] = 1;
+	response["calibration"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderCapability::getCapabilityImage(Json::Value &request, Json::Value &response)
+{
+	//AE_CAPABILITY_IMAGE_GET
+	response["resolution"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderCapability::getCapabilityBasic(Json::Value &request, Json::Value &response)
+{
+	//AE_CAPABILITY_BASIC_GET
+	response["chanNum"] = 6;
+	response["voiceChanNum"] = 1;
+	response["streamNum"] = 6;
+	response["cfgChan"][0] = 1;
+	response["cfgChan"][1] = 2;
+	response["mainStreamPreview"][0] = 0;
+	response["mainStreamPreview"][1] = 1;
+	response["mainStreamRecord"][0] = 0;
+	response["mainStreamRecord"][1] = 1;
+	response["subStreamPreview"][0] = 0;
+	response["subStreamPreview"][1] = 1;
+	response["subStreamRecord"][0] = 0;
+	response["subStreamRecord"][1] = 1;
+	response["language"] = 0;
+	response["LCDRotate"] = 0;
+	response["shutdownDelay"] = 300;
+	response["shutdownDelayCustom"]["min"] = 10;
+	response["shutdownDelayCustom"]["max"] = 1000;
+	response["plateNumber"]["min"] = 4;
+	response["plateNumber"]["max"] = 4;
+	response["remoteUpgrade"] = 1;
+	return AE_SYS_NOERROR;
+}
+
+int COrderCapability::getCapabilityNetwork(Json::Value &request, Json::Value &response)
+{
+	//AE_CAPABILITY_NETWORK_GET
+	return AE_SYS_NOERROR;
+}
+int COrderCapability::getCapabilityStorage(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityIntelligence(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityPrompt(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityAlert(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilitySensor(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityADAS(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityDBA(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityVSD(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityBSD(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityFace(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityTime(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityWHD(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityPicture(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityCompress(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityBluetooth(Json::Value &request, Json::Value &response)
+int COrderCapability::getCapabilityIPC(Json::Value &request, Json::Value &response)
+
 //		AE_CAPABILITY_NETWORK_GET = 1931,	   /*获取网络能力集*/
 //		AE_CAPABILITY_STORAGE_GET = 1941,	   /*获取存储能力集*/
 //		AE_CAPABILITY_INTELLIGENCE_GET = 1951, /*获取智能驾驶能力集大类*/
@@ -1603,6 +1678,12 @@ public:
 //		AE_CAPABILITY_COMPRESS_GET = 1981,	/*获取压缩能力集*/
 //		AE_CAPABILITY_BLUETOOTH_GET = 1991, /*获取蓝牙能力集*/
 //		AE_CAPABILITY_IPC_GET = 1993,		/*ipc能力集*/
+
+
+
+
+
+
 bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &response)
 {
 	printf("\033[35m""msgID = %d""\033[0m\n", msgID);
@@ -1618,19 +1699,274 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 	int res = 0;
 	switch(msgID)
 	{
-			case AE_GET_CAMERAS_STATUS:
-				res = COrderSysterm::getCameraStatus(reqParam, resParam);
-				break;
+		/*系统类命令*/
+		case AE_GET_ALL_CURRENT_SETTINGS:
+			res = COrderSysterm::getDeviceSetting(reqParam, resParam);
+			break;
+		case AE_GET_BATTERY_LEVEL:
+			res = COrderSysterm::getBatteryLevel(reqParam, resParam);
+			break;
+		case AE_GET_CAMERAS_STATUS:
+			res = COrderSysterm::getCameraStatus(reqParam, resParam);
+			break;
+		case AE_GET_GSENSOR_DATA:
+			res = COrderSysterm::getGSensorData(reqParam, resParam);
+			break;
+		case AE_GET_GPS:
+			res = COrderSysterm::getGPSData(reqParam, resParam);
+			break;
+		case AE_GET_DEVICE_INFO:
+			res = COrderSysterm::getDeviceInfo(reqParam, resParam);
+			break;
+		case AE_GET_VEHICLE_INFO:
+			res = COrderSysterm::getVehicleInfo(reqParam, resParam);
+			break;
+		case AE_SET_VEHICLE_INFO:
+			res = COrderSysterm::setVehicleInfo(reqParam, resParam);
+			break;
+		case AE_GET_DRIVER_INFO:
+			res = COrderSysterm::getDriverInfo(reqParam, resParam);
+			break;
+		case AE_SET_DRIVER_INFO:
+			res = COrderSysterm::setDriverInfo(reqParam, resParam);
+			break;
+		case AE_GET_SATELLITE_INFO:
+			res = COrderSysterm::getSatelliteInfo(reqParam, resParam);
+			break;
+		case AE_GET_DEVICE_STATUS:
+			res = COrderSysterm::getDeviceStatus(reqParam, resParam);
+			break;
+		case AE_GET_VEHICLE_STATUS:
+			res = COrderSysterm::getVehicleStatus(reqParam, resParam);
+			break;
+		case AE_GET_PICTURE_SETTING:
+			res = COrderSysterm::getPictureSetting(reqParam, resParam);
+			break;
+		case AE_SET_PICTURE_SETTING:
+			res = COrderSysterm::setPictureSetting(reqParam, resParam);
+			break;
+		case AE_GET_COMPRESS_SETTING:
+			res = COrderSysterm::getCompressSetting(reqParam, resParam);
+			break;
+		case AE_SET_COMPRESS_SETTING:
+			res = COrderSysterm::setCompressSetting(reqParam, resParam);
+			break;
+		case AE_GET_IMAGE_SETTING:
+			res = COrderSysterm::getImageSetting(reqParam, resParam);
+			break;
+		case AE_SET_IMAGE_SETTING:
+			res = COrderSysterm::setImageSetting(reqParam, resParam);
+			break;
+		case AE_GET_GENERIC_SETTING:
+			res = COrderSysterm::getGenericSetting(reqParam, resParam);
+			break;
+		case AE_SET_GENERIC_SETTING:
+			res = COrderSysterm::setGenericSetting(reqParam, resParam);
+			break;
+		case AE_GET_PROMPT_SETTING:
+			res = COrderSysterm::getPromptSetting(reqParam, resParam);
+			break;
+		case AE_SET_PROMPT_SETTING:
+			res = COrderSysterm::setPromptSetting(reqParam, resParam);
+			break;
+		case AE_GET_ALERT_SETTING:
+			res = COrderSysterm::getAlertSetting(reqParam, resParam);
+			break;
+		case AE_SET_ALERT_SETTING:
+			res = COrderSysterm::setAlertSetting(reqParam, resParam);
+			break;
+		case AE_GET_SENSOR_SETTING:
+			res = COrderSysterm::getSensorSetting(reqParam, resParam);
+			break;
+		case AE_SET_SENSOR_SETTING:
+			res = COrderSysterm::setSensorSetting(reqParam, resParam);
+			break;
+		/*媒体命令*/
+		case AE_RECORD_START:
+			res = COrderMedia::recordStart(reqParam, resParam);
+			break;
+		case AE_RECORD_STOP:
+			res = COrderMedia::recordStop(reqParam, resParam);
+			break;
+		case AE_EVENT_RECORD_START:
+			res = COrderMedia::eventRecordStart(reqParam, resParam);
+			break;
+		case AE_AUDIO_RECORD_START:
+			res = COrderMedia::audioRecordStart(reqParam, resParam);
+			break;
+		case AE_AUDIO_RECORD_STOP:
+			res = COrderMedia::audioRecordStop(reqParam, resParam);
+			break;
+		
+		/*网络接口类命令*/
+		case AE_WIFI_RESTART:
+			res = COrderNetwork::wifiRestart(reqParam, resParam);
+			break;
+		case AE_GET_STA_PARAM:
+			res = COrderNetwork::getSTAParam(reqParam, resParam);
+			break;
+		case AE_SET_STA_PARAM:
+			res = COrderNetwork::setSTAParam(reqParam, resParam);
+			break;
+		case AE_GET_AP_PARAM:
+			res = COrderNetwork::getAPParam(reqParam, resParam);
+			break;
+		case AE_SET_AP_PARAM:
+			res = COrderNetwork::setAPParam(reqParam, resParam);
+			break;
+		case AE_GET_4G_PARAM:
+			res = COrderNetwork::get4GParam(reqParam, resParam);
+			break;
+		case AE_SET_4G_PARAM:
+			res = COrderNetwork::set4GParam(reqParam, resParam);
+			break;
+		case AE_GET_NETWORK_SETTING:
+			res = COrderNetwork::getNetworkSetting(reqParam, resParam);
+			break;
+		case AE_SET_NETWORK_SETTING:
+			res = COrderNetwork::setNetworkSetting(reqParam, resParam);
+			break;
 
-			case AE_GET_VEHICLE_STATUS:
-				//res = getVehicleStatus(reqParam, resParam);
-				break;
-			case AE_SEND_APP_INFO:
-				//res = sendAppInfo(reqParam, resParam);
-				break;
-			default: 
-				res = -1;
-				break;
+		/*存储类命令*/
+		case AE_GET_SD_LETTER:
+			res = COrderStorage::getSDLetter(reqParam, resParam);
+			break;
+		case AE_GET_SD_INFO:
+			res = COrderStorage::getSDInfo(reqParam, resParam);
+			break;
+		case AE_SET_SD_LOCK_STATUS:
+			res = COrderStorage::setSDLockStatus(reqParam, resParam);
+			break;
+		case AE_SET_SD_PASSWD:
+			res = COrderStorage::setSDPassword(reqParam, resParam);
+			break;
+		case AE_FORMAT:
+			res = COrderStorage::formatSD(reqParam, resParam);
+			break;
+		case AE_GET_RECORD_SCHEDILE:
+			res = COrderStorage::getRecodeSchedule(reqParam, resParam);
+			break;
+		case AE_SET_RECORD_SCHEDILE:
+			res = COrderStorage::setRecodeSchedule(reqParam, resParam);
+			break;
+		case AE_COPY_DAY_SCHEDILE:
+			res = COrderStorage::copyDaySchedule(reqParam, resParam);
+			break;
+		case AE_COPY_CHANNEL_SCHEDILE:
+			res = COrderStorage::copyChannelSchedule(reqParam, resParam);
+			break;
+		case AE_EXPORT_MEDIA_FILE:
+			res = COrderStorage::getStorageSetting(reqParam, resParam);
+			break;
+		case AE_EXPORT_LOG:
+			res = COrderStorage::setStorageSetting(reqParam, resParam);
+			break;
+		case AE_EXPORT_CONFIG:
+			res = COrderStorage::exportMediaFile(reqParam, resParam);
+			break;
+		case AE_IMPORT_CONFIG:
+			res = COrderStorage::exportMediaLog(reqParam, resParam);
+			break;
+		case AE_CONCEL_EXPORT:
+			res = COrderStorage::exportConfig(reqParam, resParam);
+			break;
+		case AE_GET_STORAGE_SETTING:
+			res = COrderStorage::importConfig(reqParam, resParam);
+			break;
+		case AE_SET_STORAGE_SETTING:
+			res = COrderStorage::cancelExport(reqParam, resParam);
+			break;
+
+		/*时间类命令*/
+		case AE_GET_DAYLIGHT_TIME:
+			res = COrderTime::getDayLightTime(reqParam, resParam);
+			break;
+		case AE_SET_DAYLIGHT_TIME:
+			res = COrderTime::setDayLightTime(reqParam, resParam);
+			break;
+		case AE_GET_TIMEZONE:
+			res = COrderTime::getTimeZone(reqParam, resParam);
+			break;
+		case AE_SET_TIMEZONE:
+			res = COrderTime::setTimeZone(reqParam, resParam);
+			break;
+		case AE_GET_TIME_SETTING:
+			res = COrderTime::getTimeSetting(reqParam, resParam);
+			break;
+		case AE_SET_TIME_SETTING:
+			res = COrderTime::setTimeSetting(reqParam, resParam);
+			break;
+
+		/*平台类命令*/
+		case AE_GET_PLATFORM_CONN_INFO:
+			res = COrderPlatform::getPlatformConnInfo(reqParam, resParam);
+			break;
+		case AE_SET_PLATFORM_CONN_INFO:
+			res = COrderPlatform::setPlatformConnInfo(reqParam, resParam);
+			break;
+		case AE_GET_808_CONN_INFO:
+			res = COrderPlatform::get808ConnInfo(reqParam, resParam);
+			break;
+		case AE_SET_808_CONN_INFO:
+			res = COrderPlatform::set808ConnInfo(reqParam, resParam);
+			break;
+		case AE_GET_808_CONN_INFO_2:
+			res = COrderPlatform::get808ConnInfo2(reqParam, resParam);
+			break;
+		case AE_SET_808_CONN_INFO_2:
+			res = COrderPlatform::set808ConnInfo2(reqParam, resParam);
+			break;
+		case AE_GET_OPERATE_PLATFORM_INFO:
+			res = COrderPlatform::getOperateConnInfo(reqParam, resParam);
+			break;
+		case AE_SET_OPERATE_PLATFORM_INFO:
+			res = COrderPlatform::setOperateConnInfo(reqParam, resParam);
+			break;
+		case AE_GET_NTP_PLATFORM_INFO:
+			res = COrderPlatform::getNtpConnInfo(reqParam, resParam);
+			break;
+		case AE_SET_NTP_PLATFORM_INFO:
+			res = COrderPlatform::setNtpConnInfo(reqParam, resParam);
+			break;
+
+		/*人脸类命令*/
+		case AE_GET_FACE_INFO:
+			res = COrderFace::getFaceInfo(reqParam, resParam);
+			break;
+		case AE_SET_FACE_INFO:
+			res = COrderFace::setFaceInfo(reqParam, resParam);
+			break;
+		case AE_GET_OVERTIME_DRIVING_SETTING:
+			res = COrderFace::getOverTimeDrivingSetting(reqParam, resParam);
+			break;
+		case AE_SET_OVERTIME_DRIVING_SETTING:
+			res = COrderFace::setOverTimeDrivingSetting(reqParam, resParam);
+			break;
+		
+		/*外接设备类命令*/
+		case AE_GET_ADDED_IPC_LIST:
+			res = COrderPeripheral::getAddedIPCList(reqParam, resParam);
+			break;
+		case AE_GET_ADDABLE_IPC_LIST:
+			res = COrderPeripheral::setAddableIPCList(reqParam, resParam);
+			break;
+		case AE_ADD_IPC:
+			res = COrderPeripheral::addIPC(reqParam, resParam);
+			break;
+		case AE_DEL_IPC:
+			res = COrderPeripheral::delIPC(reqParam, resParam);
+			break;
+
+
+		//case AE_GET_VEHICLE_STATUS:
+			//res = getVehicleStatus(reqParam, resParam);
+		//	break;
+		case AE_SEND_APP_INFO:
+			//res = sendAppInfo(reqParam, resParam);
+			break;
+		default:
+			res = -1;
+			break;
 	}
 	
 	if (resParam != Json::nullValue)
@@ -1743,6 +2079,9 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 bool CNetProtocl::msgHub(ISession* session, unsigned int msgID, Json::Value &request, Json::Value &response)
 {
 	bool ret = false;
+
+	printf("\033[35m""msgID = %d""\033[0m\n", msgID);
+
 	/*
 	printf("\033[35m""msgID = %d""\033[0m\n", msgID);
 	bool ret = false;
