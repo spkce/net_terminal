@@ -8,7 +8,7 @@
 #include "timer.h"
 #include "thread.h"
 #include "stdio.h"
-#include "logInternal.h"
+#include "LogInternal.h"
 
 namespace Infra
 {
