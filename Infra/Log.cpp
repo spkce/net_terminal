@@ -1,10 +1,9 @@
 #include "stdio.h"
 #include <string.h>
-#include <map>
 #include "execinfo.h"
 #include "Log.h"
 #include <stdarg.h>
-#include "thread.h"
+
 
 inline void printlog(int fc, const char* buf, va_list args)
 {
@@ -126,19 +125,45 @@ void CLog::_error(const char* file, int line, const char* func, const char* fmt,
 }
 
 
-CLog* CGlobalLog::instance()
+CLogManager::CLogManager()
 {
-	static CLog inst(CLog::type_fileMsg, std::string(""), std::string(""));
+
+}
+
+CLogManager::~CLogManager()
+{
+	std::map<std::string, CLog *>::iterator iter;
+	for (iter = m_mapLog.begin(); iter != m_mapLog.end();)
+	{
+		delete iter->second;
+		m_mapLog.erase(iter++);
+	}
+}
+
+CLogManager* CLogManager::instance()
+{
+	static CLogManager inst;
 	return &inst;
 }
 
-CGlobalLog::CGlobalLog()
+CLog* CLogManager::getLog(std::string name)
 {
+	//Infra::CGuard<Infra::CMutex> guard(m_mutex);
+	std::map<std::string, CLog*>::iterator iter;
+	
+	m_rwlock.rLock();
+	iter = m_mapLog.find(name);
+	m_rwlock.unLock();
 
-}
+	if (iter == m_mapLog.end())
+	{
+		m_rwlock.wLock();
+		CLog* p = new CLog(CLog::type_fileMsg, name, std::string(""));
+		m_mapLog.insert(std::pair<std::string, CLog*>(name, p));
+		m_rwlock.unLock();
+		return p;
+	}
 
-CGlobalLog::~CGlobalLog()
-{
-
+	return iter->second;
 }
 

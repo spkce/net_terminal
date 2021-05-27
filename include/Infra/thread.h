@@ -6,19 +6,40 @@ namespace Infra
 {
 
 struct MutexInternal;
+struct CondInternal;
+struct RwlockInternal;
+struct ThreadInternal;
 
+/**
+* @brief 互斥锁
+**/
 class CMutex
 {
 public:
 	CMutex();
 	virtual ~CMutex();
+	/**
+	* @brief 加锁，阻塞
+	* @return true:成功；false:失败
+	**/
 	bool lock();
+	/**
+	* @brief 尝试加锁，不阻塞
+	* @return true:成功；false:失败
+	**/
 	bool trylock();
+	/**
+	* @brief 解锁
+	* @return true:成功；false:失败
+	**/
 	bool unlock();
 private:
 	struct MutexInternal* m_pInternal;
 };
 
+/**
+* @brief 互斥锁辅助器
+**/
 template <class T>
 class CGuard
 {
@@ -35,21 +56,65 @@ private:
 	T & m_lock;
 };
 
-struct CondInternal;
-
+/**
+* @brief 条件变量
+**/
 class CCondSignal
 {
 public:
 	CCondSignal();
 	virtual ~CCondSignal();
+	/**
+	* @brief 阻塞
+	* @return true:成功；false:失败
+	**/
 	bool wait();
+	/**
+	* @brief 解除阻塞
+	* @return true:成功；false:失败
+	**/
 	bool signal();
 private:
 	struct CondInternal* m_pInternal;
 };
 
+/**
+* @brief 读写锁
+**/
+class CRwlock
+{
+public:
+	CRwlock();
+	virtual ~CRwlock();
+	/**
+	* @brief 加读锁，阻塞
+	* @return true:成功；false:失败
+	**/
+	bool rLock();
+	/**
+	* @brief 加写锁，阻塞
+	* @return true:成功；false:失败
+	**/
+	bool wLock();
+	/**
+	* @brief 尝试加读锁，不阻塞
+	* @return true:成功；false:失败
+	**/
+	bool tryRLock();
+	/**
+	* @brief 尝试加写锁，不阻塞
+	* @return true:成功；false:失败
+	**/
+	bool tryWLock();
+	/**
+	* @brief 解锁
+	* @return true:成功；false:失败
+	**/
+	bool unLock();
+private:
+	struct RwlockInternal* m_pInternal;
+};
 
-struct ThreadInternal;
 typedef TFuncation1<void, void *> ThreadProc_t;
 /**
 * @brief 线程基类
@@ -85,7 +150,7 @@ public:
 
 	/**
 	* @brief 线程开始运行
-	* @param isLoop 是否只运行一次。
+	* @param isLoop 是否循环运行。
 	**/
 	void run(bool isLoop = true);
 

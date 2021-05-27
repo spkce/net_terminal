@@ -29,16 +29,28 @@ CMutex::~CMutex()
 	m_pInternal = NULL;
 }
 
+/**
+* @brief ¼ÓËø£¬×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
 bool CMutex::lock()
 {
 	return pthread_mutex_lock(&m_pInternal->mutex) == 0 ? true : false;
 }
 
+/**
+* @brief ³¢ÊÔ¼ÓËø£¬²»×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
 bool CMutex::trylock()
 {
 	return pthread_mutex_trylock(&m_pInternal->mutex) == 0 ? true : false;
 }
 
+/**
+* @brief ½âËø
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
 bool CMutex::unlock()
 {
 	return pthread_mutex_unlock(&m_pInternal->mutex) == 0 ? true : false;
@@ -65,6 +77,10 @@ CCondSignal::~CCondSignal()
 	m_pInternal = NULL;
 }
 
+/**
+* @brief ×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
 bool CCondSignal::wait()
 {
 	pthread_mutex_lock(&m_pInternal->mutex);
@@ -74,10 +90,77 @@ bool CCondSignal::wait()
 	return ret == 0 ? true : false;
 }
 
-
+/**
+* @brief ½â³ý×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
 bool CCondSignal::signal()
 {
 	return pthread_cond_signal(&m_pInternal->cond) == 0 ? true : false;
+}
+
+struct RwlockInternal
+{
+	pthread_rwlock_t rwlock;
+};
+
+CRwlock::CRwlock()
+{
+	m_pInternal = new RwlockInternal();
+	pthread_rwlock_init(&m_pInternal->rwlock, NULL);
+
+}
+
+CRwlock::~CRwlock()
+{
+	pthread_rwlock_destroy(&m_pInternal->rwlock);
+	delete m_pInternal;
+	m_pInternal = NULL;
+}
+
+/**
+* @brief ¼Ó¶ÁËø£¬×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
+bool CRwlock::rLock()
+{
+	return pthread_rwlock_rdlock(&m_pInternal->rwlock) == 0 ? true : false;
+}
+
+/**
+* @brief ¼ÓÐ´Ëø£¬×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
+bool CRwlock::wLock()
+{
+	return pthread_rwlock_wrlock(&m_pInternal->rwlock) == 0 ? true : false;
+}
+
+/**
+* @brief ³¢ÊÔ¼Ó¶ÁËø£¬²»×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
+bool CRwlock::tryRLock()
+{
+	return pthread_rwlock_tryrdlock(&m_pInternal->rwlock) == 0 ? true : false;
+}
+
+/**
+* @brief ³¢ÊÔ¼ÓÐ´Ëø£¬²»×èÈû
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
+bool CRwlock::tryWLock()
+{
+	return pthread_rwlock_trywrlock(&m_pInternal->rwlock) == 0 ? true : false;
+}
+
+/**
+* @brief ½âËø
+* @return true:³É¹¦£»false:Ê§°Ü
+**/
+bool CRwlock::unLock()
+{
+	return pthread_rwlock_unlock(&m_pInternal->rwlock) == 0 ? true : false;
 }
 
 enum 
