@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include "NetServer.h"
 #include "jsoncpp.h"
-
+#include "Log.h"
 
 
 namespace NetServer
@@ -236,7 +236,7 @@ void CTcpServer::server_task(void* arg)
 	{
 		return;
 	}
-	printf("\033[35m""connect:%s:%d""\033[0m\n", (char*)inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+	Debug("NetTerminal", "connect:%s:%d\n", (char*)inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 	if (!m_proc.isEmpty())
 	{
 		m_proc(sock, &cliaddr);

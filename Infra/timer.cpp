@@ -165,7 +165,7 @@ void CTimerManger::setupTimer(TimerInternal* p)
 			p->isIdle = false;
 			p->setupTime = m_curTime;
 			m_linkWorkTimer.rise((void*)p);
-			printf("i = #2 %d  \n", i);
+			InfraTrace("i = #2 %d  \n", i);
 			m_iWorkTimer++;
 			return;
 		}

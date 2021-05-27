@@ -8,6 +8,7 @@
 #include "Session.h"
 #include "thread.h"
 #include "ctime.h"
+#include "Log.h"
 
 namespace NetServer
 {
@@ -168,7 +169,7 @@ CSession* CSession::create()
 
 void CSession::destroy()
 {
-	printf("\033[35m""CSession:%s:%d destory""\033[0m\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
+	Debug("NetTerminal", "Session:%s:%d destory\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
 	delete this;
 }
 
@@ -200,7 +201,7 @@ int CSession::send(const char* buf, int len)
 		}
 		else
 		{
-			printf("\033[35m""send err : %s""\033[0m\n", strerror(errno));
+			Error("NetTerminal","send err : %s\n", strerror(errno));
 			return -1;
 		}
 	}
@@ -219,7 +220,7 @@ void CSession::replyProc(void* arg)
 		return;
 	}
 
-	printf("\033[35m""recv:%s:%d len=%d""\033[0m\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port), len);
+	Debug("NetTerminal","recv:%s:%d len=%d\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port), len);
 	m_proc(this, m_pRecvbuf, len);
 	
 }

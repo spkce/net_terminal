@@ -1,5 +1,5 @@
 
-
+#include "Log.h"
 #include "Order.h"
 #include "OrderSysterm.h"
 #include "OrderMedia.h"
@@ -22,7 +22,7 @@ namespace Screen
 **/
 bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &response)
 {
-	printf("\033[35m""msgID = %d""\033[0m\n", msgID);
+	Debug("NetTerminal", "msgID = %d\n", msgID);
 	
 	Json::Value reqParam = Json::nullValue;
 	Json::Value resParam = Json::nullValue;

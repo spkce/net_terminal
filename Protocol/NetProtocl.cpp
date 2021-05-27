@@ -10,6 +10,7 @@
 #include "NetProtocl.h"
 #include "terminal.h"
 #include <arpa/inet.h>
+#include "Log.h"
 #include "Order.h"
 
 using namespace NetServer;
@@ -45,7 +46,6 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 	if (session->getState() == ISession::emStateLogin)
 	{
 		messageProcess(session, buf, len);
-		printf("\033[35m""%s:%d %s ""\033[0m\n",__FILE__, __LINE__, __FUNCTION__);
 		return true;
 	}
 	else
@@ -68,7 +68,7 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 		unsigned int uDateLen = 0;
 		if (!headerCheck(buf, &uReqIdx, &uDateLen))
 		{
-			printf("\033[35m""header Check err""\033[0m\n");
+			Error("NetTerminal", "header Check err\n");
 			return false;
 		}
 
@@ -83,11 +83,11 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 		res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
 		if (!res || !errs.empty())
 		{
-			printf("\033[35m""parse:%s""\033[0m\n", errs.c_str());
+			Error("NetTerminal", "json parse err:%s\n", errs.c_str());
 			return false;
 		}
 	
-		printf("\033[35m""request = %s""\033[0m\n", request.toStyledString().c_str());
+		Info("NetTerminal","request = %s\n", request.toStyledString().c_str());
 
 		if (request.isMember("token") && request.isMember("msgId"))
 		{
@@ -101,7 +101,7 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 			res = msgHub(session, stParam.uMsgId, request, response);
 			if (res)
 			{
-				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
+				Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
 				std::ostringstream os;
 				Json::StreamWriterBuilder writerBuilder;
 				writerBuilder["indentation"] = "";
@@ -118,6 +118,7 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 		}
 		else
 		{
+			Error("NetTerminal", "request format err!\n");
 			res = false;
 		}
 
@@ -140,7 +141,8 @@ bool CNetProtocl::msgHub(ISession* session, unsigned int msgID, Json::Value &req
 
 	if (ret && msgID == IOrder::AE_GET_SETTING)
 	{
-		keepAlive(session);
+		ret = keepAlive(session);
+		Error("NetTerminal", "keepAlive:%d\n", ret);
 	}
 
 	return ret;
@@ -228,10 +230,11 @@ bool CNetProtocl::handShake(NetServer::ISession* session, char* buf, int len)
 		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
 		if (!res || !errs.empty())
 		{
+			Error("NetTerminal", "json parse err:%s\n", errs.c_str());
 			return false;
 		}
 		
-		printf("\033[35m""request = %s""\033[0m\n", request.toStyledString().c_str());
+		Info("NetTerminal","request = %s\n", request.toStyledString().c_str());
 
 		if (request.isMember("token") && request.isMember("msg_id") && request["msg_id"].asUInt() == IOrder::AE_START_SESSION)
 		{
@@ -239,13 +242,14 @@ bool CNetProtocl::handShake(NetServer::ISession* session, char* buf, int len)
 
 			if (login(session, request, response))
 			{
-				printf("\033[35m""response = %s""\033[0m\n", response.toStyledString().c_str());
+				Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
 
 				std::string reString = response.toStyledString().c_str();
 
 				session->send(reString.c_str(), reString.length());
 				return true;
 			}
+			Error("NetTerminal", "can not login\n");
 		}
 
 		return false;
@@ -264,6 +268,7 @@ bool CNetProtocl::headerCheck(const char *buf, unsigned int *index, unsigned int
 
 	if (pHeader->uMsgConstant != htonl(MSG_HEADER_CONS))
 	{
+		Error("NetTerminal", "message header not match\n");
 		return false;
 	}
 	else
@@ -316,7 +321,7 @@ bool CNetProtocl::decrypt(const char* buf, int len, char* decodeBuf, int* Length
 	int iRet = aes_decrypt(baseBuf, iAesLen, decodeBuf, NET_APP_RECV_ADD, Length, m_AesKey);
 	if (iRet < 0)
 	{
-		printf("\033[35m""aes decrypt failed""\033[0m\n");
+		Error("NetTerminal", "aes decrypt failed, iRet:%d\n", iRet);
 		return false;
 	}
 
@@ -336,13 +341,13 @@ bool CNetProtocl::encrypt(const char* buf, int len, unsigned char* encryptBuf, i
 	int iRet = aes_encrypt((unsigned char*)buf, AES_MAX_IN_LEN, len, encryptBuf, AES_MAX_OUT_LEN, Length, m_AesKey);
 	if(iRet < 0)
 	{
-		printf("\033[35m""app_aes_encrypt ERR: %d""\033[0m\n", iRet);
+		Error("NetTerminal", "aes encrypt failed, iRet:%d\n", iRet);
 		return false;
 	}
 	
 	if (*Length > AES_MAX_IN_LEN)
 	{
-		printf("\033[35m""encode str too large""\033[0m\n");
+		Error("NetTerminal", "encode str too large\n");
 		return false;
 	}
 
@@ -370,7 +375,7 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 
 	if(len > AES_MAX_IN_LEN)
 	{
-		printf("\033[35m""encrypt str too large""\033[0m\n");
+		Error("NetTerminal", "str str too large\n");
 		return false;
 	}
 	
