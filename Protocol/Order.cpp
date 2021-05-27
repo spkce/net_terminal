@@ -9,6 +9,7 @@
 #include "OrderPlatform.h"
 #include "OrderFace.h"
 #include "OrderPeripheral.h"
+#include "OrderNotify.h"
 
 namespace Screen
 {
@@ -31,7 +32,6 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		reqParam.swap(request["param"]);
 	}
 	
-	bool ret = false;
 	int res = AE_SYS_NOERROR;
 	switch(msgID)
 	{
@@ -47,6 +47,9 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_GET_SETTING:
 			res = COrderSysterm::getStting(reqParam, resParam);
 			break;
+		case AE_SEND_TOUCH_INFO:
+			res = COrderNotify::sendTouchInfo(reqParam, resParam);
+			break;
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;
 			break;
@@ -57,12 +60,10 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		response["param"].swap(resParam["param"]);
 	}
 
-	ret = (res==0);
-
 	response["rval"] = res;
 	response["msgId"] = request["msgId"].asUInt();
 	response["token"] = request["token"].asUInt();
-	return ret;
+	return res == AE_SYS_NOERROR;
 }
 
 }//Screen

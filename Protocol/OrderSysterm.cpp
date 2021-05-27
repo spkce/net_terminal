@@ -1,5 +1,7 @@
 
 #include "OrderSysterm.h"
+#include "Adapter.h"
+
 namespace Screen
 {
 
@@ -100,22 +102,56 @@ int COrderSysterm::getGPSData(Json::Value &request, Json::Value &response)
 int COrderSysterm::getDeviceInfo(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_DEVICE_INFO
-	response["deviceType"] = "AE-CN2213-C1";
-	response["firmVer"] = "V1.0.0";
-	response["firmDate"] = "2016.04.15";
-	response["paramVersion"] = "V1.1.1";
-	response["serialNum"] = "55555555";
-	response["verifyCode"] = "ABCDEF";
-	response["DDR"] = 256;
-	response["customID"] = "A3-xxxxxxx";
-	response["hardwareVer"] = "V1.1.1";
-	response["language"] = 1;
-	response["MCUVer"] = "V1.1.1";
-	response["fpgaVersion"] = "V1.1.1";
-	response["dspVersion"] = "V1.1.1";
-	response["GPSVersion"] = "V1.1.1";
+	DevInfo_t stDevInfo = {0};
+	if (CAdapter::instance()->getDeviceInfo(&stDevInfo))
+	{
+		response["deviceType"] = stDevInfo.sDeviceType;
+		response["firmVer"] = stDevInfo.sFirmVersion;
+		response["firmDate"] = stDevInfo.sFirmDate;
+		response["paramVersion"] = stDevInfo.sParamVersion;
+		response["serialNum"] = stDevInfo.sSerialNum;
+		response["verifyCode"] = stDevInfo.sVerifyCode;
+		response["language"] = stDevInfo.uLanguage;
 
-	return AE_SYS_NOERROR;
+		if(stDevInfo.uDDR)
+		{
+			response["DDR"] = stDevInfo.uDDR;
+		}
+
+		if(stDevInfo.sCustomID[0] != 0)
+		{
+			response["customID"] = stDevInfo.sCustomID;
+		}
+
+		if(stDevInfo.sHardwareVer[0] != 0)
+		{
+			response["hardwareVer"] = stDevInfo.sHardwareVer;
+		}
+
+		if (stDevInfo.sMCUVer[0] != 0)
+		{
+			response["MCUVer"] = stDevInfo.sMCUVer;
+		}
+
+		if (stDevInfo.sFpgaVer[0] != 0)
+		{
+			response["fpgaVersion"] = stDevInfo.sFpgaVer;
+		}
+
+		if (stDevInfo.sDspVer[0] != 0)
+		{
+			response["dspVersion"] = stDevInfo.sDspVer;
+		}
+
+		if (stDevInfo.sGpsVer[0] != 0)
+		{
+			response["GPSVersion"] = stDevInfo.sGpsVer;
+		}
+		return AE_SYS_NOERROR;
+	}
+
+	return AE_SYS_UNKNOWN_ERROR;
+	
 }
 
 /**
@@ -232,33 +268,40 @@ int COrderSysterm::getDeviceStatus(Json::Value &request, Json::Value &response)
 	//AE_GET_DEVICE_STATUS
 	if (!request.isMember("type") || !request["type"].isArray())
 	{
-		return -1;
+		return AE_SYS_UNKNOWN_ERROR;
 	}
 
-	for(int i = 0; i < (int)request["type"].size(); i++)
+	DevStatus_t stDevStatus = {0};
+	if (CAdapter::instance()->getDeviceStatus(&stDevStatus))
 	{
-		if (request["type"][i].asString() == "time")
+		for (int i = 0; i < (int)request["type"].size(); i++)
 		{
-			response["time"] = "2021-05-10 17:00:01";
+			if (request["type"][i].asString() == "time" && stDevStatus.curTime[0] != 0)
+			{
+				response["time"] = stDevStatus.curTime;
+			}
+			else if (request["type"][i].asString() == "CSQ" && stDevStatus.CSQ != -1)
+			{
+				response["CSQ"] = stDevStatus.CSQ;
+			}
+			else if (request["type"][i].asString() == "accStatus" && stDevStatus.accStatus != -1)
+			{
+				response["accStatus"] = stDevStatus.accStatus;
+			}
+			else if (request["type"][i].asString() == "locationStatus" && stDevStatus.locationStatus != -1)
+			{
+				response["locationStatus"] = stDevStatus.locationStatus;
+			}
+			else if (request["type"][i].asString() == "bizPIfLoginStatus" && stDevStatus.bizPIfLoginStatus != -1)
+			{
+				response["bizPIfLoginStatus"] = stDevStatus.bizPIfLoginStatus;
+			}
 		}
-		else if (request["type"][i].asString() == "CSQ")
-		{
-			response["CSQ"] = 1; // [0,31]
-		}
-		else if (request["type"][i].asString() == "accStatus")
-		{
-			response["accStatus"] = 1;
-		}
-		else if (request["type"][i].asString() == "locationStatus")
-		{
-			response["locationStatus"] = 1;
-		}
-		else if (request["type"][i].asString() == "bizPIfLoginStatus")
-		{
-			response["bizPIfLoginStatus"] = 1;
-		}
+
+		return AE_SYS_NOERROR;
 	}
-	return AE_SYS_NOERROR;
+
+	return AE_SYS_UNKNOWN_ERROR;
 }
 
 /**
@@ -270,28 +313,66 @@ int COrderSysterm::getDeviceStatus(Json::Value &request, Json::Value &response)
 int COrderSysterm::getVehicleStatus(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_VEHICLE_STATUS
-	//if (!reqParam.isMember("type") || !reqParam["type"].isArray())
-	//{
-	//	return -1;
-	//}
+	if (!request.isMember("type") || !request["type"].isArray())
+	{
+		return -1;
+	}
 
-	//for(int i = 0; i < (int)reqParam["type"].size(); i++)
-	//{
-	//	if (reqParam["type"][i].asString() == "feedProtection")
-	//	{
-	//		resParam["feedProtection"] = 0;
-	//	}
-	//	else if (reqParam["type"][i].asString() == "gear")
-	//	{
-	//		resParam["gear"] = 1;
-	//	}
-	//}
-	//"feedecStatus";
-	//resParam["feedPro"] = 1;
-	response["gear"] = 1;
-	response["feedPro"] = 1;
-	
-	return AE_SYS_NOERROR;
+	VehStatus_t stVehStatus = {0};
+	if (CAdapter::instance()->getVehicleStatus(&stVehStatus))
+	{
+		for(int i = 0; i < (int)request["type"].size(); i++)
+		{
+			if (request["type"][i].asString() == "feedProtection" && stVehStatus.feedProtection != -1)
+			{
+				response["feedProtection"] = stVehStatus.feedProtection;
+			}
+			else if (request["type"][i].asString() == "gear" && stVehStatus.gear != -1)
+			{
+				response["gear"] = stVehStatus.gear;
+			}
+			else if (request["type"][i].asString() == "carryStatus" && stVehStatus.carryStatus != -1)
+			{
+				response["carryStatus"] = stVehStatus.carryStatus;
+			}
+			else if (request["type"][i].asString() == "hermeticStatus" && stVehStatus.hermeticStatus != -1)
+			{
+				response["hermeticStatus"] = stVehStatus.hermeticStatus;
+			}
+			else if (request["type"][i].asString() == "liftStatus" && stVehStatus.liftStatus != -1)
+			{
+				response["liftStatus"] = stVehStatus.liftStatus;
+			}
+			else if (request["type"][i].asString() == "speedLimitStatus" && stVehStatus.speedLimitStatus != -1)
+			{
+				response["speedLimitStatus"] = stVehStatus.speedLimitStatus;
+			}
+			else if (request["type"][i].asString() == "liftLimitStatus" && stVehStatus.liftLimitStatus != -1)
+			{
+				response["liftLimitStatus"] = stVehStatus.liftLimitStatus;
+			}
+			else if (request["type"][i].asString() == "rotateLimitStatus" && stVehStatus.rotateLimitStatus != -1)
+			{
+				response["rotateLimitStatus"] = stVehStatus.rotateLimitStatus;
+			}
+			else if (request["type"][i].asString() == "lockStatus" && stVehStatus.lockStatus != -1)
+			{
+				response["lockStatus"] = stVehStatus.lockStatus;
+			}
+			else if (request["type"][i].asString() == "maintainMode" && stVehStatus.maintainMode != -1)
+			{
+				response["maintainMode"] = stVehStatus.maintainMode;
+			}
+			else if (request["type"][i].asString() == "speedLimitThreshold" && stVehStatus.speedLimitThreshold != -1)
+			{
+				response["speedLimitThreshold"] = stVehStatus.speedLimitThreshold;
+			}
+		}
+
+		return AE_SYS_NOERROR;
+	}
+
+	return AE_SYS_UNKNOWN_ERROR;	
 }
 
 /**
@@ -542,23 +623,35 @@ int COrderSysterm::setSensorSetting(Json::Value &request, Json::Value &response)
 int COrderSysterm::getStting(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_SETTING
-	if (!request.isMember("chanNo") || !request.isMember("type"))
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt() 
+	|| !request.isMember("type") || !request["type"].isString())
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
 
-	unsigned int chanNo = request["chanNo"].asUInt();
 	std::string type = request["type"].asString();
 
-	response["chanNo"] = chanNo;
-	response["type"] = type;
-	
-	if (type == "dateTime")
+	/*时间，目前只支持时间的获取*/
+	if (type != "dateTime")
 	{
-		response["value"] = "2021-05-10 17:00:01";
+		return AE_SYS_UNKNOWN_ERROR;
 	}
-	
-	return AE_SYS_NOERROR;
+
+	SETTING_T stSetting = {0};
+	if (CAdapter::instance()->getSetting(&stSetting))
+	{
+		if (stSetting.sTime[0] == 0)
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+
+		response["chanNo"] = request["chanNo"].asUInt();
+		response["type"] = type;
+		response["value"] = stSetting.sTime;
+		return AE_SYS_NOERROR;
+	}
+
+	return AE_SYS_UNKNOWN_ERROR;
 }
 
 /**
