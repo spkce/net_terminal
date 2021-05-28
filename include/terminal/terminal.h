@@ -10,15 +10,18 @@ namespace Terminal
 class ITerminal
 {
 public:
-	enum
+	typedef enum Terminal_t
 	{
-		emTerminalScree,	
-	};
+		emTerminalScree,	//°²×¿ÆÁ
+	}Terminal_t;
+
 protected:
 	ITerminal();
 	virtual ~ITerminal();
 	
 public:
+	static ITerminal* createTerminal(Terminal_t type);
+
 	virtual bool init() = 0;
 
 	virtual bool connect(NetServer::ISession* session) = 0;
