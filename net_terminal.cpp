@@ -40,6 +40,17 @@ PADAPTER_T net_terminal_adapter_get()
 	return CAdapter::instance()->getAdapter();
 }
 
+void net_terminal_notify(char* buf, int len)
+{
+	if (g_pScreen == NULL)
+	{
+		Error("NetTerminal", "screen no initialization\n");
+		return ;
+	}
+
+	g_pScreen->notify(buf, len);
+}
+
 #ifdef __cplusplus
 }
 #endif

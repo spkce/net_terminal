@@ -13,6 +13,10 @@ using Setting_t = SETTING_T;
 using PtrSetting_t = PSETTING_T;
 using TouchInfo_t = TOUCH_INFO_T;
 using PtrTouchInfo_t = PTOUCH_INFO_T;
+using MsgHdr_t = MSG_HDR_T;
+using PtrMsgHdr_t = PMSG_HDR_T;
+using WarnInfo_t = WARN_INFO_T;
+using PtrWarnInfo_t = PWARN_INFO_T;
 
 using AdptrFun_t = ADAPTER_T;
 using PtrAdptrFun_t = ADAPTER_T;

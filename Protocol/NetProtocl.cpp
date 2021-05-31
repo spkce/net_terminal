@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include "Log.h"
 #include "Order.h"
+#include "Adapter.h"
 
 using namespace NetServer;
 namespace Screen
@@ -52,6 +53,53 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 	{
 		return handShake(session, buf, len);
 	}
+}
+
+/**
+* @brief 封装消息发送,具体协议类必须实现
+* @param session 会话话指针
+* @param buf 接收到的内容
+* @param len 接收到的内容长度
+* @return 成功/失败
+**/
+bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
+{
+	if (buf == NULL || len < (int)sizeof(MsgHdr_t))
+	{
+		Error("NetTerminal", "input param error\n");
+		return false;
+	}
+	if (session->getState() != ISession::emStateLogin)
+	{
+		Error("NetTerminal", "not login\n");
+		return false;
+	}
+
+	Json::Value send;
+	PtrMsgHdr_t p = (PtrMsgHdr_t)buf;
+	unsigned int msgID = p->msgID;
+	if (IOrder::notifyHub(p->msgID, buf + sizeof(MsgHdr_t), len - sizeof(MsgHdr_t), send))
+	{
+		send["msgId"] = msgID;
+		send["token"] = m_tokenId;
+
+		Param_t stParam;
+		stParam.uTokenId = htonl(m_tokenId);
+		stParam.uMsgId = htonl(msgID);
+		stParam.uReqIdx = 0;	 //推送消息默认为0
+		stParam.uEncrypt = 0;
+
+		std::ostringstream os;
+		Json::StreamWriterBuilder writerBuilder;
+		writerBuilder["indentation"] = "";
+		std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
+		jsonWriter->write(send, &os);
+		std::string reString = os.str();
+		reString += " ";
+		
+		return sendPacket(session, &stParam, reString.c_str(), reString.length());
+	}
+	return false;
 }
 
 /**
@@ -110,8 +158,8 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 				std::string reString = os.str();
 				reString += " ";
 
-				reply(session, &stParam, reString.c_str(), reString.length());
-
+				//reply(session, &stParam, reString.c_str(), reString.length());
+				sendPacket(session, &stParam, reString.c_str(), reString.length());
 				return true;
 			}
 			res = false;
@@ -242,6 +290,7 @@ bool CNetProtocl::handShake(NetServer::ISession* session, char* buf, int len)
 
 			if (login(session, request, response))
 			{
+				m_tokenId = request["token"].asUInt();
 				Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
 
 				std::string reString = response.toStyledString().c_str();
@@ -408,6 +457,41 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 
 	session->send(sendbuf, iDataLen);
 	return true;
+}
+
+bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const char *buf, int len)
+{
+	//todo sAesOut sendbuf 应该用堆区内存，否则可能会有栈溢出
+	unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
+	char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
+
+	if (buf == NULL || len <= 0)
+	{
+		return false;
+	}
+
+	if(len > AES_MAX_IN_LEN)
+	{
+		Error("NetTerminal", "str str too large\n");
+		return false;
+	}
+	
+	int iAesOutLen = 0;
+	if (!encrypt(buf, len, sAesOut, &iAesOutLen))
+	{
+		return false;
+	}
+
+	struct msgHeader* pHeader = (struct msgHeader*)sendbuf;
+	char* pMsgBody = (sendbuf + sizeof(struct msgHeader));
+	int iBase64OutLen = EVP_EncodeBlock((unsigned char *)pMsgBody, sAesOut, iAesOutLen); //base64编码
+
+	pHeader->uMsgConstant = htonl(MSG_HEADER_CONS);
+	pHeader->uMsgIndex = htonl(param->uReqIdx);
+	pHeader->uMsgLength = htonl(iBase64OutLen);
+	int iDataLen = strlen(pMsgBody) + sizeof(struct msgHeader);
+
+	return m_pTerminal->send(session, sendbuf, iDataLen);
 }
 /*
 int CNetProtocl::sendAppInfo(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam)

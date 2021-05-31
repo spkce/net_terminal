@@ -33,7 +33,9 @@ public:
 	virtual bool init();
 	virtual bool connect(NetServer::ISession* session);
 	virtual bool disconnet(NetServer::ISession* session);
+	virtual bool notify(char* buf, int len);
 	virtual bool send(NetServer::ISession* session, char* buf, int len);
+	
 	void serverTask(int sockfd, struct sockaddr_in* addr);
 	void sessionTask(NetServer::ISession* session, char* buf, int len);
 	void messageProc(void* arg);

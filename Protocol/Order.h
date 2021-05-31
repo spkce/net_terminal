@@ -296,6 +296,14 @@ public:
 	* @return 成功/失败
 	**/
 	static bool orderHub(unsigned int msgID, Json::Value &request, Json::Value &response);
+	/**
+	* @brief 通知消息封装
+	* @param msgID 消息ID
+	* @param buf 消息内容
+	* @param len 消息长度
+	* @return 成功/失败
+	**/
+	static bool notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send);
 protected:
 	/**
 	* @brief 析构函数，设定protected权限，不可实例，可继承

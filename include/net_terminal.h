@@ -69,6 +69,15 @@ typedef struct tagTouchInfo
 	int touchType;/*触摸类型：0释放；1按下*/
 }TOUCH_INFO_T, *PTOUCH_INFO_T;
 
+typedef struct tagMsghdr
+{
+	unsigned int msgID;
+}MSG_HDR_T, *PMSG_HDR_T;
+
+typedef struct tagWarnInfo
+{
+	int type;
+}WARN_INFO_T, *PWARN_INFO_T;
 
 /*外部接口函数*/
 typedef struct tagAdapterFunc
@@ -86,6 +95,7 @@ void net_termianl_init();
 
 PADAPTER_T net_terminal_adapter_get();
 
+void net_terminal_notify(char* buf, int len);
 
 #ifdef __cplusplus
 }

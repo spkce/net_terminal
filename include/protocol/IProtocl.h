@@ -55,6 +55,14 @@ public:
 	* @return 成功/失败
 	**/
 	virtual bool parse(NetServer::ISession* session, char* buf, int len) = 0;
+	/**
+	* @brief 封装消息,具体协议类必须实现
+	* @param msgID 消息ID
+	* @param buf 接收到的内容
+	* @param len 接收到的内容长度
+	* @return 成功/失败
+	**/
+	virtual bool notify(NetServer::ISession* session, char* buf, int len) = 0;
 };
 
 

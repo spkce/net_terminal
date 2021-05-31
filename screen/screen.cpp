@@ -76,7 +76,7 @@ bool CScreen::disconnet(ISession* session)
 		return false;
 	}
 
-	Infra::CGuard<Infra::CMutex> guard(m_mutex);
+	Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo 改用读写锁
 
 	vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
 
@@ -110,6 +110,30 @@ bool CScreen::send(NetServer::ISession* session, char* buf, int len)
 	packet.len = len;
 	memcpy(packet.buf, buf, len);
 	return m_queue.input((const char*)&packet, sizeof(struct sendPacket), 1);
+}
+
+bool CScreen::notify(char* buf, int len)
+{
+	if (buf == NULL || len <= 0)
+	{
+		Error("NetTerminal", "Input Param NULL\n");
+		return false;
+	}
+
+	ISession* pSession = NULL;
+	{
+		Infra::CGuard<Infra::CMutex> guard(m_mutex);
+		//默认使用第一连接为主连接
+		vector<ISession*>::iterator iter = m_vecSession.begin();
+		if (iter == m_vecSession.end())
+		{
+			Error("NetTerminal", "screen connection dropped\n");
+			return false;
+		}
+		pSession = *iter;
+	}
+	 
+	return m_protocl->parse(pSession, buf, len);
 }
 
 void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)

@@ -10,6 +10,7 @@
 #include "OrderFace.h"
 #include "OrderPeripheral.h"
 #include "OrderNotify.h"
+#include "PushNotification.h"
 
 namespace Screen
 {
@@ -63,6 +64,27 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 	response["rval"] = res;
 	response["msgId"] = request["msgId"].asUInt();
 	response["token"] = request["token"].asUInt();
+	return res == AE_SYS_NOERROR;
+}
+
+/**
+* @brief 通知消息封装
+* @param msgID 消息ID
+* @param buf 消息内容
+* @param len 消息长度
+* @return 成功/失败
+**/
+bool IOrder::notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send)
+{
+	int res = AE_SYS_NOERROR;
+	Json::Value & param = send["param"];
+	switch(msgID)
+	{
+		case AE_SEND_WARN_INFO:
+			res = CPushNotification::sendWarnInfo(buf, len, param);
+		break;
+	}
+
 	return res == AE_SYS_NOERROR;
 }
 

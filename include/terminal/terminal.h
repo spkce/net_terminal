@@ -29,6 +29,8 @@ public:
 	virtual bool disconnet(NetServer::ISession* session) = 0;
 
 	virtual bool send(NetServer::ISession* session, char* buf, int len) = 0;
+
+	virtual bool notify(char* buf, int len) = 0;
 protected:
 	int m_type;
 };

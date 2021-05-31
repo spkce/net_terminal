@@ -72,6 +72,14 @@ public:
 	**/
 	virtual bool parse(NetServer::ISession* session, char* buf, int len);
 	/**
+	* @brief 封装消息发送,具体协议类必须实现
+	* @param session 会话话指针
+	* @param buf 接收到的内容
+	* @param len 接收到的内容长度
+	* @return 成功/失败
+	**/
+	virtual bool notify(NetServer::ISession* session, char* buf, int len);
+	/**
 	* @brief 消息分发
 	* @param session 会话话指针
 	* @param msgID 消息ID
@@ -150,7 +158,15 @@ private:
 	* @return 成功/失败
 	**/
 	bool reply(NetServer::ISession* session, Param_t* param, const char *buf, int len);
-
+	/**
+	* @brief 发送包
+	* @param session 会话话指针
+	* @param param 返回APP端参数
+	* @param buf 发送的报文
+	* @param len 发送的报文长度
+	* @return 成功/失败
+	**/
+	bool sendPacket(NetServer::ISession* session, Param_t* param, const char *buf, int len);
 
 	Terminal::ITerminal* m_pTerminal; //终端指针
 
