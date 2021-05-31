@@ -58,7 +58,7 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 	
 	if (resParam != Json::nullValue)
 	{
-		response["param"].swap(resParam["param"]);
+		response["param"].swap(resParam);
 	}
 
 	response["rval"] = res;

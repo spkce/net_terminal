@@ -12,7 +12,7 @@ class ITerminal
 public:
 	typedef enum Terminal_t
 	{
-		emTerminalScree,	//°²×¿ÆÁ
+		emTerminalScree,
 	}Terminal_t;
 
 protected:
