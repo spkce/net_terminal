@@ -76,7 +76,7 @@ bool CScreen::disconnet(ISession* session)
 		return false;
 	}
 
-	Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo ¸ÄÓÃ¶ÁÐ´Ëø
+	Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo ï¿½ï¿½ï¿½Ã¶ï¿½Ð´ï¿½ï¿½
 
 	vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
 
@@ -123,7 +123,7 @@ bool CScreen::notify(char* buf, int len)
 	ISession* pSession = NULL;
 	{
 		Infra::CGuard<Infra::CMutex> guard(m_mutex);
-		//Ä¬ÈÏÊ¹ÓÃµÚÒ»Á¬½ÓÎªÖ÷Á¬½Ó
+		//é»˜è®¤ç¬¬ä¸€ä¸ªè¿žæŽ¥ä¸ºä¸»é“¾æŽ¥
 		vector<ISession*>::iterator iter = m_vecSession.begin();
 		if (iter == m_vecSession.end())
 		{
