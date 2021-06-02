@@ -21,7 +21,6 @@ private:
 	#define MAX_DATA_BUF 4096
  	struct sendPacket
  	{
-		NetServer::ISession* pSession;
 		int len;
 		char* buf[MAX_DATA_BUF];
  	};
@@ -241,7 +240,6 @@ bool CSession::transmit(const char* buf, int len)
 	}
 	// todo use heap
 	struct sendPacket packet = {0};
-	packet.pSession = this;
 	packet.len = len;
 	memcpy(packet.buf, buf, len);
 	return m_queue.input((const char*)&packet, sizeof(struct sendPacket), 1);
@@ -268,18 +266,11 @@ void CSession::sendProc(void* arg)
 	struct sendPacket packet = {0}; // todo use heap
 	if (m_queue.output((char *)&packet, sizeof(struct sendPacket), 300) > 0)
 	{
-		NetServer::ISession *p = packet.pSession;
-		if (p == NULL)
-		{
-			Error("NetTerminal", "ISession ptr NULL\n");
-			goto DELAY;
-		}
 		Debug("NetTerminal", "send len : %d\n", packet.len);
-		p->send((const char*)(packet.buf), packet.len);
+		send((const char*)(packet.buf), packet.len);
 		return ;
 	}
 
-DELAY:
 	Infra::CTime::delay_ms(300);
 }
 
