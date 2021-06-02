@@ -28,11 +28,19 @@ public:
 	
 	void serverTask(int sockfd, struct sockaddr_in* addr);
 	void sessionTask(NetServer::ISession* session, char* buf, int len);
-
+	void servGpsTask(int sockfd, struct sockaddr_in* addr);
+	void pushGpsTask(NetServer::ISession* session, char* buf, int len);
 private:
+#define PORT_MAIN 7877
+#define PORT_GPS 8881
+#define MAX_SESSION_MAIN 5
+#define MAX_SESSION_GPS 1
 	const int m_maxSession;
-	const int m_port;
-	NetServer::INetServer* m_pServ;
+	const int m_maxGpsSession;
+	const int m_portMain;
+	const int m_portGps;
+	NetServer::INetServer* m_pServMain;
+	NetServer::INetServer* m_pServGps;
 	IProtocl* m_protocl;
 	Infra::CMutex m_mutex;
 	std::vector<NetServer::ISession*> m_vecSession;

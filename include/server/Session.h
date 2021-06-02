@@ -28,7 +28,7 @@ public:
 	virtual bool login() = 0;
 	virtual bool logout() = 0;
 	virtual bool keepAlive() = 0;
-	
+	virtual bool isTimeout() = 0;
 	virtual state_t getState() = 0;
 	
 	virtual bool close() = 0;
@@ -45,7 +45,7 @@ private:
 public:
 	static CSessionManager* instance();
 
-	ISession* createSession(int sockfd, struct sockaddr_in* addr, int timeout);
+	ISession* createSession(int sockfd, struct sockaddr_in* addr, int timeout = -1);
 
 private:
 	void registerSession(ISession* session);

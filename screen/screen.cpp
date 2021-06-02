@@ -15,9 +15,12 @@ namespace Screen
 {
 
 CScreen::CScreen()
-:m_maxSession(5)
-,m_port(7877)
-,m_pServ(NULL)
+:m_maxSession(MAX_SESSION_MAIN)
+,m_maxGpsSession(MAX_SESSION_GPS)
+,m_portMain(PORT_MAIN)
+,m_portGps(MAX_SESSION_GPS)
+,m_pServMain(NULL)
+,m_pServGps(NULL)
 {
 	m_type = ITerminal::emTerminalScree;
 	m_protocl = IProtocl::createInstance(IProtocl::emProtocl_hk, this);
@@ -26,14 +29,19 @@ CScreen::CScreen()
 CScreen::~CScreen()
 {
 	IProtocl::cancelInstance(m_protocl);
-	m_pServ->stop();
+	m_pServGps->stop();
+	m_pServMain->stop();
 }
 
 bool CScreen::init()
 {
-	m_pServ = INetServer::create(m_port, INetServer::emTCPServer);
-	m_pServ->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
-	m_pServ->start(m_maxSession);
+	m_pServMain = INetServer::create(m_portMain, INetServer::emTCPServer);
+	m_pServMain->attach(INetServer::ServerProc_t(&CScreen::serverTask, this));
+	m_pServMain->start(m_maxSession);
+
+	m_pServGps = INetServer::create(m_portGps, INetServer::emTCPServer);
+	m_pServGps->attach(INetServer::ServerProc_t(&CScreen::servGpsTask, this));
+	//m_pServGps->start(m_maxGpsSession);
 	return true;
 }
 
@@ -67,7 +75,7 @@ bool CScreen::disconnet(ISession* session)
 		return false;
 	}
 
-	Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo ���ö�д��
+	Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo usd rwlock
 
 	vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
 
@@ -126,5 +134,23 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 	m_protocl->parse(session, buf, len);
 }
 
+void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
+{
+	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
+	if (pSession == NULL)
+	{
+		return ;
+	}
+
+	pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this));
+}
+
+void CScreen::pushGpsTask(NetServer::ISession* session, char* buf, int len)
+{
+	if (session == NULL || buf == NULL || len <= 0)
+	{
+		return ;
+	}
+}
 
 } // Screen

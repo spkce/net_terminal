@@ -35,7 +35,7 @@ public:
 	virtual bool login();
 	virtual bool logout();
 	virtual bool keepAlive();
-
+	virtual bool isTimeout();
 	
 	virtual state_t getState();
 	
@@ -57,7 +57,7 @@ private:
 	
 	const int m_RecvLen;
 
-	long m_lastTime;
+	unsigned long long m_lastTime;
 	int m_timeout;
 	int m_sockfd;
 	state_t m_state;
@@ -149,6 +149,18 @@ bool CSession::keepAlive()
 		m_lastTime = Infra::CTime::getSystemTimeSecond();
 		return true;
 	}
+	return false;
+}
+
+bool CSession::isTimeout()
+{
+	unsigned long long tm = m_lastTime + m_timeout;
+
+	if (m_timeout >= 0 && (m_lastTime + m_timeout) <= Infra::CTime::getSystemTimeSecond())
+	{
+		return true;
+	}
+
 	return false;
 }
 
