@@ -46,8 +46,8 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 {
 	if (session->getState() == ISession::emStateLogin)
 	{
-		messageProcess(session, buf, len);
-		return true;
+		
+		return messageProcess(session, buf, len);
 	}
 	else
 	{
@@ -82,6 +82,8 @@ bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 	{
 		send["msgId"] = msgID;
 		send["token"] = m_tokenId;
+		
+		Info("NetTerminal","send = %s\n", send.toStyledString().c_str());
 
 		Param_t stParam;
 		stParam.uTokenId = htonl(m_tokenId);
@@ -111,7 +113,6 @@ bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 **/
 bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int len)
 {
-		bool res = false;
 		unsigned int uReqIdx = 0;
 		unsigned int uDateLen = 0;
 		if (!headerCheck(buf, &uReqIdx, &uDateLen))
@@ -128,7 +129,7 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 		Json::Value request;
 		Json::CharReaderBuilder readerBuilder;
 		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
-		res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
+		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
 		if (!res || !errs.empty())
 		{
 			Error("NetTerminal", "json parse err:%s\n", errs.c_str());
@@ -137,42 +138,44 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 	
 		Info("NetTerminal","request = %s\n", request.toStyledString().c_str());
 
-		if (request.isMember("token") && request.isMember("msgId"))
+		if (request.isMember("msgId") && request["msgId"].isInt() && request.isMember("token") && request["token"].isInt())
 		{
+			Json::Value response = Json::nullValue;
 			Param_t stParam;
-			stParam.uTokenId = request["token"].asUInt();
-			stParam.uMsgId = request["msgId"].asUInt();
+			stParam.uTokenId = (unsigned int)request["token"].asInt();
+			stParam.uMsgId = (unsigned int)request["msgId"].asInt();
 			stParam.uReqIdx = uReqIdx;
 			stParam.uEncrypt = 0;
 
-			Json::Value response = Json::nullValue;
-			res = msgHub(session, stParam.uMsgId, request, response);
-			if (res)
+			if (request["token"].asInt() == m_tokenId)
 			{
-				Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
-				std::ostringstream os;
-				Json::StreamWriterBuilder writerBuilder;
-				writerBuilder["indentation"] = "";
-				std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
-				jsonWriter->write(response, &os);
-				std::string reString = os.str();
-				reString += " ";
-
-				//reply(session, &stParam, reString.c_str(), reString.length());
-				sendPacket(session, &stParam, reString.c_str(), reString.length());
-				return true;
+				msgHub(session, stParam.uMsgId, request, response);
 			}
-			res = false;
+			else
+			{
+				response["rval"] = IOrder::AE_SYS_INVALID_TOKEN;
+				response["msgId"] = stParam.uMsgId;
+				response["token"] = stParam.uTokenId;
+				Warning("NetTerminal","invalid token\n");
+			}
+
+			Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
+			std::ostringstream os;
+			Json::StreamWriterBuilder writerBuilder;
+			writerBuilder["indentation"] = "";
+			std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
+			jsonWriter->write(response, &os);
+			std::string reString = os.str();
+			reString += " ";
+
+			//reply(session, &stParam, reString.c_str(), reString.length());
+			return sendPacket(session, &stParam, reString.c_str(), reString.length());
 		}
 		else
 		{
 			Error("NetTerminal", "request format err!\n");
-			res = false;
+			return false;
 		}
-
-
-		return res;
-
 }
 
 /**
@@ -208,11 +211,6 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 
 	std::string rsaKey = request["rsaKey"].asString();
 
-	response["rval"] = 0;
-	response["msg_id"] = request["msg_id"].asUInt();
-	response["param"] = 1;//TokenNumber
-	response["version"] = "V1.1.0";
-	
 	char sRsaEncodeKey[300] = {0};
  	char sKeyStr[100] = {0};
 	
@@ -231,12 +229,11 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 
 	response["aesCode"] = std::string(sRsaEncodeKey);
 
-	response["timeout"] = 15;
-	response["productType"] = 0;
-
-	m_pTerminal->connect(session);
-
-	return session->login();
+	if (m_pTerminal->connect(session))
+	{
+		return session->login();
+	}
+	return false;
 }
 
 /**
@@ -246,8 +243,11 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 **/
 bool CNetProtocl::logout(NetServer::ISession* session)
 {
-	m_pTerminal->disconnet(session);
-	return session->logout();
+	if (m_pTerminal->disconnet(session))
+	{
+		return session->logout();
+	}
+	return false;
 }
 
 /**
@@ -283,22 +283,43 @@ bool CNetProtocl::handShake(NetServer::ISession* session, char* buf, int len)
 		}
 		
 		Info("NetTerminal","request = %s\n", request.toStyledString().c_str());
-
-		if (request.isMember("token") && request.isMember("msg_id") && request["msg_id"].asUInt() == IOrder::AE_START_SESSION)
+		
+		Json::Value response = Json::nullValue;
+		if (request.isMember("msg_id") && request["msg_id"].isInt() && request["msg_id"].asInt() == IOrder::AE_START_SESSION)
 		{
-			Json::Value response = Json::nullValue;
+			bool ret = false;
+			response["msg_id"] = IOrder::AE_START_SESSION;
+			response["param"] = 1;//TokenNumber
+			response["version"] = "V1.1.0";
 
-			if (login(session, request, response))
+			if (request.isMember("token") && request["token"].isInt() && request["token"].asInt() == 0)
 			{
-				m_tokenId = request["token"].asUInt();
-				Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
-
-				std::string reString = response.toStyledString().c_str();
-
-				session->send(reString.c_str(), reString.length());
-				return true;
+				if (login(session, request, response))
+				{
+					response["timeout"] = 15;
+					response["productType"] = 0;
+					m_tokenId = response["param"].asInt();
+					response["rval"] = IOrder::AE_SYS_NOERROR;
+					Trace("NetTerminal", "login success\n");
+					ret = true;
+				}
+				else
+				{
+					response["rval"] = IOrder::AE_SYS_SESSION_START_FAIL;
+					Error("NetTerminal", "login fail\n");
+					ret = false;
+				}
 			}
-			Error("NetTerminal", "can not login\n");
+			else
+			{
+				response["rval"] = IOrder::AE_SYS_INVALID_TOKEN;
+				Error("NetTerminal", "invalid token\n");
+				ret = false;
+			}
+			Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
+			std::string reString = response.toStyledString().c_str();
+			session->send(reString.c_str(), reString.length());
+			return ret;
 		}
 
 		return false;

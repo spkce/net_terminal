@@ -172,7 +172,7 @@ private:
 
 	unsigned char m_AesKey[aesKeyLength]; //aes√‹‘ø
 
-	unsigned int m_tokenId; //teokenId
+	int m_tokenId; //teokenId
 	unsigned int m_reqIndex; //«Î«Ûindex
 	
 };
