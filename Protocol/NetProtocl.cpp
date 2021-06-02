@@ -512,7 +512,7 @@ bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const
 	pHeader->uMsgLength = htonl(iBase64OutLen);
 	int iDataLen = strlen(pMsgBody) + sizeof(struct msgHeader);
 
-	return m_pTerminal->send(session, sendbuf, iDataLen);
+	return session->transmit(sendbuf, iDataLen);
 }
 /*
 int CNetProtocl::sendAppInfo(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam)

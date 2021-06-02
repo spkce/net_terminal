@@ -34,6 +34,7 @@ public:
 	virtual bool close() = 0;
 	virtual void destroy() = 0;
 	virtual int send(const char* buf, int len) = 0;
+	virtual bool transmit(const char* buf, int len) = 0;
 };
 
 class CSessionManager

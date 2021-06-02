@@ -9,6 +9,7 @@
 #include "thread.h"
 #include "ctime.h"
 #include "Log.h"
+#include "MsgQueue.h"
 
 namespace NetServer
 {
@@ -16,6 +17,14 @@ namespace NetServer
 class CSession : public ISession
 {
 	//friend class CSessionManager;
+private:
+	#define MAX_DATA_BUF 4096
+ 	struct sendPacket
+ 	{
+		NetServer::ISession* pSession;
+		int len;
+		char* buf[MAX_DATA_BUF];
+ 	};
 protected: 
 	CSession();
 	virtual ~CSession();
@@ -37,11 +46,13 @@ public:
 	virtual void destroy();
 
 	virtual int send(const char* buf, int len);
-
+	virtual bool transmit(const char* buf, int len);
 	void replyProc(void* arg);
-
+	void sendProc(void* arg);
 private:
-	Infra::CThread m_thread;
+	Infra::CMsgQueue m_queue;
+	Infra::CThread m_recvThread;
+	Infra::CThread m_sendThread;
 	struct sockaddr_in m_addr;
 	ISession::SessionProc_t m_proc;
 	
@@ -55,21 +66,24 @@ private:
 };
 
 CSession::CSession()
-:m_RecvLen(1024)
+:m_queue(5, sizeof(struct sendPacket))
+,m_RecvLen(1024)
 ,m_lastTime(0)
 ,m_timeout(-1)
 ,m_sockfd(-1)
 ,m_state(emStateCreated)
 {
 	memset(&m_addr, 0, sizeof(struct sockaddr_in));
-	m_thread.attachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
+	m_recvThread.attachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
+	m_sendThread.attachProc(Infra::ThreadProc_t(&CSession::sendProc, this));
 	m_pRecvbuf = new char[m_RecvLen];
 }
 
 CSession::~CSession()
 {
 	close();
-	m_thread.detachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
+	m_recvThread.detachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
+	m_sendThread.detachProc(Infra::ThreadProc_t(&CSession::sendProc, this));
 	delete[] m_pRecvbuf;
 }
 
@@ -87,8 +101,10 @@ bool CSession::bind(const ISession::SessionProc_t & proc)
 		return false;
 	}
 	m_proc = proc;
-	m_thread.createTread();
-	m_thread.run();
+	m_recvThread.createTread();
+	m_recvThread.run();
+	m_sendThread.createTread();
+	m_sendThread.run();
 	m_state = emStateLogout;
 	return true;
 }
@@ -99,7 +115,8 @@ bool CSession::unbind()
 	{
 		return false;
 	}
-	m_thread.stop(true);
+	m_recvThread.stop(true);
+	m_sendThread.stop(true);
 	m_proc.unbind();
 	m_state = emStateCreated;
 	return true;
@@ -209,6 +226,27 @@ int CSession::send(const char* buf, int len)
 	return len;
 }
 
+bool CSession::transmit(const char* buf, int len)
+{
+	if (buf == NULL || len <= 0)
+	{
+		Error("NetTerminal", "Input Param NULL\n");
+		return false;
+	}
+
+	if (len > MAX_DATA_BUF)
+	{
+		Error("NetTerminal", "too large date\n");
+		return false;
+	}
+	// todo use heap
+	struct sendPacket packet = {0};
+	packet.pSession = this;
+	packet.len = len;
+	memcpy(packet.buf, buf, len);
+	return m_queue.input((const char*)&packet, sizeof(struct sendPacket), 1);
+}
+
 void CSession::replyProc(void* arg)
 {
 	memset(m_pRecvbuf, 0, m_RecvLen);
@@ -223,6 +261,26 @@ void CSession::replyProc(void* arg)
 	Debug("NetTerminal","recv:%s:%d len=%d\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port), len);
 	m_proc(this, m_pRecvbuf, len);
 	
+}
+
+void CSession::sendProc(void* arg)
+{
+	struct sendPacket packet = {0}; // todo use heap
+	if (m_queue.output((char *)&packet, sizeof(struct sendPacket), 300) > 0)
+	{
+		NetServer::ISession *p = packet.pSession;
+		if (p == NULL)
+		{
+			Error("NetTerminal", "ISession ptr NULL\n");
+			goto DELAY;
+		}
+		Debug("NetTerminal", "send len : %d\n", packet.len);
+		p->send((const char*)(packet.buf), packet.len);
+		return ;
+	}
+
+DELAY:
+	Infra::CTime::delay_ms(300);
 }
 
 CSessionManager::CSessionManager()
