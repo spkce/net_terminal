@@ -154,8 +154,6 @@ bool CSession::keepAlive()
 
 bool CSession::isTimeout()
 {
-	unsigned long long tm = m_lastTime + m_timeout;
-
 	if (m_timeout >= 0 && (m_lastTime + m_timeout) <= Infra::CTime::getSystemTimeSecond())
 	{
 		return true;
@@ -354,7 +352,7 @@ void CSessionManager::registerSession(ISession* session)
 	}
 }
 
-void CSessionManager::timerProc(int arg)
+void CSessionManager::timerProc(unsigned long long arg)
 {
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
 	std::vector<ISession*>::iterator it;

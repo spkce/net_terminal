@@ -51,7 +51,7 @@ private:
 	void registerSession(ISession* session);
 	bool cancelSession(ISession* session);
 
-	void timerProc(int arg);
+	void timerProc(unsigned long long arg);
 
 	Infra::CTimer m_timer;
 	Infra::CMutex m_mutex;
