@@ -40,15 +40,26 @@ PADAPTER_T net_terminal_adapter_get()
 	return CAdapter::instance()->getAdapter();
 }
 
-void net_terminal_notify(char* buf, int len)
+int net_terminal_notify(char* buf, int len)
 {
 	if (g_pScreen == NULL)
 	{
 		Error("NetTerminal", "screen no initialization\n");
-		return ;
+		return (int)false;
 	}
 
-	g_pScreen->notify(buf, len);
+	return (int)g_pScreen->notify(buf, len);
+}
+
+int net_terminal_pushGPS(char* buf, int len)
+{
+	if (g_pScreen == NULL)
+	{
+		Error("NetTerminal", "screen no initialization\n");
+		return (int)false;;
+	}
+
+	return (int)g_pScreen->pushGps(buf, len);
 }
 
 #ifdef __cplusplus

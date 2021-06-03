@@ -24,11 +24,13 @@ public:
 
 	virtual bool init() = 0;
 
-	virtual bool connect(NetServer::ISession* session) = 0;
+	virtual bool connect(NetServer::ISession* session, int type) = 0;
 
-	virtual bool disconnet(NetServer::ISession* session) = 0;
+	virtual bool disconnet(NetServer::ISession* session, int type) = 0;
 
 	virtual bool notify(char* buf, int len) = 0;
+
+	virtual bool pushGps(char* buf, int len) = 0;
 protected:
 	int m_type;
 };

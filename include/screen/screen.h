@@ -22,10 +22,10 @@ public:
 	virtual ~CScreen();
 
 	virtual bool init();
-	virtual bool connect(NetServer::ISession* session);
-	virtual bool disconnet(NetServer::ISession* session);
+	virtual bool connect(NetServer::ISession* session, int type);
+	virtual bool disconnet(NetServer::ISession* session, int type);
 	virtual bool notify(char* buf, int len);
-	
+	virtual bool pushGps(char* buf, int len);
 	void serverTask(int sockfd, struct sockaddr_in* addr);
 	void sessionTask(NetServer::ISession* session, char* buf, int len);
 	void servGpsTask(int sockfd, struct sockaddr_in* addr);
@@ -42,6 +42,8 @@ private:
 	NetServer::INetServer* m_pServMain;
 	NetServer::INetServer* m_pServGps;
 	IProtocl* m_protocl;
+	IProtocl* m_protoclGps;
+	NetServer::ISession* m_GpsSession;
 	Infra::CMutex m_mutex;
 	std::vector<NetServer::ISession*> m_vecSession;
 };

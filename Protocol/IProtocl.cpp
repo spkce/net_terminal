@@ -2,6 +2,7 @@
 #include "IProtocl.h"
 #include "NetProtocl.h"
 #include "terminal.h"
+#include "MediaProtocl.h"
 
 namespace Screen
 {
@@ -17,6 +18,10 @@ IProtocl * IProtocl::createInstance(protocl_t type, Terminal::ITerminal* termial
 	if (type == emProtocl_hk)
 	{
 		return new CNetProtocl(termial);
+	}
+	else if (type == emProtocl_media)
+	{
+		return new CMediaProtocl(termial);
 	}
 	
 	return NULL;

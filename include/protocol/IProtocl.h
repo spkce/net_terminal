@@ -24,6 +24,7 @@ public:
 	typedef  enum protocl_t
 	{
 		emProtocl_hk,
+		emProtocl_media,
 	}protocl_t;
 protected:
 	/**

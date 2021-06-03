@@ -48,12 +48,18 @@ public:
 	* @param maxlisten 最大连接
 	* @return 成功/失败
 	**/
-	bool start(unsigned int maxlisten);
+	virtual bool start(unsigned int maxlisten);
 	/**
 	* @brief 服务器停止运行
 	* @return 成功/失败
 	**/
-	bool stop();
+	virtual bool stop();
+	/**
+	* @brief 服务器是否运行
+	* @return 是/否
+	**/
+	virtual bool isRun();
+
 private:
 	/**
 	* @brief 线程回调函数,
@@ -160,6 +166,7 @@ bool CTcpServer::start(unsigned int maxlisten)
 {
 	if (m_sockfd >= 0)
 	{
+		Error("NetTerminal", "socket is Already open\n");
 		return false;
 	}
 
@@ -174,14 +181,14 @@ bool CTcpServer::start(unsigned int maxlisten)
 	servAddr.sin_family = AF_INET;
 	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servAddr.sin_port = htons(m_port);
-	if (bind(m_sockfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
+	if (bind(m_sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0)
 	{
 		Error("NetTerminal", "socket bind port:%d fail\n", m_port);
 		return false;
 	}
 
-	struct timeval timeout={3,0};    //设置超时时间为3秒
-	setsockopt(m_sockfd, SOL_SOCKET, SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval));
+	struct timeval timeout = {3, 0}; //设置超时时间为3秒
+	setsockopt(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(struct timeval));
 
 	if(listen(m_sockfd, maxlisten) < 0)
 	{
@@ -210,6 +217,16 @@ bool CTcpServer::stop()
 	return false;
 }
 
+
+/**
+* @brief 服务器是否运行
+* @return 是/否
+**/
+bool CTcpServer::isRun()
+{
+	return m_sockfd >= 0;
+}
+
 /**
 * @brief 线程回调函数,
 * @param arg 线程回调函数固定参数，不使用
@@ -217,7 +234,6 @@ bool CTcpServer::stop()
 **/
 void CTcpServer::server_task(void* arg)
 {
-
 	struct sockaddr_in cliaddr = {0};
 	socklen_t clilen = sizeof(struct sockaddr_in);
 
@@ -239,7 +255,7 @@ void CTcpServer::server_task(void* arg)
 	{
 		return;
 	}
-	Debug("NetTerminal", "connect:%s:%d\n", (char*)inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
+	Debug("NetTerminal", "port:%d connect:%s:%d\n", m_port, (char*)inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 	if (!m_proc.isEmpty())
 	{
 		m_proc(sock, &cliaddr);

@@ -50,6 +50,7 @@ public:
 	void sendProc(void* arg);
 	void timerProc(unsigned long long arg);
 private:
+#define RECV_LEN 1024
 	Infra::CMsgQueue m_queue;
 	Infra::CThread m_recvThread;
 	Infra::CThread m_sendThread;

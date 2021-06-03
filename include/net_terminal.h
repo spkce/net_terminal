@@ -36,7 +36,7 @@ typedef struct tagDevStatus
 	int CSQ;/*GSM信号强度*/
 	int locationStatus; /*定位状态*/
 	int bizPIfLoginStatus; /*业务平台登录状态*/
-	char  curTime[NET_APP_DATE_LEN];/*设备时间*/
+	char curTime[NET_APP_DATE_LEN];/*设备时间*/
 
 }DEV_STATUS_T, *PDEV_STATUS_T;
 
@@ -95,7 +95,9 @@ void net_termianl_init();
 
 PADAPTER_T net_terminal_adapter_get();
 
-void net_terminal_notify(char* buf, int len);
+int net_terminal_notify(char* buf, int len);
+
+int net_terminal_pushGPS(char* buf, int len);
 
 #ifdef __cplusplus
 }

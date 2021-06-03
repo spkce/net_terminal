@@ -229,7 +229,7 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 
 	response["aesCode"] = std::string(sRsaEncodeKey);
 
-	if (m_pTerminal->connect(session))
+	if (m_pTerminal->connect(session, emProtocl_hk))
 	{
 		return session->login();
 	}
@@ -243,7 +243,7 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 **/
 bool CNetProtocl::logout(NetServer::ISession* session)
 {
-	if (m_pTerminal->disconnet(session))
+	if (m_pTerminal->disconnet(session, emProtocl_hk))
 	{
 		return session->logout();
 	}

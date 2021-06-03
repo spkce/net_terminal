@@ -18,19 +18,22 @@ CScreen::CScreen()
 :m_maxSession(MAX_SESSION_MAIN)
 ,m_maxGpsSession(MAX_SESSION_GPS)
 ,m_portMain(PORT_MAIN)
-,m_portGps(MAX_SESSION_GPS)
+,m_portGps(PORT_GPS)
 ,m_pServMain(NULL)
 ,m_pServGps(NULL)
+,m_GpsSession(NULL)
 {
 	m_type = ITerminal::emTerminalScree;
 	m_protocl = IProtocl::createInstance(IProtocl::emProtocl_hk, this);
+	m_protoclGps = IProtocl::createInstance(IProtocl::emProtocl_media, this);
 }
 
 CScreen::~CScreen()
 {
-	IProtocl::cancelInstance(m_protocl);
 	m_pServGps->stop();
 	m_pServMain->stop();
+	IProtocl::cancelInstance(m_protocl);
+	IProtocl::cancelInstance(m_protoclGps);
 }
 
 bool CScreen::init()
@@ -41,53 +44,94 @@ bool CScreen::init()
 
 	m_pServGps = INetServer::create(m_portGps, INetServer::emTCPServer);
 	m_pServGps->attach(INetServer::ServerProc_t(&CScreen::servGpsTask, this));
-	//m_pServGps->start(m_maxGpsSession);
 	return true;
 }
 
-bool CScreen::connect(ISession* session)
+bool CScreen::connect(ISession* session, int type)
 {
 	if (session == NULL)
 	{
 		return false;
 	}
 
-	Infra::CGuard<Infra::CMutex> guard(m_mutex);
-	if (m_vecSession.size() >= (unsigned int)m_maxSession)
+	if (type == IProtocl::emProtocl_hk)
 	{
-		return false;
+		Infra::CGuard<Infra::CMutex> guard(m_mutex);
+		if (m_vecSession.size() >= (unsigned int)m_maxSession)
+		{
+			return false;
+		}
+
+		vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
+		if (iter == m_vecSession.end())
+		{
+			m_vecSession.push_back(session);
+			if (!m_pServGps->isRun())
+			{
+				Trace("NetTerminal", "GPS Server run\n");
+				m_pServGps->start(5);
+			}
+			return true;
+		}
 	}
-	
-	vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
-	if (iter == m_vecSession.end())
+	else if (type == IProtocl::emProtocl_media)
 	{
-		m_vecSession.push_back(session);
-		return true;
+		if (m_GpsSession == NULL)
+		{
+			Trace("NetTerminal", "GPS session connect\n");
+			m_GpsSession = session;
+			return true;
+		}
 	}
 	
 	return false;
 }
 
-bool CScreen::disconnet(ISession* session)
+bool CScreen::disconnet(ISession* session, int type)
 {
 	if (session == NULL)
 	{
 		return false;
 	}
 
-	Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo usd rwlock
-
-	vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
-
-	if (iter == m_vecSession.end())
+	if (type == IProtocl::emProtocl_hk)
 	{
-		return false;
+		Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo usd rwlock
+
+		vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
+
+		if (iter == m_vecSession.end())
+		{
+			return false;
+		}
+
+		m_vecSession.erase(iter);
+		session->close();
+
+		if (m_vecSession.size() == 0 && m_pServGps->isRun())
+		{
+			if (m_GpsSession != NULL)
+			{
+				m_GpsSession->close();
+			}
+			m_pServGps->stop();
+			Trace("NetTerminal", "GPS Server stop\n");
+		}
+		
+		return true;
 	}
-
-	m_vecSession.erase(iter);
-
-	session->close();
-	return true;
+	else if (type == IProtocl::emProtocl_media)
+	{
+		if (m_GpsSession == session)
+		{
+			Trace("NetTerminal", "GPS session connect\n");
+			session->close();
+			m_GpsSession = NULL;
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 bool CScreen::notify(char* buf, int len)
@@ -112,6 +156,16 @@ bool CScreen::notify(char* buf, int len)
 	}
 	 
 	return m_protocl->notify(pSession, buf, len);
+}
+
+bool CScreen::pushGps(char* buf, int len)
+{
+	if (m_GpsSession != NULL)
+	{
+		return m_protoclGps->notify(m_GpsSession, buf, len);
+	}
+
+	return false;
 }
 
 void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
@@ -141,8 +195,7 @@ void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 	{
 		return ;
 	}
-
-	pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this));
+	pSession->bind(ISession::SessionProc_t(&CScreen::pushGpsTask, this));
 }
 
 void CScreen::pushGpsTask(NetServer::ISession* session, char* buf, int len)
@@ -151,6 +204,7 @@ void CScreen::pushGpsTask(NetServer::ISession* session, char* buf, int len)
 	{
 		return ;
 	}
+	m_protoclGps->parse(session, buf, len);
 }
 
 } // Screen

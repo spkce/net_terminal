@@ -62,6 +62,12 @@ public:
 	* @return 成功/失败
 	**/
 	virtual bool stop() = 0;
+
+	/**
+	* @brief 服务器是否运行
+	* @return 是/否
+	**/
+	virtual bool isRun() = 0;
 };
 
 
