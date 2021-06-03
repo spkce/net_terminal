@@ -136,7 +136,7 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 
 void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 {
-	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
+	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr);
 	if (pSession == NULL)
 	{
 		return ;

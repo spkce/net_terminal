@@ -166,6 +166,7 @@ bool CTcpServer::start(unsigned int maxlisten)
 	m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (m_sockfd < 0)
 	{
+		Error("NetTerminal", "open socket fail\n");
 		return false;
 	}
 	struct sockaddr_in servAddr;
@@ -175,6 +176,7 @@ bool CTcpServer::start(unsigned int maxlisten)
 	servAddr.sin_port = htons(m_port);
 	if (bind(m_sockfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
 	{
+		Error("NetTerminal", "socket bind port:%d fail\n", m_port);
 		return false;
 	}
 
@@ -183,10 +185,11 @@ bool CTcpServer::start(unsigned int maxlisten)
 
 	if(listen(m_sockfd, maxlisten) < 0)
 	{
+		Error("NetTerminal", "socket listen port: %d fail\n", m_port);
 		return false;
 	}
 	m_pThread->run();
-
+	Debug("NetTerminal", "tcp server: %d is ready\n", m_port);
 	return true;
 }
 

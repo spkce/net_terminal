@@ -48,13 +48,14 @@ public:
 	virtual bool transmit(const char* buf, int len);
 	void replyProc(void* arg);
 	void sendProc(void* arg);
+	void timerProc(unsigned long long arg);
 private:
 	Infra::CMsgQueue m_queue;
 	Infra::CThread m_recvThread;
 	Infra::CThread m_sendThread;
 	struct sockaddr_in m_addr;
 	ISession::SessionProc_t m_proc;
-	
+	Infra::CTimer m_timer;
 	const int m_RecvLen;
 
 	unsigned long long m_lastTime;
@@ -66,7 +67,7 @@ private:
 
 CSession::CSession()
 :m_queue(5, sizeof(struct sendPacket))
-,m_RecvLen(1024)
+,m_RecvLen(RECV_LEN)
 ,m_lastTime(0)
 ,m_timeout(-1)
 ,m_sockfd(-1)
@@ -76,13 +77,20 @@ CSession::CSession()
 	m_recvThread.attachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
 	m_sendThread.attachProc(Infra::ThreadProc_t(&CSession::sendProc, this));
 	m_pRecvbuf = new char[m_RecvLen];
+
+	m_timer.setTimerAttr(Infra::CTimer::TimerProc_t(&CSession::timerProc, this), 3000);
 }
 
 CSession::~CSession()
 {
-	close();
 	m_recvThread.detachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
 	m_sendThread.detachProc(Infra::ThreadProc_t(&CSession::sendProc, this));
+
+	if (m_timer.isRun())
+	{
+		m_timer.stop();
+	}
+
 	delete[] m_pRecvbuf;
 }
 
@@ -105,6 +113,12 @@ bool CSession::bind(const ISession::SessionProc_t & proc)
 	m_sendThread.createTread();
 	m_sendThread.run();
 	m_state = emStateLogout;
+	m_lastTime = Infra::CTime::getSystemTimeSecond();
+	if (m_timeout > 0 && !m_timer.isRun())
+	{
+		//当超时时间大于0时才有必要启动定时器
+		m_timer.run();
+	}
 	return true;
 }
 
@@ -117,7 +131,12 @@ bool CSession::unbind()
 	m_recvThread.stop(true);
 	m_sendThread.stop(true);
 	m_proc.unbind();
-	m_state = emStateCreated;
+	
+	if (m_timer.isRun())
+	{
+		m_timer.stop();
+	}
+	m_state = emStateClose;
 	return true;
 }
 
@@ -282,6 +301,15 @@ void CSession::sendProc(void* arg)
 	}
 
 	Infra::CTime::delay_ms(300);
+}
+
+void CSession::timerProc(unsigned long long arg)
+{
+	if (isTimeout())
+	{
+		Debug("NetTerminal", "Session:%s:%d time out\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
+		close();
+	}
 }
 
 CSessionManager::CSessionManager()
