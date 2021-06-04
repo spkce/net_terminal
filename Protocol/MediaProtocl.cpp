@@ -67,9 +67,10 @@ bool CMediaProtocl::parse(NetServer::ISession* session, char* buf, int len)
 		if (login(session))
 		{
 			resHdr.retVal = htonl(emNoError);
+			Error("NetTerminal", "login success\n");
 		}
 	}
-
+	
 	return reply(session, (const char*)&resHdr, sizeof(MediaResHder));
 }
 

@@ -125,7 +125,7 @@ friend struct ThreadInternal;
 protected:
 	IThread();
 	virtual ~IThread();
-	int create(struct ThreadInternal* pInternal);
+	int create(struct ThreadInternal* pInternal, bool isDetach);
 	struct ThreadInternal* allocateThread();
 	void releaseThread(struct ThreadInternal* pInternal);
 	

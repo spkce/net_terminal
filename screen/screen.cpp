@@ -69,7 +69,7 @@ bool CScreen::connect(ISession* session, int type)
 			if (!m_pServGps->isRun())
 			{
 				Trace("NetTerminal", "GPS Server run\n");
-				m_pServGps->start(5);
+				m_pServGps->start(m_maxGpsSession);
 			}
 			return true;
 		}
@@ -124,7 +124,7 @@ bool CScreen::disconnet(ISession* session, int type)
 	{
 		if (m_GpsSession == session)
 		{
-			Trace("NetTerminal", "GPS session connect\n");
+			Trace("NetTerminal", "GPS session disconnet\n");
 			session->close();
 			m_GpsSession = NULL;
 			return true;

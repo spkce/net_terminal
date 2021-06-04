@@ -193,7 +193,7 @@ bool CNetProtocl::msgHub(ISession* session, unsigned int msgID, Json::Value &req
 	if (ret && msgID == IOrder::AE_GET_SETTING)
 	{
 		ret = keepAlive(session);
-		Error("NetTerminal", "keepAlive:%d\n", ret);
+		Trace("NetTerminal", "keepAlive:%d\n", ret);
 	}
 
 	return ret;

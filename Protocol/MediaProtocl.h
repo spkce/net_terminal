@@ -46,6 +46,7 @@ class CMediaProtocl : public IProtocl
 		unsigned short msgID;
 		unsigned int seekType;
 		unsigned int seek;
+		unsigned int resolution;
 	}MediaReqHder;
 
 	/**
