@@ -28,7 +28,13 @@ class CMediaProtocl : public IProtocl
 	{
 		emReqMedia = 0xB90B,
 	};
-	
+	/**
+	* @brief »Ø¸´ID
+	**/
+	enum
+	{
+		emResMedia = 0x0BB9,
+	};
 	/**
 	* @brief ´íÎóÂë
 	**/

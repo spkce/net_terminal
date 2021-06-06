@@ -62,7 +62,8 @@ bool CMediaProtocl::parse(NetServer::ISession* session, char* buf, int len)
 	int copylen = len < (int)sizeof(path) ? len : sizeof(path);
 	strncpy(path, buf + sizeof(MediaReqHder), copylen);
 
-	if (std::string(path) == "GPS_NMEA")
+
+	//if (std::string("GPS_NMEA") == path)
 	{
 		if (login(session))
 		{
@@ -70,8 +71,8 @@ bool CMediaProtocl::parse(NetServer::ISession* session, char* buf, int len)
 			Error("NetTerminal", "login success\n");
 		}
 	}
-	
-	return reply(session, (const char*)&resHdr, sizeof(MediaResHder));
+	//return reply(session, (const char*)&resHdr, sizeof(MediaResHder));
+	return true;
 }
 
 /**
@@ -103,16 +104,29 @@ bool CMediaProtocl::notify(NetServer::ISession* session, char* buf, int len)
 		return 0;
 	}
 
+	const unsigned int exLen = 5;
 	char sendDate[1024] = {0};
 	MediaResHder* pResHdr = (MediaResHder*)sendDate;
 	pResHdr->startCode = htons(RES_START_CODE);
-	pResHdr->msgID = htons(emReqMedia);
-	pResHdr->retVal = htonl(emError);
+	pResHdr->msgID = htons(emResMedia);
+	pResHdr->retVal = htonl(emNoError);
 	pResHdr->totalSzie = 0; //(ÔÝ²»Ê¶±ð)
 
 	int copyLen = len < (int)sizeof(sendDate) ? len : sizeof(sendDate);
 	memcpy(sendDate + sizeof(MediaResHder), buf, copyLen);
-	pResHdr->packetSzie = copyLen;
+	
+	char * p = (char*)(sendDate + sizeof(MediaResHder) + copyLen);
+	
+	p[0] = 0;
+	p[1] = 0;
+	p[2] = 0;
+	p[3] = 0;
+	p[4] = 0;
+
+	copyLen += exLen;
+	
+	pResHdr->packetSzie = htonl(copyLen);
+
 	copyLen += sizeof(MediaResHder);
 	return sendPacket(session, sendDate, copyLen);
 }
