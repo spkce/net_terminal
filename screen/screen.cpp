@@ -14,6 +14,9 @@ using namespace NetServer;
 namespace Screen
 {
 
+/**
+* @brief 构造函数
+**/
 CScreen::CScreen()
 :m_maxSession(MAX_SESSION_MAIN)
 ,m_maxGpsSession(MAX_SESSION_GPS)
@@ -28,6 +31,9 @@ CScreen::CScreen()
 	m_protoclGps = IProtocl::createInstance(IProtocl::emProtocl_media, this);
 }
 
+/**
+* @brief 析构函数
+**/
 CScreen::~CScreen()
 {
 	m_pServGps->stop();
@@ -36,6 +42,10 @@ CScreen::~CScreen()
 	IProtocl::cancelInstance(m_protoclGps);
 }
 
+/**
+* @brief 初始化
+* @return 成功：true；失败：false
+**/
 bool CScreen::init()
 {
 	m_pServMain = INetServer::create(m_portMain, INetServer::emTCPServer);
@@ -47,6 +57,12 @@ bool CScreen::init()
 	return true;
 }
 
+/**
+* @brief session 连接
+* @param session 会话指针
+* @param type 协议类型
+* @return 成功：true；失败：false
+**/
 bool CScreen::connect(ISession* session, int type)
 {
 	if (session == NULL)
@@ -87,6 +103,12 @@ bool CScreen::connect(ISession* session, int type)
 	return false;
 }
 
+/**
+* @brief session 断开连接
+* @param session 会话指针
+* @param type 协议类型
+* @return 成功：true；失败：false
+**/
 bool CScreen::disconnet(ISession* session, int type)
 {
 	if (session == NULL)
@@ -134,6 +156,12 @@ bool CScreen::disconnet(ISession* session, int type)
 	return false;
 }
 
+/**
+* @brief 消息推送
+* @param buf 消息内容
+* @param len 消息长度
+* @return 成功：true；失败：false
+**/
 bool CScreen::notify(char* buf, int len)
 {
 	if (buf == NULL || len <= 0)
@@ -158,6 +186,12 @@ bool CScreen::notify(char* buf, int len)
 	return m_protocl->notify(pSession, buf, len);
 }
 
+/**
+* @brief GPS数据推送
+* @param buf GPS数据内容
+* @param len GPS数据长度
+* @return 成功：true；失败：false
+**/
 bool CScreen::pushGps(char* buf, int len)
 {
 	if (m_GpsSession != NULL)
@@ -168,6 +202,11 @@ bool CScreen::pushGps(char* buf, int len)
 	return false;
 }
 
+/**
+* @brief 服务器回调函数
+* @param sockfd 套接字句柄
+* @param addr 对端套接字地址
+**/
 void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 {
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
@@ -179,6 +218,12 @@ void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 	pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this));
 }
 
+/**
+* @brief 会话回调函数
+* @param session 会话指针
+* @param buf 消息内容
+* @param len 消息长度
+**/
 void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 {
 	if (session == NULL || buf == NULL || len <= 0)
@@ -188,6 +233,11 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 	m_protocl->parse(session, buf, len);
 }
 
+/**
+* @brief GPS务器回调函数
+* @param sockfd 套接字句柄
+* @param addr 对端套接字地址
+**/
 void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 {
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr);
@@ -198,6 +248,12 @@ void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 	pSession->bind(ISession::SessionProc_t(&CScreen::pushGpsTask, this));
 }
 
+/**
+* @brief 会话回调函数
+* @param session 会话指针
+* @param buf 消息内容
+* @param len 消息长度
+**/
 void CScreen::pushGpsTask(NetServer::ISession* session, char* buf, int len)
 {
 	if (session == NULL || buf == NULL || len <= 0)

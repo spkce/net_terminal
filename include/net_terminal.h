@@ -90,13 +90,31 @@ typedef struct tagAdapterFunc
 }ADAPTER_T, *PADAPTER_T;
 
 
-
+/**
+ * @brief 初始化安卓屏
+ */
 void net_termianl_init();
 
+/**
+ * @brief 获取适配器指针
+ * @return 适配器指针
+ */
 PADAPTER_T net_terminal_adapter_get();
 
+/**
+ * @brief 消息推送
+ * @param buf 消息缓冲区 
+ * @param len 消息缓长度
+ * @return 成功：返回true；失败：返回false
+ */
 int net_terminal_notify(char* buf, int len);
 
+/**
+ * @brief GPS数据推送
+ * @param buf GPS数据缓冲区 
+ * @param len 消息缓长度
+ * @return 成功：返回true；失败：返回false
+ */
 int net_terminal_pushGPS(char* buf, int len);
 
 #ifdef __cplusplus

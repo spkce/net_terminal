@@ -14,7 +14,7 @@ static int app_net_terminal_touch_info(PTOUCH_INFO_T pstTouchInfo);
  * @brief 初始化外部终端模块
  * @return 成功，返回OK；失败，返回-1
  */
-int app_net_terminal_init(VOID)
+int app_net_terminal_init()
 {
 	PADAPTER_T pAdapter = net_terminal_adapter_get();
 	if (pAdapter == NULL)

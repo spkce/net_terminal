@@ -14,6 +14,9 @@
 namespace NetServer
 {
 
+/**
+* @brief 会话类
+**/
 class CSession : public ISession
 {
 	//friend class CSessionManager;
@@ -25,31 +28,121 @@ private:
 		char* buf[MAX_DATA_BUF];
  	};
 protected: 
+	/**
+	* @brief 构造函数， 设定protected权限，不可实例，可继承
+	**/
 	CSession();
+
+	/**
+	* @brief 析构函数， 设定protected权限，不可实例，可继承
+	**/
 	virtual ~CSession();
+
 public:
+	/**
+	* @brief 会话设定
+	* @param sockfd 套接字句柄
+	* @param addr 对端地址
+	* @param timeout 超时时间
+	**/
 	void set(int sockfd, struct sockaddr_in* addr, int timeout);
+
+	/**
+	* @brief 会话回调函数绑定
+	* @param proc 回调函数
+	* @return 成功：true；失败：false
+	**/
 	virtual bool bind(const ISession::SessionProc_t & proc);
+
+	/**
+	* @brief 会话回调函数取消绑定
+	* @return 成功：true；失败：false
+	**/
 	virtual bool unbind();
-	
+
+	/**
+	* @brief 登录
+	* @return 成功：true；失败：false
+	**/
 	virtual bool login();
+
+	/**
+	* @brief 登出
+	* @return 成功：true；失败：false
+	**/
 	virtual bool logout();
+
+	/**
+	* @brief 保活
+	* @return 成功：true；失败：false
+	**/
 	virtual bool keepAlive();
+
+	/**
+	* @brief 是否超时
+	* @return 超时：true；未超时：false
+	**/
 	virtual bool isTimeout();
-	
+
+	/**
+	* @brief 获取会话状态
+	* @return 获取会话状态
+	**/
 	virtual state_t getState();
-	
+
+	/**
+	* @brief 关闭会话
+	* @return 成功：true；失败：false
+	**/
 	virtual bool close();
 
+	/**
+	* @brief 创建会话
+	* @return 会话指针
+	**/
 	static CSession* create();
+
+	/**
+	* @brief 会话释放
+	**/
 	virtual void destroy();
 
+	/**
+	* @brief 发送消息，同步
+	* @param buf 消息内容
+	* @param len 消息长度
+	* @return 发送的数据长度
+	**/
 	virtual int send(const char* buf, int len);
+
+	/**
+	* @brief 发送消息，异步
+	* @param buf 消息内容
+	* @param len 消息长度
+	* @return 获取会话状态
+	**/
 	virtual bool transmit(const char* buf, int len);
+
+	/**
+	* @brief 接收回调函数
+	* @param arg 无用参数
+	**/
 	void replyProc(void* arg);
+
+	/**
+	* @brief 发送回调函数，主要用于异步发送
+	* @param arg 无用参数
+	**/
 	void sendProc(void* arg);
+
+	/**
+	* @brief 定时器回调函数
+	* @param arg 系统运行时间 ms
+	**/
 	void timerProc(unsigned long long arg);
+
 private:
+
 #define RECV_LEN 1024
 	Infra::CMsgQueue m_queue;
 	Infra::CThread m_recvThread;
@@ -66,6 +159,9 @@ private:
 	char* m_pRecvbuf;
 };
 
+/**
+* @brief 构造函数， 设定protected权限，不可实例，可继承
+**/
 CSession::CSession()
 :m_queue(5, sizeof(struct sendPacket))
 ,m_RecvLen(RECV_LEN)
@@ -82,6 +178,9 @@ CSession::CSession()
 	m_timer.setTimerAttr(Infra::CTimer::TimerProc_t(&CSession::timerProc, this), 3000);
 }
 
+/**
+* @brief 析构函数， 设定protected权限，不可实例，可继承
+**/
 CSession::~CSession()
 {
 	m_recvThread.detachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
@@ -95,6 +194,12 @@ CSession::~CSession()
 	delete[] m_pRecvbuf;
 }
 
+/**
+* @brief 会话设定
+* @param sockfd 套接字句柄
+* @param addr 对端地址
+* @param timeout 超时时间
+**/
 void CSession::set(int sockfd, struct sockaddr_in* addr, int timeout)
 {
 	m_sockfd = sockfd;
@@ -102,6 +207,11 @@ void CSession::set(int sockfd, struct sockaddr_in* addr, int timeout)
 	m_timeout = timeout;
 }
 
+/**
+* @brief 会话回调函数绑定
+* @param proc 回调函数
+* @return 成功：true；失败：false
+**/
 bool CSession::bind(const ISession::SessionProc_t & proc)
 {
 	if (!m_proc.isEmpty())
@@ -123,6 +233,10 @@ bool CSession::bind(const ISession::SessionProc_t & proc)
 	return true;
 }
 
+/**
+* @brief 会话回调函数取消绑定
+* @return 成功：true；失败：false
+**/
 bool CSession::unbind()
 {
 	if (m_proc.isEmpty())
@@ -141,6 +255,10 @@ bool CSession::unbind()
 	return true;
 }
 
+/**
+* @brief 登录
+* @return 成功：true；失败：false
+**/
 bool CSession::login()
 {
 	if (m_state == emStateLogout)
@@ -152,6 +270,10 @@ bool CSession::login()
 	return false;
 }
 
+/**
+* @brief 登出
+* @return 成功：true；失败：false
+**/
 bool CSession::logout()
 {
 	if (m_state == emStateLogin)
@@ -162,6 +284,10 @@ bool CSession::logout()
 	return false;
 }
 
+/**
+* @brief 保活
+* @return 成功：true；失败：false
+**/
 bool CSession::keepAlive()
 {
 	if (m_state == emStateLogin)
@@ -172,6 +298,10 @@ bool CSession::keepAlive()
 	return false;
 }
 
+/**
+* @brief 是否超时
+* @return 超时：true；未超时：false
+**/
 bool CSession::isTimeout()
 {
 	if (m_timeout >= 0 && (m_lastTime + m_timeout) <= Infra::CTime::getSystemTimeSecond())
@@ -182,11 +312,19 @@ bool CSession::isTimeout()
 	return false;
 }
 
+/**
+* @brief 获取会话状态
+* @return 获取会话状态
+**/
 ISession::state_t CSession::getState()
 {
 	return m_state;
 }
-	
+
+/**
+* @brief 关闭会话
+* @return 成功：true；失败：false
+**/
 bool CSession::close()
 {
 	switch (m_state)
@@ -208,17 +346,31 @@ bool CSession::close()
 		return false;
 	}
 }
+
+/**
+* @brief 创建会话
+* @return 会话指针
+**/
 CSession* CSession::create()
 {
 	return new CSession();
 }
 
+/**
+* @brief 会话释放
+**/
 void CSession::destroy()
 {
 	Debug("NetTerminal", "Session:%s:%d destory\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
 	delete this;
 }
 
+/**
+* @brief 发送消息，同步
+* @param buf 消息内容
+* @param len 消息长度
+* @return 发送的数据长度
+**/
 int CSession::send(const char* buf, int len)
 {
 	if (m_sockfd < 0)
@@ -255,6 +407,12 @@ int CSession::send(const char* buf, int len)
 	return len;
 }
 
+/**
+* @brief 发送消息，异步
+* @param buf 消息内容
+* @param len 消息长度
+* @return 获取会话状态
+**/
 bool CSession::transmit(const char* buf, int len)
 {
 	if (buf == NULL || len <= 0)
@@ -275,6 +433,10 @@ bool CSession::transmit(const char* buf, int len)
 	return m_queue.input((const char*)&packet, sizeof(struct sendPacket), 1);
 }
 
+/**
+* @brief 接收回调函数
+* @param arg 无用参数
+**/
 void CSession::replyProc(void* arg)
 {
 	memset(m_pRecvbuf, 0, m_RecvLen);
@@ -291,6 +453,10 @@ void CSession::replyProc(void* arg)
 	
 }
 
+/**
+* @brief 发送回调函数，主要用于异步发送
+* @param arg 无用参数
+**/
 void CSession::sendProc(void* arg)
 {
 	struct sendPacket packet = {0}; // todo use heap
@@ -304,6 +470,10 @@ void CSession::sendProc(void* arg)
 	Infra::CTime::delay_ms(300);
 }
 
+/**
+* @brief 定时器回调函数
+* @param arg 系统运行时间 ms
+**/
 void CSession::timerProc(unsigned long long arg)
 {
 	if (isTimeout())
@@ -313,6 +483,9 @@ void CSession::timerProc(unsigned long long arg)
 	}
 }
 
+/**
+* @brief 构造函数， 设定private权限，外部不可实例，不可继承
+**/
 CSessionManager::CSessionManager()
 :m_timer("SessionManager")
 {
@@ -320,10 +493,20 @@ CSessionManager::CSessionManager()
 	m_timer.run();
 }
 
+/**
+* @brief 析构函数， 设定private权限，外部不可实例，不可继承
+**/
 CSessionManager::~CSessionManager()
 {
+	if (m_timer.isRun())
+	{
+		m_timer.stop();
+	}
 }
 
+/**
+* @brief 获取会话管理类实例
+**/
 CSessionManager* CSessionManager::instance()
 {
 	static CSessionManager* pInstance = NULL;
@@ -339,6 +522,13 @@ CSessionManager* CSessionManager::instance()
 	return pInstance;
 }
 
+/**
+* @brief 创建session
+* @param sockfd 套接字句柄
+* @param addr 对端地址
+* @param timeout 超时时间单位秒，默认值-1 不会超时
+* @return 会话基类指针
+**/
 ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, int timeout)
 {
 	if (sockfd < 0 || addr == NULL)
@@ -353,6 +543,10 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 	return pSession;
 }
 
+/**
+* @brief 取消session
+* @param session 会话基类指针
+**/
 bool CSessionManager::cancelSession(ISession* session)
 {
 	//if (session == NULL)
@@ -365,6 +559,10 @@ bool CSessionManager::cancelSession(ISession* session)
 	return true;
 }
 
+/**
+* @brief 注册session
+* @param session 会话基类指针
+**/
 void CSessionManager::registerSession(ISession* session)
 {
 	if (session == NULL)
@@ -381,6 +579,10 @@ void CSessionManager::registerSession(ISession* session)
 	}
 }
 
+/**
+* @brief 定时器回调函数
+* @param arg 时间，系统运行时间毫秒
+**/
 void CSessionManager::timerProc(unsigned long long arg)
 {
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
