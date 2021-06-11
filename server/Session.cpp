@@ -462,7 +462,7 @@ void CSession::sendProc(void* arg)
 	struct sendPacket packet = {0}; // todo use heap
 	if (m_queue.output((char *)&packet, sizeof(struct sendPacket), 300) > 0)
 	{
-		Debug("NetTerminal", "send len : %d\n", packet.len);
+		Debug("NetTerminal", "send len : %d -> %s:%d\n", packet.len, (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
 		send((const char*)(packet.buf), packet.len);
 		return ;
 	}
