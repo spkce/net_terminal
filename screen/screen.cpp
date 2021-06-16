@@ -240,6 +240,12 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 **/
 void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 {
+	if (m_GpsSession != NULL)
+	{
+		Error("NetTerminal", "GPS session was registered ! \n");
+		return ;
+	}
+
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr);
 	if (pSession == NULL)
 	{
