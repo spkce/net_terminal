@@ -315,7 +315,7 @@ int COrderSysterm::getVehicleStatus(Json::Value &request, Json::Value &response)
 	//AE_GET_VEHICLE_STATUS
 	if (!request.isMember("type") || !request["type"].isArray())
 	{
-		return -1;
+		return AE_SYS_UNKNOWN_ERROR;
 	}
 
 	VehStatus_t stVehStatus = {0};

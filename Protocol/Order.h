@@ -163,10 +163,13 @@ public:
 		AE_GET_SPEED = 919,					   /*获取车速*/
 		AE_GET_BSD_SETTING = 920,			   /*获取BSD设置*/
 		AE_SET_BSD_SETTING = 921,			   /*设置BSD设置*/
+		AE_GET_FACE_INFO = 922,				   /*获取人脸信息*/
+		AE_SET_FACE_INFO = 923,				   /*设置人脸信息*/
 		AE_GET_IO_WARN_INFO = 928,			   /*获取IO报警设置*/
 		AE_SET_IO_WARN_INFO = 929,			   /*设置IO报警通道设置*/
 		AE_GET_PULSE_SETTING = 930,			   /*获取脉冲设置*/
 		AE_SET_PULSE_SETTING = 931,			   /*设置脉冲参数*/
+		AE_FACE_CONTRAST = 932,				   /*人脸比对结果*/
 		AE_GET_IO_OUTPUT_SETTING = 934,		   /*获取IO报警输出*/
 		AE_SET_IO_OUTPUT_SETTING = 935,		   /*设置IO报警输出*/
 
