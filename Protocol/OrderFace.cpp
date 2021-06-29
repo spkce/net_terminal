@@ -1,4 +1,5 @@
 #include "OrderFace.h"
+#include "Adapter.h"
 
 namespace Screen
 {

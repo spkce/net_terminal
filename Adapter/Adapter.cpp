@@ -49,6 +49,16 @@ bool CAdapter::getVehicleStatus(VehStatus_t* pVehStatus)
 	return m_adapter.vehicle_status_get(pVehStatus) == 0;
 }
 
+bool CAdapter::getCarStatus(CarStatus_t* pCarStatus)
+{
+	if (m_adapter.car_status_get == NULL || pCarStatus == NULL)
+	{
+		return false;
+	}
+
+	return m_adapter.car_status_get(pCarStatus) == 0;
+}
+
 bool CAdapter::getSetting(Setting_t* pstSetting)
 {
 	if (m_adapter.setting_get == NULL || pstSetting == NULL)
@@ -67,3 +77,38 @@ bool CAdapter::sendTouchInfo(TouchInfo_t* pstTouchInfo)
 	return m_adapter.send_touch_info(pstTouchInfo) == 0;
 }
 
+int CAdapter::getFaceNum()
+{
+	if (m_adapter.get_face_total_number == NULL)
+	{
+		return 0;
+	}
+	return m_adapter.get_face_total_number();
+}
+
+bool CAdapter::getFaceInfo(unsigned int index, FaceInfo_t* pInfo)
+{
+	if (m_adapter.get_face_info == NULL || pInfo == NULL)
+	{
+		return false;
+	}
+	return m_adapter.get_face_info(index, pInfo) == 0;
+}
+
+bool CAdapter::setFaceInfo(int index, FaceInfo_t* pInfo)
+{
+	if (m_adapter.set_face_info == NULL || pInfo == NULL)
+	{
+		return false;
+	}
+	return m_adapter.set_face_info(index, pInfo) == 0;
+}
+
+bool CAdapter::takePhoto(int channel, int type)
+{
+	if (m_adapter.take_photo == NULL)
+	{
+		return false;
+	}
+	return m_adapter.take_photo(channel, type) == 0;
+}

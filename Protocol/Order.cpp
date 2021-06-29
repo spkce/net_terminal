@@ -45,11 +45,23 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_GET_VEHICLE_STATUS:
 			res = COrderSysterm::getVehicleStatus(reqParam, resParam);
 			break;
+		case AE_GET_CAR_STATUS:
+			res = COrderSysterm::getCarStatus(reqParam, resParam);
+			break;
 		case AE_GET_SETTING:
 			res = COrderSysterm::getStting(reqParam, resParam);
 			break;
 		case AE_SEND_TOUCH_INFO:
 			res = COrderNotify::sendTouchInfo(reqParam, resParam);
+			break;
+		case AE_GET_FACE_INFO:
+			res = COrderFace::getFaceInfo(reqParam, resParam);
+			break;
+		case AE_SET_FACE_INFO:
+			res = COrderFace::setFaceInfo(reqParam, resParam);
+			break;
+		case AE_TAKE_PHOTO:
+			res = COrderMedia::takePhoto(reqParam, resParam);
 			break;
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;

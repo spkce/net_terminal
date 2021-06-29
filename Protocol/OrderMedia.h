@@ -17,6 +17,7 @@ public:
 	static int eventRecordStart(Json::Value &request, Json::Value &response);
 	static int audioRecordStart(Json::Value &request, Json::Value &response);
 	static int audioRecordStop(Json::Value &request, Json::Value &response);
+	static int takePhoto(Json::Value &request, Json::Value &response);
 };
 
 }//Screen

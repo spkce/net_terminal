@@ -84,6 +84,13 @@ public:
 	**/
 	static int setDriverInfo(Json::Value &request, Json::Value &response);
 	/**
+	* @brief 获取车辆状态
+	* @param request 请求报文
+	* @param response 回复报文
+	* @return 错误码
+	**/
+	static int getCarStatus(Json::Value &request, Json::Value &response);
+	/**
 	* @brief 获取设备当前的搜星信息
 	* @param request 请求报文
 	* @param response 回复报文

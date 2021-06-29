@@ -7,6 +7,11 @@ extern "C" {
 #define NET_APP_DEV_INFO_LEN 16
 #define NET_APP_VERSION_LEN 32
 #define NET_APP_DATE_LEN 24      /*时间，时区字符串最大长度*/
+#define FACE_NAME_LEN 20
+#define FACE_IDENTITY_LEN 32
+#define FACE_LICENSE_LEN 32
+#define FACE_PIC_PATH_LEN 128           /*人脸图片路径最大长度*/
+
 
 /**
  * @brief 获取设备信息
@@ -55,6 +60,12 @@ typedef struct tagVehStatus
 	int speedLimitThreshold;/*限速阈值*/
 }VEH_STATUS_T, *PVEH_STATUS_T;
 
+typedef struct tagCarStatus
+{
+	int corneringLamp;	/*转向灯 状态*/
+	int brake;			/*刹车 状态*/
+}CAR_STA_T, *PCAR_STA_T;
+
 typedef struct tagSetting
 {
 	char sTime[NET_APP_DATE_LEN];/*时间，目前只支持时间的获取*/
@@ -79,14 +90,28 @@ typedef struct tagWarnInfo
 	int type;
 }WARN_INFO_T, *PWARN_INFO_T;
 
+typedef struct tagFaceInfo
+{
+	int faceID;
+	char name[FACE_NAME_LEN];
+	char identityID[FACE_IDENTITY_LEN];
+	char path[FACE_PIC_PATH_LEN];
+	char license[FACE_LICENSE_LEN];
+}FACE_INFO_T, *PFACE_INFO_T;
+
 /*外部接口函数*/
 typedef struct tagAdapterFunc
 {
 	int (*device_info_get)(PDEV_INFO_T pstDevInfo);
 	int (*device_status_get)(PDEV_STATUS_T pstDevStatus);
 	int (*vehicle_status_get)(PVEH_STATUS_T pstVehStatus);
+	int (*car_status_get)(PCAR_STA_T pstSetting);
 	int (*setting_get)(PSETTING_T pstSetting);
 	int (*send_touch_info)(PTOUCH_INFO_T pstSetting);
+	int (*get_face_total_number)(void);
+	int (*get_face_info)(unsigned int index, PFACE_INFO_T pInfo);
+	int (*set_face_info)(int index, PFACE_INFO_T pInfo);
+	int (*take_photo)(int channel, int type);
 }ADAPTER_T, *PADAPTER_T;
 
 

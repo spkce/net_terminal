@@ -227,6 +227,25 @@ int COrderSysterm::setDriverInfo(Json::Value &request, Json::Value &response)
 }
 
 /**
+* @brief 获取车辆状态
+* @param request 请求报文
+* @param response 回复报文
+* @return 错误码
+**/
+int COrderSysterm::getCarStatus(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_CAR_STATUS
+	CarStatus_t stCarStatus = {0};
+	if (CAdapter::instance()->getCarStatus(&stCarStatus))
+	{
+		response["corneringLamp"] = stCarStatus.corneringLamp;
+		response["brake"] = stCarStatus.brake;
+		return AE_SYS_NOERROR;
+	}
+	return AE_SYS_UNKNOWN_ERROR;
+}
+
+/**
 * @brief 获取设备当前的搜星信息
 * @param request 请求报文
 * @param response 回复报文
@@ -384,7 +403,7 @@ int COrderSysterm::getVehicleStatus(Json::Value &request, Json::Value &response)
 int COrderSysterm::getPictureSetting(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_PICTURE_SETTING
-	if (!response.isMember("chanNo"))
+	if (!request.isMember("chanNo"))
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
@@ -416,7 +435,7 @@ int COrderSysterm::setPictureSetting(Json::Value &request, Json::Value &response
 int COrderSysterm::getCompressSetting(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_COMPRESS_SETTING
-	if (!response.isMember("chanNo") || !response.isMember("streamType"))
+	if (!request.isMember("chanNo") || !request.isMember("streamType"))
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
@@ -460,7 +479,7 @@ int COrderSysterm::setCompressSetting(Json::Value &request, Json::Value &respons
 int COrderSysterm::getImageSetting(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_IMAGE_SETTING
-	if (!response.isMember("chanNo") || !response.isMember("streamType"))
+	if (!request.isMember("chanNo") || !request.isMember("streamType"))
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
