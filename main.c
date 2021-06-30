@@ -12,6 +12,8 @@ static int app_net_terminal_vehicle_status_get(PVEH_STATUS_T pstVehStatus);
 static int app_net_terminal_setting_status_get(PSETTING_T pstSetting);
 static int app_net_terminal_touch_info(PTOUCH_INFO_T pstTouchInfo);
 
+int app_net_terminal_BSD_notify();
+
 /**
  * @brief 初始化外部终端模块
  * @return 成功，返回OK；失败，返回-1
@@ -60,7 +62,25 @@ int main(int argc, char const *argv[])
 	pthread_t handle;
 	pthread_create(&handle, NULL, &gps_send, (void*)handle);
 
-	while(1);
+	while(1)
+	{
+		int cmd;
+		printf("please input cmd...\n");
+
+		scanf("%d", &cmd);
+		switch (cmd)
+		{
+		case 0:
+			app_net_terminal_BSD_notify();
+			break;
+		
+		default:
+			printf("usage: \n");
+			printf("0 BSD notify\n");
+			break;
+		}
+		
+	}
 	return 0;
 }
 
