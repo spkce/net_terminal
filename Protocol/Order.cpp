@@ -63,6 +63,8 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_TAKE_PHOTO:
 			res = COrderMedia::takePhoto(reqParam, resParam);
 			break;
+		case AE_GET_PERIPHERAL_STATUS:
+			res = COrderPeripheral::getPeripheralStatus(reqParam, resParam);
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;
 			break;
@@ -89,14 +91,20 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 bool IOrder::notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send)
 {
 	int res = AE_SYS_NOERROR;
-	Json::Value & param = send["param"];
-	switch(msgID)
+	if (msgID == 601)
 	{
-		case AE_SEND_WARN_INFO:
-			res = CPushNotification::sendWarnInfo(buf, len, param);
-		break;
+		res = CPushNotification::notification(buf, len, send);
 	}
-
+	else
+	{
+		Json::Value & param = send["param"];
+		switch(msgID)
+		{
+			case AE_SEND_WARN_INFO:
+				res = CPushNotification::sendWarnInfo(buf, len, param);
+				break;
+		}
+	}
 	return res == AE_SYS_NOERROR;
 }
 

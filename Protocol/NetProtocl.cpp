@@ -64,7 +64,7 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 **/
 bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 {
-	if (buf == NULL || len < (int)sizeof(MsgHdr_t))
+	if (session == NULL || buf == NULL || len < (int)sizeof(MsgHdr_t))
 	{
 		Error("NetTerminal", "input param error\n");
 		return false;

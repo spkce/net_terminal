@@ -1,4 +1,5 @@
 #include "OrderPeripheral.h"
+#include "Adapter.h"
 
 namespace Screen
 {
@@ -77,6 +78,58 @@ int COrderPeripheral::getPeripheralStatus(Json::Value &request, Json::Value &res
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
+	PeriStatus_t status = {0};
+//	CAdapter::instance()->getPeripheralStatus();
+	
+	Json::Value & list = request["peripheralList"];
+
+	
+	for (int i = 0; i < list.size(); i++)
+	{
+		if (list[i].asString() == "lift")
+		{
+			//response["lift"] = 1;
+		}
+		else if (list[i].asString() == "hermetic")
+		{
+
+		}
+		else if (list[i].asString() == "carry")
+		{
+
+		}
+		else if (list[i].asString() == "ledScreen")
+		{
+
+		}
+		else if (list[i].asString() == "audibleVisualAlarm")
+		{
+
+		}
+		else if (list[i].asString() == "frontCam")
+		{
+
+		}
+		else if (list[i].asString() == "divierCam")
+		{
+
+		}
+		else if (list[i].asString() == "leftCam")
+		{
+
+		}
+		else if (list[i].asString() == "rightCam")
+		{
+
+		}
+		else if (list[i].asString() == "reserveCam")
+		{
+
+
+		}
+	}
+
+
 	return AE_SYS_NOERROR;
 }
 

@@ -184,6 +184,7 @@ public:
 		AE_START_SESSION = 257,       /*握手*/
 		AE_STOP_SESSION = 258,       /*断开*/
 		/*系统类命令*/
+		AE_CHECK_SELF = 2200,	 /*自检请求*/
 		AE_RESET_DEFAULT = 2201,	 /*恢复默认参数*/
 		AE_REBOOT_SYSTEM = 2202,	 /*重启系统*/
 		AE_SHUTDOWN_SYSTEM = 2203,	 /*关机*/
@@ -239,7 +240,7 @@ public:
 		AE_GET_APP_INFO = 2806,		/*设备向app查询版本信息*/
 		AE_SEND_WARN_INFO = 2807,		/*设备向app发送BSD报警信息*/
 		AE_SEND_SELF_CHECKING_INFO = 2808,		/*设备向app发送自检信息*/
-		AE_SEND_PARAMETER = 2808,		/*设备向app发送参数*/
+		AE_SEND_PARAMETER = 2809,		/*设备向app发送参数*/
 
 
 		AE_CAPABILITY_CALIBRATION_GET = 4101, /*获取标定能力*/

@@ -49,6 +49,15 @@ bool CAdapter::getVehicleStatus(VehStatus_t* pVehStatus)
 	return m_adapter.vehicle_status_get(pVehStatus) == 0;
 }
 
+bool CAdapter::getPeripheralStatus(PeriStatus_t* pPeriStatus)
+{
+	if (m_adapter.peripheral_status_get == NULL || pPeriStatus == NULL)
+	{
+		return false;
+	}
+	return m_adapter.peripheral_status_get(pPeriStatus) == 0;
+}
+
 bool CAdapter::getCarStatus(CarStatus_t* pCarStatus)
 {
 	if (m_adapter.car_status_get == NULL || pCarStatus == NULL)

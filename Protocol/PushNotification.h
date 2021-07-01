@@ -12,6 +12,7 @@ class CPushNotification : public IOrder
 public:
 	virtual ~CPushNotification() {};
 
+	static int notification(char* buf, int len, Json::Value &send);
 	static int sendWarnInfo(char* buf, int len, Json::Value &send);
 };
 

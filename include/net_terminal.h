@@ -10,8 +10,8 @@ extern "C" {
 #define FACE_NAME_LEN 20
 #define FACE_IDENTITY_LEN 32
 #define FACE_LICENSE_LEN 32
-#define FACE_PIC_PATH_LEN 128           /*人脸图片路径最大长度*/
-
+#define PATH_MAX_LEN 128           /*路径最大长度*/
+#define CAM_MAX 8
 
 /**
  * @brief 获取设备信息
@@ -60,6 +60,17 @@ typedef struct tagVehStatus
 	int speedLimitThreshold;/*限速阈值*/
 }VEH_STATUS_T, *PVEH_STATUS_T;
 
+typedef struct tagVehStatus
+{
+	int liftStatus;/*举升传感器状态*/
+	int carryStatus;/*密闭传感器状态*/
+	int hermeticStatus;/*载重传感器状态*/
+	int ledStatus;/*LED屏状态*/
+	int ledStatus;/*声光报警器状态*/
+	int audioAlarm;/*can盒子状态*/
+	int cam[CAM_MAX];/*摄像头状态*/
+}PERI_STATUS_T, *PPERI_STATUS_T;
+
 typedef struct tagCarStatus
 {
 	int corneringLamp;	/*转向灯 状态*/
@@ -95,9 +106,38 @@ typedef struct tagFaceInfo
 	int faceID;
 	char name[FACE_NAME_LEN];
 	char identityID[FACE_IDENTITY_LEN];
-	char path[FACE_PIC_PATH_LEN];
+	char path[PATH_MAX_LEN];
 	char license[FACE_LICENSE_LEN];
 }FACE_INFO_T, *PFACE_INFO_T;
+
+typedef struct tagADASAlarm
+{
+	int detailType;
+	int channel;
+	int result;
+	char picName[PATH_MAX_LEN];
+	char vIdeoName[PATH_MAX_LEN];
+	
+}ADAS_INFO_T,PADAS_INFO_T;
+typedef struct tagPhotoTaken
+{
+	int type;
+	int channel;
+	int filesize;
+	int result;
+	char path[PATH_MAX_LEN];
+	char thmPath[PATH_MAX_LEN];
+	char startTime[NET_APP_DATE_LEN];
+}PHOTO_TAKEN_T,PPHOTO_TAKEN_T;
+
+typedef struct tagNotification
+{
+	char type[32];
+	union {
+		ADAS_INFO_T adasAlarm;
+		PHOTO_TAKEN_T photoTaken;
+	};
+}NOTIFICATION_T, *PNOTIFICATION_T;
 
 /*外部接口函数*/
 typedef struct tagAdapterFunc
@@ -105,6 +145,7 @@ typedef struct tagAdapterFunc
 	int (*device_info_get)(PDEV_INFO_T pstDevInfo);
 	int (*device_status_get)(PDEV_STATUS_T pstDevStatus);
 	int (*vehicle_status_get)(PVEH_STATUS_T pstVehStatus);
+	int (*peripheral_status_get)(PPERI_STATUS_T pstPeriStatus);
 	int (*car_status_get)(PCAR_STA_T pstSetting);
 	int (*setting_get)(PSETTING_T pstSetting);
 	int (*send_touch_info)(PTOUCH_INFO_T pstSetting);
