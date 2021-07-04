@@ -78,59 +78,58 @@ int COrderPeripheral::getPeripheralStatus(Json::Value &request, Json::Value &res
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
+
 	PeriStatus_t status = {0};
-//	CAdapter::instance()->getPeripheralStatus();
-	
-	Json::Value & list = request["peripheralList"];
-
-	
-	for (int i = 0; i < list.size(); i++)
+	if (CAdapter::instance()->getPeripheralStatus(&status))
 	{
-		if (list[i].asString() == "lift")
+		Json::Value & list = request["peripheralList"];
+		for (int i = 0; i < (int)list.size(); i++)
 		{
-			//response["lift"] = 1;
+			if (list[i].asString() == "lift" && status.lift != -1)
+			{
+				response["lift"] = status.lift;
+			}
+			else if (list[i].asString() == "hermetic" && status.hermetic != -1)
+			{
+				response["hermetic"] = status.hermetic;
+			}
+			else if (list[i].asString() == "carry" && status.carry != -1)
+			{
+				response["carry"] = status.carry;
+			}
+			else if (list[i].asString() == "ledScreen" && status.led != -1)
+			{
+				response["ledScreen"] = status.led;
+			}
+			else if (list[i].asString() == "audibleVisualAlarm" && status.audioAlarm != -1)
+			{
+				response["audibleVisualAlarm"] = status.audioAlarm;
+			}
+			else if (list[i].asString() == "frontCam" && status.cam[0] != -1)
+			{
+				response["frontCam"] = status.cam[0];
+			}
+			else if (list[i].asString() == "divierCam" && status.cam[1] != -1)
+			{
+				response["divierCam"] = status.cam[1];
+			}
+			else if (list[i].asString() == "leftCam" && status.cam[2] != -1)
+			{
+				response["leftCam"] = status.cam[2];
+			}
+			else if (list[i].asString() == "rightCam" && status.cam[3] != -1)
+			{
+				response["rightCam"] = status.cam[3];
+			}
+			else if (list[i].asString() == "reserveCam" && status.cam[4] != -1)
+			{
+				response["reserveCam"] = status.cam[4];
+			}
 		}
-		else if (list[i].asString() == "hermetic")
-		{
-
-		}
-		else if (list[i].asString() == "carry")
-		{
-
-		}
-		else if (list[i].asString() == "ledScreen")
-		{
-
-		}
-		else if (list[i].asString() == "audibleVisualAlarm")
-		{
-
-		}
-		else if (list[i].asString() == "frontCam")
-		{
-
-		}
-		else if (list[i].asString() == "divierCam")
-		{
-
-		}
-		else if (list[i].asString() == "leftCam")
-		{
-
-		}
-		else if (list[i].asString() == "rightCam")
-		{
-
-		}
-		else if (list[i].asString() == "reserveCam")
-		{
-
-
-		}
+		return AE_SYS_NOERROR;
 	}
 
-
-	return AE_SYS_NOERROR;
+	return AE_SYS_UNKNOWN_ERROR;
 }
 
 }//Screen

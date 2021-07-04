@@ -29,6 +29,10 @@ using PhotoTaken_t = PHOTO_TAKEN_T;
 using PtrPhotoTaken_t = PPHOTO_TAKEN_T;
 using Notification_t = NOTIFICATION_T;
 using PtrNotification_t = PNOTIFICATION_T;
+using CheckInfo_t = CHECk_INFO_T;
+using PtrCheckInfo_t = PCHECk_INFO_T;
+using MessageInfo_t = MESSAGE_INFO_T;
+using PtrMessageInfo_t = PMESSAGE_INFO_T;
 
 using AdptrFun_t = ADAPTER_T;
 using PtrAdptrFun_t = ADAPTER_T;
@@ -52,6 +56,7 @@ public:
 	bool getFaceInfo(unsigned int index, FaceInfo_t* pInfo);
 	bool setFaceInfo(int index, FaceInfo_t* pInfo);
 	bool takePhoto(int channel, int type);
+	bool checkSelf();
 
 private:
 	AdptrFun_t m_adapter;

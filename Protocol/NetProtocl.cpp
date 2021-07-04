@@ -94,6 +94,7 @@ bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 		std::ostringstream os;
 		Json::StreamWriterBuilder writerBuilder;
 		writerBuilder["indentation"] = "";
+		writerBuilder["emitUTF8"] = true;
 		std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
 		jsonWriter->write(send, &os);
 		std::string reString = os.str();
@@ -163,6 +164,7 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 			std::ostringstream os;
 			Json::StreamWriterBuilder writerBuilder;
 			writerBuilder["indentation"] = "";
+			writerBuilder["emitUTF8"] = true;
 			std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
 			jsonWriter->write(response, &os);
 			std::string reString = os.str();
@@ -483,8 +485,8 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const char *buf, int len)
 {
 	//todo sAesOut sendbuf 应该用堆区内存，否则可能会有栈溢出
-	unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
-	char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
+	//unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
+	//char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
 
 	if (buf == NULL || len <= 0)
 	{
@@ -498,8 +500,12 @@ bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const
 	}
 	
 	int iAesOutLen = 0;
+	unsigned char* sAesOut = new unsigned char[AES_MAX_OUT_LEN];
+	char* sendbuf = new char[AES_MAX_OUT_LEN_BASE64];
 	if (!encrypt(buf, len, sAesOut, &iAesOutLen))
 	{
+		delete[] sAesOut;
+		delete[] sendbuf;
 		return false;
 	}
 
@@ -512,7 +518,10 @@ bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const
 	pHeader->uMsgLength = htonl(iBase64OutLen);
 	int iDataLen = strlen(pMsgBody) + sizeof(struct msgHeader);
 
-	return session->transmit(sendbuf, iDataLen);
+	bool ret = session->transmit(sendbuf, iDataLen);
+	delete[] sAesOut;
+	delete[] sendbuf;
+	return ret;
 }
 /*
 int CNetProtocl::sendAppInfo(NetServer::ISession* session, Json::Value &reqParam, Json::Value &resParam)

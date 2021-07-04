@@ -10,6 +10,7 @@ extern "C" {
 #define FACE_NAME_LEN 20
 #define FACE_IDENTITY_LEN 32
 #define FACE_LICENSE_LEN 32
+#define CONTENT_MAX_LEN 64
 #define PATH_MAX_LEN 128           /*路径最大长度*/
 #define CAM_MAX 8
 
@@ -60,14 +61,14 @@ typedef struct tagVehStatus
 	int speedLimitThreshold;/*限速阈值*/
 }VEH_STATUS_T, *PVEH_STATUS_T;
 
-typedef struct tagVehStatus
+typedef struct tagPeriStatus
 {
-	int liftStatus;/*举升传感器状态*/
-	int carryStatus;/*密闭传感器状态*/
-	int hermeticStatus;/*载重传感器状态*/
-	int ledStatus;/*LED屏状态*/
-	int ledStatus;/*声光报警器状态*/
-	int audioAlarm;/*can盒子状态*/
+	int lift;/*举升传感器状态*/
+	int carry;/*密闭传感器状态*/
+	int hermetic;/*载重传感器状态*/
+	int led;/*LED屏状态*/
+	int audioAlarm;/*声光报警器状态*/
+	int conbox;/*can盒子状态*/
 	int cam[CAM_MAX];/*摄像头状态*/
 }PERI_STATUS_T, *PPERI_STATUS_T;
 
@@ -139,6 +140,23 @@ typedef struct tagNotification
 	};
 }NOTIFICATION_T, *PNOTIFICATION_T;
 
+typedef struct tagMsgInfo
+{
+	int msgType;
+	int showType;
+	int durction;
+	int priority;
+	char message[CONTENT_MAX_LEN];
+}MESSAGE_INFO_T, *PMESSAGE_INFO_T;
+
+typedef struct tagcheckSelfInfo
+{
+	int checkCount;
+	int index;
+	int result;
+	char content[CONTENT_MAX_LEN];
+}CHECk_INFO_T, *PCHECk_INFO_T;
+
 /*外部接口函数*/
 typedef struct tagAdapterFunc
 {
@@ -153,6 +171,7 @@ typedef struct tagAdapterFunc
 	int (*get_face_info)(unsigned int index, PFACE_INFO_T pInfo);
 	int (*set_face_info)(int index, PFACE_INFO_T pInfo);
 	int (*take_photo)(int channel, int type);
+	int (*checkSelf)(void);
 }ADAPTER_T, *PADAPTER_T;
 
 

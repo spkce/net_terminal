@@ -184,7 +184,6 @@ public:
 		AE_START_SESSION = 257,       /*握手*/
 		AE_STOP_SESSION = 258,       /*断开*/
 		/*系统类命令*/
-		AE_CHECK_SELF = 2200,	 /*自检请求*/
 		AE_RESET_DEFAULT = 2201,	 /*恢复默认参数*/
 		AE_REBOOT_SYSTEM = 2202,	 /*重启系统*/
 		AE_SHUTDOWN_SYSTEM = 2203,	 /*关机*/
@@ -235,6 +234,7 @@ public:
 		AE_SEND_TOUCH_INFO = 2705,		/*app向设备发送触碰信息*/
 		AE_SEND_UI_STATUS = 2706,		/*app向设备发送界面状态*/
 
+		AE_SEND_CLIENT_MESSAGE = 2802,	/*设备向app发送显示信息*/
 		AE_SEND_AREA_INFO = 2804,		/*设备向app发送区域信息*/
 		AE_CLEAR_ALL_AREA_INFO = 2805,	/*设备向app发送清空围栏指令*/
 		AE_GET_APP_INFO = 2806,		/*设备向app查询版本信息*/

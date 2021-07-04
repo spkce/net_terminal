@@ -121,3 +121,12 @@ bool CAdapter::takePhoto(int channel, int type)
 	}
 	return m_adapter.take_photo(channel, type) == 0;
 }
+
+bool CAdapter::checkSelf()
+{
+	if (m_adapter.checkSelf == NULL)
+	{
+		return false;
+	}
+	return m_adapter.checkSelf() == 0;
+}

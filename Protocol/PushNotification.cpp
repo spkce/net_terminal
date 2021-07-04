@@ -44,4 +44,42 @@ int CPushNotification::sendWarnInfo(char* buf, int len, Json::Value &send)
 	return AE_SYS_NOERROR;
 }
 
+int CPushNotification::sendCheckInfo(char* buf, int len, Json::Value &send)
+{
+	if (buf == NULL || len < (int)sizeof(CheckInfo_t))
+	{
+		return AE_SYS_UNKNOWN_ERROR; 
+	}
+	
+	PtrCheckInfo_t p = (PtrCheckInfo_t)buf;
+	
+	send["checkCount"] = p->checkCount;
+	send["checkList"][0]["index"] = p->index;
+	send["checkList"][0]["content"] = std::string(p->content);
+
+	char result[12] = {0};
+	snprintf(result, sizeof(result), "%d", p->result);
+	send["checkList"][0]["result"] = result;
+	return AE_SYS_NOERROR;
+}
+
+int CPushNotification::sendClientMessage(char* buf, int len, Json::Value &send)
+{
+	//AE_SEND_CLIENT_MESSAGE
+	if (buf == NULL || len < (int)sizeof(MessageInfo_t))
+	{
+		return AE_SYS_UNKNOWN_ERROR; 
+	}
+	
+	PtrMessageInfo_t p = (PtrMessageInfo_t)buf;
+	
+	send["message"] = std::string(p->message);
+	send["showType"] = p->showType;
+	send["type"] = p->msgType;
+	send["priority"] = p->priority;
+	send["durction"] = p->durction;
+
+	return AE_SYS_NOERROR;
+}
+
 }//Screen

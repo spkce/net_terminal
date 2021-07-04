@@ -237,7 +237,14 @@ public:
 	* @return 错误码
 	**/
 	static int getAreaInfo(Json::Value &request, Json::Value &response);
-	
+	/**
+	* @brief 获取电子围栏信息
+	* @param request 请求报文
+	* @param response 回复报文
+	* @return 错误码
+	**/
+	static int checkSelf(Json::Value &request, Json::Value &response);
+
 };
 
 }//Screen

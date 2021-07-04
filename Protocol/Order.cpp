@@ -65,6 +65,10 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 			break;
 		case AE_GET_PERIPHERAL_STATUS:
 			res = COrderPeripheral::getPeripheralStatus(reqParam, resParam);
+			break;
+		case AE_START_SELF_CHECKING:
+			res = COrderSysterm::checkSelf(reqParam, resParam);
+			break;
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;
 			break;
@@ -102,6 +106,12 @@ bool IOrder::notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send
 		{
 			case AE_SEND_WARN_INFO:
 				res = CPushNotification::sendWarnInfo(buf, len, param);
+				break;
+			case AE_SEND_SELF_CHECKING_INFO:
+				res = CPushNotification::sendCheckInfo(buf, len, param);
+				break;
+			case AE_SEND_CLIENT_MESSAGE:
+				res = CPushNotification::sendCheckInfo(buf, len, param);
 				break;
 		}
 	}

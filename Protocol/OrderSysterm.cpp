@@ -729,4 +729,13 @@ int COrderSysterm::getAreaInfo(Json::Value &request, Json::Value &response)
 	return AE_SYS_NOERROR;
 }
 
+int COrderSysterm::checkSelf(Json::Value &request, Json::Value &response)
+{
+	if (CAdapter::instance()->checkSelf())
+	{
+		return AE_SYS_NOERROR;
+	}
+	return AE_SYS_UNKNOWN_ERROR;
+}
+
 }//Screen

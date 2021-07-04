@@ -14,6 +14,9 @@ public:
 
 	static int notification(char* buf, int len, Json::Value &send);
 	static int sendWarnInfo(char* buf, int len, Json::Value &send);
+	static int sendCheckInfo(char* buf, int len, Json::Value &send);
+	static int sendClientMessage(char* buf, int len, Json::Value &send);
+	
 };
 
 }//Screen
