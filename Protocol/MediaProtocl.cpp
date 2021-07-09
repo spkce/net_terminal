@@ -49,12 +49,12 @@ bool CMediaProtocl::parse(NetServer::ISession* session, char* buf, int len)
 		return false;
 	}
 
-	MediaResHder resHdr = {0};
-	resHdr.startCode = htons(RES_START_CODE);
-	resHdr.msgID = htons(emReqMedia);
-	resHdr.retVal = htonl(emError);
-	resHdr.packetSzie = 0;
-	resHdr.totalSzie = 0;
+	//MediaResHder resHdr = {0};
+	//resHdr.startCode = htons(RES_START_CODE);
+	//resHdr.msgID = htons(emReqMedia);
+	//resHdr.retVal = htonl(emError);
+	//resHdr.packetSzie = 0;
+	//resHdr.totalSzie = 0;
 
 	char path[116] = {0};
 
@@ -67,7 +67,7 @@ bool CMediaProtocl::parse(NetServer::ISession* session, char* buf, int len)
 	{
 		if (login(session))
 		{
-			resHdr.retVal = htonl(emNoError);
+			//resHdr.retVal = htonl(emNoError);
 			Error("NetTerminal", "login success\n");
 		}
 	}
@@ -102,6 +102,12 @@ bool CMediaProtocl::notify(NetServer::ISession* session, char* buf, int len)
 	if (buf == NULL || len <= 0)
 	{
 		return 0;
+	}
+
+	if (session->getState() != NetServer::ISession::emStateLogin)
+	{
+		Error("NetTerminal", "not login\n");
+		return false;
 	}
 
 	const unsigned int exLen = 5;

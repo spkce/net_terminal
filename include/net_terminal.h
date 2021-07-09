@@ -13,6 +13,9 @@ extern "C" {
 #define CONTENT_MAX_LEN 64
 #define PATH_MAX_LEN 128           /*路径最大长度*/
 #define CAM_MAX 8
+#define CERTIFY_MAX_LEN 256
+#define MAX_POLYGON_VERTEX_NUM 30		/*最大多边形顶点数目*/
+#define MAX_INFLECTION_POINT_NUM 20		/*最大拐点数目*/
 
 /**
  * @brief 获取设备信息
@@ -157,6 +160,74 @@ typedef struct tagcheckSelfInfo
 	char content[CONTENT_MAX_LEN];
 }CHECk_INFO_T, *PCHECk_INFO_T;
 
+typedef struct tagCertify
+{
+	unsigned int operate;
+	unsigned int id;
+	unsigned int type;
+	unsigned int startTime;
+	unsigned int endTime;
+	unsigned int len;
+	char detail[CERTIFY_MAX_LEN];
+}CERITFY_T, *PCERITFY_T;
+
+typedef struct tagGpsPoint
+{
+	unsigned int latitude; 			/* 纬度*/
+	unsigned int longtitude;		/*经度*/
+}GPS_POINT, *PGPS_POINT;
+
+typedef struct tagCircleArea
+{
+	unsigned int radius;
+	GPS_POINT center;			/*中心点*/
+}CIRCLE_AREA_T, *PCIRCLE_AREA_T;
+
+typedef struct tagRectArea
+{
+	GPS_POINT leftPoint;		/*左上点*/
+	GPS_POINT rightPoint;	/*右下点*/
+}RECT_AREA_T, *PRECT_AREA_T;
+
+typedef struct tagPolygonArea
+{
+	unsigned int num;
+	GPS_POINT vertex[MAX_POLYGON_VERTEX_NUM];
+}POLYGON_AREA_T, *PPOLYGON_AREA_T;
+
+typedef struct tagRouteArea
+{
+	unsigned int width;
+	unsigned int num;
+	GPS_POINT inflctPoint[MAX_INFLECTION_POINT_NUM];
+}ROUTE_AREA_T, *PROUTE_AREA_T;
+
+typedef struct tagArea
+{
+#define radius circle.radius
+#define center circle.center
+#define leftPoint rect.leftPoint
+#define rightPoint rect.rightPoint
+#define vertex polygon.vertex
+#define vertexNum polygon.num
+#define inflctPoint line.inflctPoint
+#define lineWidth line.width
+#define pointNum line.num
+
+	union {
+		CIRCLE_AREA_T circle;
+		RECT_AREA_T rect;
+		POLYGON_AREA_T polygon;
+		ROUTE_AREA_T line;
+	};
+	unsigned int id;			/*区域ID*/
+	unsigned int property;		/*区域属性*/
+	unsigned int type;			/*区域类型*/
+	unsigned int operate;		/*操作*/
+	char startTime[NET_APP_DATE_LEN];
+	char endTime[NET_APP_DATE_LEN];
+}AREA_T, *PAREA_T;
+
 /*外部接口函数*/
 typedef struct tagAdapterFunc
 {
@@ -168,10 +239,14 @@ typedef struct tagAdapterFunc
 	int (*setting_get)(PSETTING_T pstSetting);
 	int (*send_touch_info)(PTOUCH_INFO_T pstSetting);
 	int (*get_face_total_number)(void);
-	int (*get_face_info)(unsigned int index, PFACE_INFO_T pInfo);
+	int (*get_face_info)(int index, PFACE_INFO_T pInfo);
 	int (*set_face_info)(int index, PFACE_INFO_T pInfo);
 	int (*take_photo)(int channel, int type);
 	int (*checkSelf)(void);
+	int (*get_ceritfy_Num)(void);
+	int (*get_ceritfy)(unsigned int id, PCERITFY_T pCeritfy);
+	int (*get_area_Num)(void);
+	int (*get_area)(unsigned int id, PAREA_T pArea);
 }ADAPTER_T, *PADAPTER_T;
 
 

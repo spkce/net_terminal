@@ -2,6 +2,7 @@
 #define __ORDER_SYSTERM_H__
 
 #include "Order.h"
+#include "Adapter.h"
 
 namespace Screen
 {
@@ -244,6 +245,9 @@ public:
 	* @return ´íÎóÂë
 	**/
 	static int checkSelf(Json::Value &request, Json::Value &response);
+
+private:
+	static bool licenseFill(Json::Value &license, PtrCeritfy_t pCeritfy);
 
 };
 

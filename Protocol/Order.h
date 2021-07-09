@@ -235,6 +235,7 @@ public:
 		AE_SEND_UI_STATUS = 2706,		/*app向设备发送界面状态*/
 
 		AE_SEND_CLIENT_MESSAGE = 2802,	/*设备向app发送显示信息*/
+		AE_SEND_LICENSE = 2803,			/*设备向app发送许可证消息*/
 		AE_SEND_AREA_INFO = 2804,		/*设备向app发送区域信息*/
 		AE_CLEAR_ALL_AREA_INFO = 2805,	/*设备向app发送清空围栏指令*/
 		AE_GET_APP_INFO = 2806,		/*设备向app查询版本信息*/

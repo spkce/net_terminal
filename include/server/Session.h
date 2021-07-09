@@ -141,7 +141,12 @@ public:
 	* @return 会话基类指针
 	**/
 	ISession* createSession(int sockfd, struct sockaddr_in* addr, int timeout = -1);
-
+	/**
+	* @brief 查询session是否注册中
+	* @param session 指针
+	* @return 是否注册
+	**/
+	bool isSessionRegister(ISession* session);
 private:
 	/**
 	* @brief 注册session

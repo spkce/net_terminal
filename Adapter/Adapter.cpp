@@ -95,7 +95,7 @@ int CAdapter::getFaceNum()
 	return m_adapter.get_face_total_number();
 }
 
-bool CAdapter::getFaceInfo(unsigned int index, FaceInfo_t* pInfo)
+bool CAdapter::getFaceInfo(int index, FaceInfo_t* pInfo)
 {
 	if (m_adapter.get_face_info == NULL || pInfo == NULL)
 	{
@@ -106,7 +106,7 @@ bool CAdapter::getFaceInfo(unsigned int index, FaceInfo_t* pInfo)
 
 bool CAdapter::setFaceInfo(int index, FaceInfo_t* pInfo)
 {
-	if (m_adapter.set_face_info == NULL || pInfo == NULL)
+	if (m_adapter.set_face_info == NULL)
 	{
 		return false;
 	}
@@ -130,3 +130,43 @@ bool CAdapter::checkSelf()
 	}
 	return m_adapter.checkSelf() == 0;
 }
+
+int CAdapter::getCeritfyNum()
+{
+	if (m_adapter.get_ceritfy_Num == NULL)
+	{
+		return 0;
+	}
+
+	return m_adapter.get_ceritfy_Num();
+}
+
+bool CAdapter::getCeritfy(unsigned int id, Ceritfy_t* pCeritfy)
+{
+	if (m_adapter.get_ceritfy == NULL || pCeritfy == NULL)
+	{
+		return false;
+	}
+
+	return m_adapter.get_ceritfy(id, pCeritfy);
+}
+int CAdapter::getAreaNum()
+{
+	if (m_adapter.get_area_Num == NULL)
+	{
+		return 0;
+	}
+
+	return m_adapter.get_area_Num();
+}
+
+bool CAdapter::getArea(unsigned int id, Area_t* pArea)
+{
+	if (m_adapter.get_area == NULL || pArea == NULL)
+	{
+		return false;
+	}
+
+	return m_adapter.get_area(id, pArea);
+}
+

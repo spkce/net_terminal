@@ -33,6 +33,20 @@ using CheckInfo_t = CHECk_INFO_T;
 using PtrCheckInfo_t = PCHECk_INFO_T;
 using MessageInfo_t = MESSAGE_INFO_T;
 using PtrMessageInfo_t = PMESSAGE_INFO_T;
+using Ceritfy_t = CERITFY_T;
+using PtrCeritfy_t = PCERITFY_T;
+using GpsPoint = GPS_POINT;
+using PtrGpsPoint = PGPS_POINT;
+using CircleArea_t= CIRCLE_AREA_T;
+using PtrCircleArea_t = PCIRCLE_AREA_T;
+using RectArea_t = RECT_AREA_T;
+using PtrRectArea_t = PRECT_AREA_T;
+using PolygonArea_t = POLYGON_AREA_T;
+using PtrPolygonArea_t = PPOLYGON_AREA_T;
+using RouteArea_t = ROUTE_AREA_T;
+using PtrRouteArea_t = PROUTE_AREA_T;
+using Area_t = AREA_T;
+using PtrArea_t = PAREA_T;
 
 using AdptrFun_t = ADAPTER_T;
 using PtrAdptrFun_t = ADAPTER_T;
@@ -53,11 +67,14 @@ public:
 	bool getSetting(Setting_t* pstSetting);
 	bool sendTouchInfo(TouchInfo_t* pstTouchInfo);
 	int getFaceNum();
-	bool getFaceInfo(unsigned int index, FaceInfo_t* pInfo);
+	bool getFaceInfo(int index, FaceInfo_t* pInfo);
 	bool setFaceInfo(int index, FaceInfo_t* pInfo);
 	bool takePhoto(int channel, int type);
 	bool checkSelf();
-
+	int getCeritfyNum();
+	bool getCeritfy(unsigned int id, Ceritfy_t* pCeritfy);
+	int getAreaNum();
+	bool getArea(unsigned int id, Area_t* pArea);
 private:
 	AdptrFun_t m_adapter;
 };

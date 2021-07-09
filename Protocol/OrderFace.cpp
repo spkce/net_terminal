@@ -15,17 +15,24 @@ int COrderFace::getFaceInfo(Json::Value &request, Json::Value &response)
 	}
 	
 	int total = CAdapter::instance()->getFaceNum();
+	
+	if (total == 0)
+	{
+		response["totalFileNum"] = 0;
+		return AE_SYS_NOERROR;
+	}
+
 	const int pageSize = request["pageSize"].asInt();
 	const int index = request["index"].asInt();
 
 	total = total > index + pageSize ? index + pageSize : total;
 
-	for (int i = request["index"].asInt(); i < total; i++)
+	for (int i = 0; i < total; i++)
 	{
 		FaceInfo_t info = {0};
-		if (CAdapter::instance()->getFaceInfo((unsigned int)i, &info))
+		if (CAdapter::instance()->getFaceInfo(index + i, &info))
 		{
-			response["listing"][i]["faceID"] = 1;
+			response["listing"][i]["faceID"] = info.faceID;
 			response["listing"][i]["name"] = std::string(info.name);
 			response["listing"][i]["identityID"] = std::string(info.identityID);
 			response["listing"][i]["FaceUrl"] = std::string(info.path);
@@ -83,7 +90,7 @@ int COrderFace::setFaceInfo(Json::Value &request, Json::Value &response)
 		}
 	}
 
-	return AE_SYS_NOERROR;
+	return AE_SYS_UNKNOWN_ERROR;
 }
 
 int COrderFace::getOverTimeDrivingSetting(Json::Value &request, Json::Value &response)

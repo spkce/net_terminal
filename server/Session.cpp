@@ -183,13 +183,13 @@ CSession::CSession()
 **/
 CSession::~CSession()
 {
-	m_recvThread.detachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
-	m_sendThread.detachProc(Infra::ThreadProc_t(&CSession::sendProc, this));
-
 	if (m_timer.isRun())
 	{
 		m_timer.stop();
 	}
+
+	m_recvThread.detachProc(Infra::ThreadProc_t(&CSession::replyProc, this));
+	m_sendThread.detachProc(Infra::ThreadProc_t(&CSession::sendProc, this));
 
 	delete[] m_pRecvbuf;
 }
@@ -421,6 +421,12 @@ bool CSession::transmit(const char* buf, int len)
 		return false;
 	}
 
+	if (m_state != emStateLogin)
+	{
+		Error("NetTerminal", "session must be login\n");
+		return false;
+	}
+
 	if (len > MAX_DATA_BUF)
 	{
 		Error("NetTerminal", "too large date\n");
@@ -479,7 +485,7 @@ void CSession::timerProc(unsigned long long arg)
 	if (isTimeout())
 	{
 		Debug("NetTerminal", "Session:%s:%d time out\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
-		close();
+		logout();
 	}
 }
 
@@ -541,6 +547,19 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 	
 	registerSession(pSession);
 	return pSession;
+}
+
+/**
+* @brief 查询session是否注册中
+* @param session 指针
+* @return 是否注册
+**/
+bool CSessionManager::isSessionRegister(ISession* session)
+{
+	Infra::CGuard<Infra::CMutex> guard(m_mutex);
+	std::vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
+
+	return iter == m_vecSession.end();
 }
 
 /**

@@ -78,6 +78,7 @@ bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 	Json::Value send;
 	PtrMsgHdr_t p = (PtrMsgHdr_t)buf;
 	unsigned int msgID = p->msgID;
+
 	if (IOrder::notifyHub(p->msgID, buf + sizeof(MsgHdr_t), len - sizeof(MsgHdr_t), send))
 	{
 		send["msgId"] = msgID;
@@ -99,6 +100,7 @@ bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 		jsonWriter->write(send, &os);
 		std::string reString = os.str();
 		reString += " ";
+
 		
 		return sendPacket(session, &stParam, reString.c_str(), reString.length());
 	}
@@ -245,11 +247,9 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 **/
 bool CNetProtocl::logout(NetServer::ISession* session)
 {
-	if (m_pTerminal->disconnet(session, emProtocl_hk))
-	{
-		return session->logout();
-	}
-	return false;
+	session->logout();
+
+	return m_pTerminal->disconnet(session, emProtocl_hk);
 }
 
 /**

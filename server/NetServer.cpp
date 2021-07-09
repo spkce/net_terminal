@@ -181,14 +181,14 @@ bool CTcpServer::start(unsigned int maxlisten)
 	servAddr.sin_family = AF_INET;
 	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servAddr.sin_port = htons(m_port);
-	if (bind(m_sockfd, (struct sockaddr*)&servAddr, sizeof(servAddr)) < 0)
+	if (bind(m_sockfd, (struct sockaddr *)&servAddr, sizeof(servAddr)) < 0)
 	{
 		Error("NetTerminal", "socket bind port:%d fail\n", m_port);
 		return false;
 	}
 
-	struct timeval timeout = {3, 0}; //设置超时时间为3秒
-	setsockopt(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(struct timeval));
+	struct timeval timeout={3,0};    //设置超时时间为3秒
+	setsockopt(m_sockfd, SOL_SOCKET, SO_RCVTIMEO,(char*)&timeout,sizeof(struct timeval));
 
 	if(listen(m_sockfd, maxlisten) < 0)
 	{
@@ -234,6 +234,7 @@ bool CTcpServer::isRun()
 **/
 void CTcpServer::server_task(void* arg)
 {
+
 	struct sockaddr_in cliaddr = {0};
 	socklen_t clilen = sizeof(struct sockaddr_in);
 

@@ -66,9 +66,16 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_GET_PERIPHERAL_STATUS:
 			res = COrderPeripheral::getPeripheralStatus(reqParam, resParam);
 			break;
+		case AE_GET_LICENSE_INFO:
+			res = COrderSysterm::getLicenseInfo(reqParam, resParam);
+			break;	
 		case AE_START_SELF_CHECKING:
 			res = COrderSysterm::checkSelf(reqParam, resParam);
 			break;
+		case AE_GET_AREA_INFO:
+			res = COrderSysterm::getAreaInfo(reqParam, resParam);
+			break;
+			
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;
 			break;

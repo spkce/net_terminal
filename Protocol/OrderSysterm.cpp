@@ -1,6 +1,8 @@
 
 #include "OrderSysterm.h"
 #include "Adapter.h"
+#include <regex>
+#include <vector>
 
 namespace Screen
 {
@@ -686,15 +688,43 @@ int COrderSysterm::getLicenseInfo(Json::Value &request, Json::Value &response)
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
-	response["licenseList"][0]["id"]= 0;
-	response["licenseList"][0]["startTime"]= "2021-2-12 10:10:10";
-	response["licenseList"][0]["endTime"]= "2021-2-12 10:10:10";
-	response["licenseList"][0]["licenseDetail"]["licenseType"]= 0;
-	response["licenseList"][0]["licenseDetail"]["siteName"]= "aa";
-	response["licenseList"][0]["licenseDetail"]["unloadingArea"]= "aa";
-	response["licenseList"][0]["licenseDetail"]["route"]= "aa";
-	response["licenseList"][0]["licenseDetail"]["licenseNum"]= "1111a";
-	response["licenseList"][0]["licenseDetail"]["projectName"]= "1111a";
+
+	if (request["id"].asUInt() == 0)
+	{
+		const int ceritfyNum = CAdapter::instance()->getCeritfyNum();
+
+		Json::Value licenseList = Json::nullValue;
+
+		for (int i = 0; i < ceritfyNum; i++)
+		{
+			Ceritfy_t ceritfy = {0};
+			
+			if (!CAdapter::instance()->getCeritfy(request["id"].asUInt(), &ceritfy))
+			{
+				return AE_SYS_UNKNOWN_ERROR;
+			}
+
+			if (!licenseFill(licenseList[i], &ceritfy))
+			{
+				return AE_SYS_UNKNOWN_ERROR;
+			}
+		}
+
+		response["licenseList"].swap(licenseList);
+	}
+	else
+	{
+		Ceritfy_t ceritfy = {0};
+		if (!CAdapter::instance()->getCeritfy(request["id"].asUInt(), &ceritfy))
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+
+		if (!licenseFill(response["licenseList"][0], &ceritfy))
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+	}
 
 	return AE_SYS_NOERROR;
 }
@@ -720,13 +750,71 @@ int COrderSysterm::startSelfChecking(Json::Value &request, Json::Value &response
 int COrderSysterm::getAreaInfo(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_AREA_INFO
-	response["tatalCount"] = 1;
-	response["areaList"][0]["type"] = 0;
-	response["areaList"][0]["areaType"] = 1;
-	response["areaList"][0]["id"] = 1;
-	response["areaList"][0]["property"] = 1;
+	const int areaNum = CAdapter::instance()->getAreaNum();
+	response["tatalCount"] = areaNum;
+	if (areaNum == 0)
+	{
+		response["tatalCount"] = 0;
+		return AE_SYS_NOERROR;
+	}
+	else if (areaNum > 0)
+	{
+		Area_t area = {0};
+		for (size_t i = 0; i < (size_t)areaNum; i++)
+		{
+			Json::Value & areaInfo = response["areaList"][(int)i];
+			if (!CAdapter::instance()->getArea(i, &area))
+			{
+				return AE_SYS_UNKNOWN_ERROR;
+			}
 
-	return AE_SYS_NOERROR;
+			areaInfo["areaType"] = area.type;
+			areaInfo["id"] = area.id;
+			areaInfo["property"] = area.property;
+
+			if (area.property != 0)
+			{
+				areaInfo["startTime"] = std::string(area.startTime);
+				areaInfo["endTime"] = std::string(area.endTime);
+			}
+
+			if (area.type == 0)
+			{
+				areaInfo["centerLong"] = area.center.longtitude;
+				areaInfo["centerLat"] = area.center.latitude;
+				areaInfo["radius"] = area.radius;
+			}
+			else if (area.type == 1)
+			{
+				areaInfo["startPointLong"] = area.leftPoint.longtitude;
+				areaInfo["startPointLat"] = area.leftPoint.latitude;
+				areaInfo["endPointLong"] = area.rightPoint.longtitude;
+				areaInfo["endPointLat"] = area.rightPoint.latitude;
+			}
+			else if (area.type == 2)
+			{
+				areaInfo["polygonVertexCount"] = area.vertexNum;
+				for (int i = 0; i< (int)area.vertexNum; i++)
+				{
+					areaInfo["pointList"][i]["pointLong"] = area.vertex[i].longtitude;
+					areaInfo["pointList"][i]["pointLat"] = area.vertex[i].latitude;
+				}
+			}
+			else if (area.type == 3)
+			{
+				areaInfo["lineWidth"] = area.lineWidth;
+				for (int i = 0; i < (int)area.pointNum; i++)
+				{
+					areaInfo["pointList"][i]["pointLong"] = area.inflctPoint[i].longtitude;
+					areaInfo["pointList"][i]["pointLat"] = area.inflctPoint[i].latitude;
+				}
+			}
+		}
+		
+		return AE_SYS_NOERROR;
+	}
+
+	return AE_SYS_UNKNOWN_ERROR;
 }
 
 int COrderSysterm::checkSelf(Json::Value &request, Json::Value &response)
@@ -736,6 +824,102 @@ int COrderSysterm::checkSelf(Json::Value &request, Json::Value &response)
 		return AE_SYS_NOERROR;
 	}
 	return AE_SYS_UNKNOWN_ERROR;
+}
+
+bool COrderSysterm::licenseFill(Json::Value &license, PtrCeritfy_t pCeritfy)
+{
+	license["type"] = pCeritfy->operate;
+	license["id"] = pCeritfy->id;
+
+	time_t tmp;
+	char timeBuf[32] = {0};
+	tmp = pCeritfy->startTime;
+	struct tm *info = gmtime(&tmp);
+	snprintf(timeBuf, sizeof(timeBuf), "%4d-%02d-%02d %02d:%02d:%02d", 
+			info->tm_year + 1900, 
+			info->tm_mon + 1,
+			info->tm_mday,
+			info->tm_hour,
+			info->tm_min,
+			info->tm_sec);
+	license["startTime"] = timeBuf;
+
+	tmp = pCeritfy->endTime;
+	info = gmtime(&tmp);
+	snprintf(timeBuf, sizeof(timeBuf), "%4d-%02d-%02d %02d:%02d:%02d", 
+			info->tm_year + 1900, 
+			info->tm_mon + 1,
+			info->tm_mday,
+			info->tm_hour,
+			info->tm_min,
+			info->tm_sec);
+	license["endTime"] = timeBuf;
+	license["licenseDetail"]["licenseType"] = pCeritfy->type;
+
+	std::string content(pCeritfy->detail);
+	std::regex rex(",+");
+	std::vector<std::string> vec(std::sregex_token_iterator(content.begin(), content.end(), rex, -1), std::sregex_token_iterator());
+	if (pCeritfy->type == 0)
+	{
+		//准运证
+		if (vec.size() < 5)
+		{
+			return false;
+		}
+
+		license["licenseDetail"]["siteName"] = vec[0];
+		license["licenseDetail"]["unloadingArea"] = vec[1];
+		license["licenseDetail"]["route"] = vec[2];
+		license["licenseDetail"]["licenseNum"] = vec[3];
+		license["licenseDetail"]["projectName"] = vec[4];
+	}
+	else if (pCeritfy->type == 1)
+	{
+		//运输证
+		if (vec.size() < 3)
+		{
+			return false;
+		}
+
+		license["licenseDetail"]["transporttationEnterprise"] = vec[0];
+		license["licenseDetail"]["licenseNum"] = vec[1];
+		license["licenseDetail"]["vehicleNum"] = vec[2];
+	}
+	else if (pCeritfy->type == 2)
+	{
+		//排放证
+		if (vec.size() < 8)
+		{
+			return false;
+		}
+
+		license["licenseDetail"]["projectName"] = vec[0];
+		license["licenseDetail"]["projectAddress"] = vec[1];
+		license["licenseDetail"]["constructinEmployer"] = vec[2];
+		license["licenseDetail"]["constructionContracter"] = vec[3];
+		license["licenseDetail"]["transporttationEnterprise"] = vec[4];
+		license["licenseDetail"]["eliminateArea"] = vec[5];
+		license["licenseDetail"]["licenseNum"] = vec[6];
+		license["licenseDetail"]["route"] = vec[7];
+	}
+	else if (pCeritfy->type == 3)
+	{
+		//处置通行证
+		if (vec.size() < 8)
+		{
+			return false;
+		}
+		license["licenseDetail"]["projectAddress"] = vec[0];
+		license["licenseDetail"]["unloadingArea"] = vec[1];
+		license["licenseDetail"]["route"] = vec[2];
+		license["licenseDetail"]["licenseNum"] = vec[3];
+		license["licenseDetail"]["projectName"] = vec[4];
+		license["licenseDetail"]["allowTimePeriod"] = vec[5];
+		license["licenseDetail"]["plateNum"] = vec[6];
+		license["licenseDetail"]["certificateUnit"] = vec[7];
+	}
+
+	return true;
 }
 
 }//Screen

@@ -24,7 +24,8 @@ CScreen::CScreen()
 ,m_portGps(PORT_GPS)
 ,m_pServMain(NULL)
 ,m_pServGps(NULL)
-,m_GpsSession(NULL)
+,m_gpsSession(NULL)
+,m_mainSession(NULL)
 {
 	m_type = ITerminal::emTerminalScree;
 	m_protocl = IProtocl::createInstance(IProtocl::emProtocl_hk, this);
@@ -72,16 +73,14 @@ bool CScreen::connect(ISession* session, int type)
 
 	if (type == IProtocl::emProtocl_hk)
 	{
-		Infra::CGuard<Infra::CMutex> guard(m_mutex);
-		if (m_vecSession.size() >= (unsigned int)m_maxSession)
+		if (m_mainSession == NULL || m_mainSession->getState() != ISession::emStateLogin)
 		{
-			return false;
-		}
+			if (m_mainSession != NULL)
+			{
+				m_mainSession->close();
+			}
 
-		vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
-		if (iter == m_vecSession.end())
-		{
-			m_vecSession.push_back(session);
+			m_mainSession = session;
 			if (!m_pServGps->isRun())
 			{
 				Trace("NetTerminal", "GPS Server run\n");
@@ -92,10 +91,21 @@ bool CScreen::connect(ISession* session, int type)
 	}
 	else if (type == IProtocl::emProtocl_media)
 	{
-		if (m_GpsSession == NULL)
+		if (m_mainSession == NULL || m_mainSession->getState() != ISession::emStateLogin)
+		{
+			Error("NetTerminal", "main session need connect first!\n");
+			return false;
+		}
+
+		if (m_gpsSession == NULL || m_gpsSession->getState() != ISession::emStateLogin)
 		{
 			Trace("NetTerminal", "GPS session connect\n");
-			m_GpsSession = session;
+			if (m_gpsSession != NULL)
+			{
+				m_gpsSession->close();
+			}
+
+			m_gpsSession = session;
 			return true;
 		}
 	}
@@ -118,37 +128,34 @@ bool CScreen::disconnet(ISession* session, int type)
 
 	if (type == IProtocl::emProtocl_hk)
 	{
-		Infra::CGuard<Infra::CMutex> guard(m_mutex); // todo usd rwlock
-
-		vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
-
-		if (iter == m_vecSession.end())
+		if (session != m_mainSession)
 		{
+			Error("NetTerminal", "no session\n");
 			return false;
 		}
 
-		m_vecSession.erase(iter);
-		session->close();
+		Trace("NetTerminal", "main session disconnet\n");
+		m_mainSession->close();
+		m_mainSession = NULL;
 
-		if (m_vecSession.size() == 0 && m_pServGps->isRun())
+		if (m_pServGps->isRun())
 		{
-			if (m_GpsSession != NULL)
-			{
-				m_GpsSession->close();
-			}
 			m_pServGps->stop();
 			Trace("NetTerminal", "GPS Server stop\n");
+			if (m_gpsSession != NULL)
+			{
+				m_gpsSession->close();
+			}
 		}
-		
 		return true;
 	}
 	else if (type == IProtocl::emProtocl_media)
 	{
-		if (m_GpsSession == session)
+		if (m_gpsSession == session)
 		{
 			Trace("NetTerminal", "GPS session disconnet\n");
 			session->close();
-			m_GpsSession = NULL;
+			m_gpsSession = NULL;
 			return true;
 		}
 	}
@@ -170,20 +177,13 @@ bool CScreen::notify(char* buf, int len)
 		return false;
 	}
 
-	ISession* pSession = NULL;
+	if (m_mainSession == NULL)
 	{
-		Infra::CGuard<Infra::CMutex> guard(m_mutex);
-		//默认第一个连接为主链接
-		vector<ISession*>::iterator iter = m_vecSession.begin();
-		if (iter == m_vecSession.end())
-		{
-			Error("NetTerminal", "screen connection dropped\n");
-			return false;
-		}
-		pSession = *iter;
+		Error("NetTerminal", "screen connection dropped\n");
+		return false;
 	}
-	 
-	return m_protocl->notify(pSession, buf, len);
+
+	return m_protocl->notify(m_mainSession, buf, len);
 }
 
 /**
@@ -194,9 +194,9 @@ bool CScreen::notify(char* buf, int len)
 **/
 bool CScreen::pushGps(char* buf, int len)
 {
-	if (m_GpsSession != NULL)
+	if (m_gpsSession != NULL)
 	{
-		return m_protoclGps->notify(m_GpsSession, buf, len);
+		return m_protoclGps->notify(m_gpsSession, buf, len);
 	}
 
 	return false;
@@ -209,6 +209,12 @@ bool CScreen::pushGps(char* buf, int len)
 **/
 void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 {
+	if (m_mainSession != NULL && m_mainSession->getState() == ISession::emStateLogin)
+	{
+		Warning("NetTerminal", "Gps Session was registered !\n");
+		return;
+	}
+
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
 	if (pSession == NULL)
 	{
@@ -240,10 +246,10 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 **/
 void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 {
-	if (m_GpsSession != NULL)
+	if (m_gpsSession != NULL)
 	{
-		Error("NetTerminal", "GPS session was registered ! \n");
-		return ;
+		Warning("NetTerminal", "Gps Session was registered !\n");
+		return;
 	}
 
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr);
@@ -251,6 +257,7 @@ void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 	{
 		return ;
 	}
+
 	pSession->bind(ISession::SessionProc_t(&CScreen::pushGpsTask, this));
 }
 
@@ -266,6 +273,7 @@ void CScreen::pushGpsTask(NetServer::ISession* session, char* buf, int len)
 	{
 		return ;
 	}
+
 	m_protoclGps->parse(session, buf, len);
 }
 

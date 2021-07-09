@@ -109,9 +109,9 @@ private:
 	NetServer::INetServer* m_pServGps;
 	IProtocl* m_protocl;
 	IProtocl* m_protoclGps;
-	NetServer::ISession* m_GpsSession;
-	Infra::CMutex m_mutex;
-	std::vector<NetServer::ISession*> m_vecSession;
+	NetServer::ISession* m_gpsSession;
+	NetServer::ISession* m_mainSession;
+
 };
 
 
