@@ -11,6 +11,8 @@ static int app_net_terminal_device_status_get(PDEV_STATUS_T pstDevStatus);
 static int app_net_terminal_vehicle_status_get(PVEH_STATUS_T pstVehStatus);
 static int app_net_terminal_setting_status_get(PSETTING_T pstSetting);
 static int app_net_terminal_touch_info(PTOUCH_INFO_T pstTouchInfo);
+static int app_net_terminal_ceritfy_num();
+static int app_net_terminal_ceritfy_get(unsigned int id, PCERITFY_T pCeritfy);
 
 int app_net_terminal_BSD_notify();
 int app_net_terminal_certify_send(int cmd);
@@ -32,7 +34,8 @@ int app_net_terminal_init()
 	pAdapter->vehicle_status_get = app_net_terminal_vehicle_status_get;
 	pAdapter->setting_get = app_net_terminal_setting_status_get;
 	pAdapter->send_touch_info = app_net_terminal_touch_info;
-
+	pAdapter->get_ceritfy_Num = app_net_terminal_ceritfy_num;
+	pAdapter->get_ceritfy = app_net_terminal_ceritfy_get;
 	net_termianl_init();
 	return 0;
 }
@@ -159,7 +162,6 @@ int app_net_terminal_touch_info(PTOUCH_INFO_T pstTouchInfo)
 
 int app_net_terminal_BSD_notify()
 {
-	
 	char msg[sizeof(MSG_HDR_T) + sizeof(WARN_INFO_T)] = {0};
 	PMSG_HDR_T phdr = (PMSG_HDR_T)msg;
 	PWARN_INFO_T pInfo = (PWARN_INFO_T)(msg + sizeof(WARN_INFO_T));
@@ -177,7 +179,6 @@ int app_net_terminal_BSD_notify()
 
 int app_net_terminal_certify_send(int cmd)
 {
-
 	char msg[sizeof(MSG_HDR_T) + sizeof(CERITFY_T)] = {0};
 	PMSG_HDR_T phdr = (PMSG_HDR_T)msg;
 	phdr->msgID = 2803;
@@ -187,7 +188,7 @@ int app_net_terminal_certify_send(int cmd)
 	{
 		pCeritfy->operate = 0;
 		pCeritfy->type = 0;
-		pCeritfy->id = 1;
+		pCeritfy->id = 0;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;
 		 
@@ -196,7 +197,7 @@ int app_net_terminal_certify_send(int cmd)
 	else if (cmd == 1)
 	{
 		pCeritfy->operate = 0;
-		pCeritfy->type = 0;
+		pCeritfy->type = 1;
 		pCeritfy->id = 1;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;
@@ -206,8 +207,8 @@ int app_net_terminal_certify_send(int cmd)
 	else if (cmd == 2)
 	{
 		pCeritfy->operate = 0;
-		pCeritfy->type = 0;
-		pCeritfy->id = 1;
+		pCeritfy->type = 2;
+		pCeritfy->id = 2;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;
 		 
@@ -217,8 +218,8 @@ int app_net_terminal_certify_send(int cmd)
 	else if (cmd == 3)
 	{
 		pCeritfy->operate = 0;
-		pCeritfy->type = 0;
-		pCeritfy->id = 1;
+		pCeritfy->type = 3;
+		pCeritfy->id = 3;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;
 		 
@@ -228,7 +229,7 @@ int app_net_terminal_certify_send(int cmd)
 	{
 		return -1;
 	}
-	pCeritfy->len = strlen(pCeritfy->detail) + 1 ;
+	pCeritfy->len = strlen(pCeritfy->detail) + 1;
 
 	if (net_terminal_notify(msg, sizeof(MSG_HDR_T) + sizeof(CERITFY_T)))
 	{
@@ -240,5 +241,62 @@ int app_net_terminal_certify_send(int cmd)
 		printf("send certify fail!\n");
 		return -1;
 	}
+}
+
+static int app_net_terminal_ceritfy_num()
+{
+	return 4;
+}
+
+static int app_net_terminal_ceritfy_get(unsigned int id, PCERITFY_T pCeritfy)
+{
+	if (id == 0)
+	{
+		pCeritfy->operate = 0;
+		pCeritfy->type = 0;
+		pCeritfy->id = 0;
+		pCeritfy->startTime = 2572599470;
+		pCeritfy->endTime = 2604394670;
+		 
+		strncpy(pCeritfy->detail, "星环集团基础建设三局,A3L-11B,土卫六第三转移轨道,CN1718546,环日加速器改造工程", sizeof(pCeritfy->detail) - 1);
+	}
+	else if (id == 1)
+	{
+		pCeritfy->operate = 0;
+		pCeritfy->type = 1;
+		pCeritfy->id = 1;
+		pCeritfy->startTime = 2572599470;
+		pCeritfy->endTime = 2604394670;
+		 
+		strncpy(pCeritfy->detail, "深空矿业,5376852485,CN1718546", sizeof(pCeritfy->detail) - 1);
+	}
+	else if (id == 2)
+	{
+		pCeritfy->operate = 0;
+		pCeritfy->type = 2;
+		pCeritfy->id = 2;
+		pCeritfy->startTime = 2572599470;
+		pCeritfy->endTime = 2604394670;
+		 
+		strncpy(pCeritfy->detail, "环日加速器改造工程,土卫六,星环集团基础建设三局,深空矿业,深空矿业,土卫六,CN1718546,土卫六第三转移轨道", sizeof(pCeritfy->detail) - 1);
+		
+	}
+	else if (id == 3)
+	{
+		pCeritfy->operate = 0;
+		pCeritfy->type = 3;
+		pCeritfy->id = 3;
+		pCeritfy->startTime = 2572599470;
+		pCeritfy->endTime = 2604394670;
+		 
+		strncpy(pCeritfy->detail, "土卫六,A3L-11B,土卫六第三转移轨道,CN1718546,环日加速器改造工程,2051-07-01 20:12:33-2051-07-01 23:12:33,BT1718546,地球联邦", sizeof(pCeritfy->detail) - 1);
+	}
+	else
+	{
+		return -1;
+	}
 	
+	pCeritfy->len = strlen(pCeritfy->detail) + 1;
+
+	return 0;
 }
