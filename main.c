@@ -13,6 +13,8 @@ static int app_net_terminal_setting_status_get(PSETTING_T pstSetting);
 static int app_net_terminal_touch_info(PTOUCH_INFO_T pstTouchInfo);
 static int app_net_terminal_ceritfy_num();
 static int app_net_terminal_ceritfy_get(unsigned int id, PCERITFY_T pCeritfy);
+static int app_net_terminal_area_num();
+static int app_net_terminal_area_get(unsigned int id, PAREA_T pArea);
 
 int app_net_terminal_BSD_notify();
 int app_net_terminal_certify_send(int cmd);
@@ -36,6 +38,9 @@ int app_net_terminal_init()
 	pAdapter->send_touch_info = app_net_terminal_touch_info;
 	pAdapter->get_ceritfy_Num = app_net_terminal_ceritfy_num;
 	pAdapter->get_ceritfy = app_net_terminal_ceritfy_get;
+	pAdapter->get_area_Num = app_net_terminal_area_num;
+	pAdapter->get_area = app_net_terminal_area_get;
+
 	net_termianl_init();
 	return 0;
 }
@@ -299,4 +304,14 @@ static int app_net_terminal_ceritfy_get(unsigned int id, PCERITFY_T pCeritfy)
 	pCeritfy->len = strlen(pCeritfy->detail) + 1;
 
 	return 0;
+}
+
+static int app_net_terminal_area_num()
+{
+	return 4;
+}
+
+static int app_net_terminal_area_get(unsigned int id, PAREA_T pArea)
+{
+	return -1;
 }
