@@ -27,13 +27,55 @@ int COrderNotify::sendTouchInfo(Json::Value &request, Json::Value &response)
 		stTouchInfo.screenHeight = request["screenHeight"].asInt();
 	}
 
-	
 	if (request.isMember("touchType") && request["touchType"].isInt())
 	{
-		stTouchInfo.screenWidth = request["touchType"].asInt();
+		stTouchInfo.touchType = request["touchType"].asInt();
 	}
 
 	if (CAdapter::instance()->sendTouchInfo(&stTouchInfo))
+	{
+		return AE_SYS_NOERROR;
+	}
+	return AE_SYS_UNKNOWN_ERROR;
+}
+
+
+int COrderNotify::sendUpgradeResult(Json::Value &request, Json::Value &response)
+{
+	//AE_SEND_UPGRADE_RESULT
+	if (!request.isMember("deviceType") || !request["deviceType"].isInt()
+		||!request.isMember("upgradeResult") || !request["upgradeResult"].isUInt()
+	)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	unsigned int progress = 0;
+	if (request["upgradeResult"].asUInt() == 5)
+	{
+		if (request.isMember("downloadProgress") || !request["downloadProgress"].isUInt())
+		{
+			progress = request["downloadProgress"].asUInt();
+		}
+		else
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+		
+	}
+	else if (request["upgradeResult"].asUInt() == 1)
+	{
+		if (request.isMember("upgradeProgress") || !request["upgradeProgress"].isUInt())
+		{
+			progress = request["upgradeProgress"].asUInt();
+		}
+		else
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+	}
+	
+	if (CAdapter::instance()->upgradeResult(request["upgradeResult"].asUInt(), progress))
 	{
 		return AE_SYS_NOERROR;
 	}

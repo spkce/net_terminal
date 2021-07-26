@@ -230,6 +230,7 @@ public:
 		AE_GET_RTSP_INFO = 2509,		  /*获取RTSP用户名和密码*/
 
 		/*信息类参数*/
+		AE_SEND_UPGRADE_RESULT = 2703,		  /*向设备发送升级进度*/
 		AE_SEND_APP_INFO = 2704,		  /*app向设备发送信息*/
 		AE_SEND_TOUCH_INFO = 2705,		/*app向设备发送触碰信息*/
 		AE_SEND_UI_STATUS = 2706,		/*app向设备发送界面状态*/

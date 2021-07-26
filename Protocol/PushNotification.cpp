@@ -7,8 +7,16 @@
 namespace Screen
 {
 
+/**
+* @brief 通知
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
 int CPushNotification::notification(char* buf, int len, Json::Value &send)
 {
+	//AE_NOTIFICATION
 	if (buf == NULL || len < (int)sizeof(Notification_t))
 	{
 		return AE_SYS_UNKNOWN_ERROR; 
@@ -16,9 +24,10 @@ int CPushNotification::notification(char* buf, int len, Json::Value &send)
 
 	int ret = AE_SYS_UNKNOWN_ERROR;
 	PtrNotification_t p = (PtrNotification_t)buf;
-	if (std::string(p->type) == "photoTaken")
+	std::string notifyType(p->type);
+	if (notifyType == "photoTaken")
 	{
-		send["type"] = "photoTaken";
+		send["type"] = notifyType;
 		Json::Value & param = send["param"];
 
 		if (p->photoTaken.result == 0)
@@ -36,12 +45,65 @@ int CPushNotification::notification(char* buf, int len, Json::Value &send)
 		}
 		ret = AE_SYS_NOERROR;
 	}
+	else if (notifyType == "faceResult")
+	{
+		send["type"] = notifyType;
+		send["param"][0]["result"] = p->faceResult.result;
+		send["param"][0]["faceSimilarity"] = p->faceResult.similarity;
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "ADASAlarm" || notifyType == "DBAAlarm")
+	{
+		send["type"] = notifyType;
+		send["param"][0]["detailType"] = p->alarm.detailType;
+		send["param"][0]["picName"] = std::string(p->alarm.picName);
+		send["param"][0]["videoName"] = std::string(p->alarm.videoName);
+		send["param"][0]["time"] = std::string(p->alarm.stime);
+		send["param"][0]["chanNo"] = p->alarm.channel;
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "peripheralAccessStatus")
+	{
+		send["type"] = notifyType;
+		send["param"][0]["deviceType"] = std::string(p->peripheral.deviceName);
+		send["param"][0]["status"] = p->peripheral.state;
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "firmwareFound")
+	{
+		send["type"] = notifyType;
+		send["param"][0]["url"] = std::string(p->upgrade.url);
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "gearChange")
+	{
+		send["type"] = notifyType;
+		send["param"][0]["gear"] = p->gear.gear;
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "liftStatus" || notifyType == "hermeticStatus"
+		|| notifyType == "carryStatus" || notifyType == "speedLimitStatus"
+		|| notifyType == "liftLimitStatus" || notifyType == "rotateLimitStatus"
+		|| notifyType == "lockStatus")
+	{
+		send["type"] = notifyType;
+		send["param"][0]["status"] = p->vehicle.state;
+		ret = AE_SYS_NOERROR;
+	}
 
 	return ret;
 }
 
+/**
+* @brief 报警信息通知
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
 int CPushNotification::sendWarnInfo(char* buf, int len, Json::Value &send)
 {
+	//AE_SEND_WARN_INFO
 	if (buf == NULL || len < (int)sizeof(WarnInfo_t))
 	{
 		return AE_SYS_UNKNOWN_ERROR; 
@@ -54,8 +116,16 @@ int CPushNotification::sendWarnInfo(char* buf, int len, Json::Value &send)
 	return AE_SYS_NOERROR;
 }
 
+/**
+* @brief 自检信息通知
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
 int CPushNotification::sendCheckInfo(char* buf, int len, Json::Value &send)
 {
+	//AE_SEND_SELF_CHECKING_INFO
 	if (buf == NULL || len < (int)sizeof(CheckInfo_t))
 	{
 		return AE_SYS_UNKNOWN_ERROR; 
@@ -73,6 +143,13 @@ int CPushNotification::sendCheckInfo(char* buf, int len, Json::Value &send)
 	return AE_SYS_NOERROR;
 }
 
+/**
+* @brief 消息通知
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
 int CPushNotification::sendClientMessage(char* buf, int len, Json::Value &send)
 {
 	//AE_SEND_CLIENT_MESSAGE
@@ -92,6 +169,13 @@ int CPushNotification::sendClientMessage(char* buf, int len, Json::Value &send)
 	return AE_SYS_NOERROR;
 }
 
+/**
+* @brief 许可证通知
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
 int CPushNotification::sendLicense(char* buf, int len, Json::Value &send)
 {
 	//AE_SEND_CLIENT_MESSAGE
@@ -191,6 +275,107 @@ int CPushNotification::sendLicense(char* buf, int len, Json::Value &send)
 		send["licenseDetail"]["plateNum"] = vec[6];
 		send["licenseDetail"]["certificateUnit"] = vec[7];
 	}
+	return AE_SYS_NOERROR;
+}
+
+/**
+* @brief 电子围栏通知
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
+int CPushNotification::sendArea(char* buf, int len, Json::Value &send)
+{
+	if (buf == NULL || len < (int)sizeof(AREA_INFO_T))
+	{
+		return AE_SYS_UNKNOWN_ERROR; 
+	}
+
+	PtrAreaInfo_t p = (PtrAreaInfo_t)buf;
+	send["tatalCount"] = p->areaNum;
+	if (p->operate == 3)
+	{
+		for (int i= 0; i < (int)p->areaNum; i++)
+		{
+			Json::Value & areaInfo = send["areaList"][i];
+			Area_t & area = p->area[i];
+			areaInfo["type"] = p->operate;
+			areaInfo["areaType"] = area.type;
+			areaInfo["id"] = area.id;
+		}
+	}
+	else
+	{
+		for (int i= 0; i < (int)p->areaNum; i++)
+		{
+			Json::Value & areaInfo = send["areaList"][i];
+			Area_t & area = p->area[i];
+			areaInfo["type"] = p->operate;
+			areaInfo["areaType"] = area.type;
+			areaInfo["id"] = area.id;	
+			areaInfo["property"] = area.property;
+
+			if (area.property != 0)
+			{
+				areaInfo["startTime"] = std::string(area.startTime);
+				areaInfo["endTime"] = std::string(area.endTime);
+			}
+			
+			if (area.type == 0)
+			{
+				areaInfo["centerLong"] =area.center.longtitude;
+				areaInfo["centerLat"] = area.center.latitude;
+				areaInfo["radius"] = area.radius;
+			}
+			else if (area.type == 1)
+			{
+				areaInfo["startPointLong"] = area.leftPoint.longtitude;
+				areaInfo["startPointLat"] = area.leftPoint.latitude;
+				areaInfo["endPointLong"] = area.rightPoint.longtitude;
+				areaInfo["endPointLat"] = area.rightPoint.latitude;
+			}
+			else if (area.type == 2)
+			{
+				areaInfo["polygonVertexCount"] = area.vertexNum;
+				for (int i = 0; i< (int)area.vertexNum; i++)
+				{
+					areaInfo["pointList"][i]["pointLong"] = area.vertex[i].longtitude;
+					areaInfo["pointList"][i]["pointLat"] = area.vertex[i].latitude;
+				}
+			}
+			else if (area.type == 3)
+			{
+				areaInfo["lineWidth"] = area.lineWidth[0];
+				for (int i = 0; i < (int)area.pointNum; i++)
+				{
+					areaInfo["pointList"][i]["pointLong"] = area.inflctPoint[i].longtitude;
+					areaInfo["pointList"][i]["pointLat"] = area.inflctPoint[i].latitude;
+				}
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
+	return AE_SYS_NOERROR;
+}
+
+/**
+* @brief 清空电子围栏
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
+int CPushNotification::sendClearArea(char* buf, int len, Json::Value &send)
+{
+	if (buf == NULL || len < (int)sizeof(MSG_HDR_T))
+	{
+		return AE_SYS_UNKNOWN_ERROR; 
+	}
+
 	return AE_SYS_NOERROR;
 }
 

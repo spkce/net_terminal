@@ -13,7 +13,7 @@ public:
 	virtual ~COrderNotify() {};
 
 	static int sendTouchInfo(Json::Value &request, Json::Value &response);
-
+	static int sendUpgradeResult(Json::Value &request, Json::Value &response);
 };
 
 }//Screen

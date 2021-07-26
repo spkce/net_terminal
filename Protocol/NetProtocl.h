@@ -5,6 +5,7 @@
 #include "aes_encrypt.h"
 #include "rsa_app.h"
 #include "Session.h"
+
 namespace NetServer {
 	class ISession;
 }

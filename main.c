@@ -86,11 +86,14 @@ int main(int argc, char const *argv[])
 			app_net_terminal_certify_send(operate);
 			break;
 		default:
+			printf("*********************************\n");
 			printf("usage: \n");
 			printf("0 BSD notify\n");
+			printf("1 certify notify\n");
+			printf("*********************************\n");
 			break;
 		}
-		
+		sleep(2);
 	}
 	return 0;
 }
@@ -192,7 +195,7 @@ int app_net_terminal_certify_send(int cmd)
 	if (cmd == 0)
 	{
 		pCeritfy->operate = 0;
-		pCeritfy->type = 0;
+		pCeritfy->type = 1;
 		pCeritfy->id = 0;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;
@@ -212,7 +215,7 @@ int app_net_terminal_certify_send(int cmd)
 	else if (cmd == 2)
 	{
 		pCeritfy->operate = 0;
-		pCeritfy->type = 2;
+		pCeritfy->type = 1;
 		pCeritfy->id = 2;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;
@@ -223,7 +226,7 @@ int app_net_terminal_certify_send(int cmd)
 	else if (cmd == 3)
 	{
 		pCeritfy->operate = 0;
-		pCeritfy->type = 3;
+		pCeritfy->type = 1;
 		pCeritfy->id = 3;
 		pCeritfy->startTime = 2572599470;
 		pCeritfy->endTime = 2604394670;

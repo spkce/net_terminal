@@ -113,6 +113,15 @@ bool CAdapter::setFaceInfo(int index, FaceInfo_t* pInfo)
 	return m_adapter.set_face_info(index, pInfo) == 0;
 }
 
+bool CAdapter::faceContrast(const char* pic)
+{
+	if (m_adapter.faceContrast == NULL)
+	{
+		return false;
+	}
+	return m_adapter.faceContrast(pic) == 0;
+}
+
 bool CAdapter::takePhoto(int channel, int type)
 {
 	if (m_adapter.take_photo == NULL)
@@ -148,7 +157,7 @@ bool CAdapter::getCeritfy(unsigned int id, Ceritfy_t* pCeritfy)
 		return false;
 	}
 
-	return m_adapter.get_ceritfy(id, pCeritfy);
+	return m_adapter.get_ceritfy(id, pCeritfy) == 0;
 }
 int CAdapter::getAreaNum()
 {
@@ -167,6 +176,15 @@ bool CAdapter::getArea(unsigned int id, Area_t* pArea)
 		return false;
 	}
 
-	return m_adapter.get_area(id, pArea);
+	return m_adapter.get_area(id, pArea) == 0;
 }
 
+bool CAdapter::upgradeResult(unsigned int result, unsigned int progress)
+{
+	if (m_adapter.upgrade_result == NULL)
+	{
+		return false;
+	}
+
+	return m_adapter.upgrade_result(result, progress) == 0;
+}

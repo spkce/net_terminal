@@ -177,3 +177,18 @@ CLog* CLogManager::getLog(std::string name)
 	return iter->second;
 }
 
+CLog* CLogManager::findLog(std::string name)
+{
+	std::map<std::string, CLog*>::iterator iter;
+	
+	m_rwlock.rLock();
+	iter = m_mapLog.find(name);
+	m_rwlock.unLock();
+	
+	if (iter == m_mapLog.end())
+	{
+		return NULL;
+	}
+	
+	return iter->second;
+}

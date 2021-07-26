@@ -1,6 +1,8 @@
 #ifndef __TERMINAL_H__
 #define __TERMINAL_H__
 
+#include <string>
+
 namespace NetServer {
 	class ISession;
 }
@@ -27,6 +29,8 @@ public:
 	virtual bool connect(NetServer::ISession* session, int type) = 0;
 
 	virtual bool disconnet(NetServer::ISession* session, int type) = 0;
+
+	virtual bool getVersion(std::string & ver) = 0;
 
 	virtual bool notify(char* buf, int len) = 0;
 

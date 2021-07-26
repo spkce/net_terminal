@@ -105,25 +105,41 @@ int COrderPeripheral::getPeripheralStatus(Json::Value &request, Json::Value &res
 			{
 				response["audibleVisualAlarm"] = status.audioAlarm;
 			}
-			else if (list[i].asString() == "frontCam" && status.cam[0] != -1)
+			else if (list[i].asString() == "conbox" && status.conbox != -1)
 			{
-				response["frontCam"] = status.cam[0];
+				response["conbox"] = status.conbox;
 			}
-			else if (list[i].asString() == "divierCam" && status.cam[1] != -1)
+			else if (list[i].asString() == "cam0" && status.cam[0] != -1)
 			{
-				response["divierCam"] = status.cam[1];
+				response["cam0"] = status.cam[0];
 			}
-			else if (list[i].asString() == "leftCam" && status.cam[2] != -1)
+			else if (list[i].asString() == "cam1" && status.cam[1] != -1)
 			{
-				response["leftCam"] = status.cam[2];
+				response["cam1"] = status.cam[1];
 			}
-			else if (list[i].asString() == "rightCam" && status.cam[3] != -1)
+			else if (list[i].asString() == "cam2" && status.cam[2] != -1)
 			{
-				response["rightCam"] = status.cam[3];
+				response["cam2"] = status.cam[2];
 			}
-			else if (list[i].asString() == "reserveCam" && status.cam[4] != -1)
+			else if (list[i].asString() == "cam3" && status.cam[3] != -1)
 			{
-				response["reserveCam"] = status.cam[4];
+				response["cam3"] = status.cam[3];
+			}
+			else if (list[i].asString() == "cam4" && status.cam[4] != -1)
+			{
+				response["cam4"] = status.cam[4];
+			}
+			else if (list[i].asString() == "cam5" && status.cam[5] != -1)
+			{
+				response["cam5"] = status.cam[5];
+			}
+			else if (list[i].asString() == "cam6" && status.cam[6] != -1)
+			{
+				response["cam6"] = status.cam[6];
+			}
+			else if (list[i].asString() == "cam7" && status.cam[7] != -1)
+			{
+				response["cam7"] = status.cam[7];
 			}
 		}
 		return AE_SYS_NOERROR;

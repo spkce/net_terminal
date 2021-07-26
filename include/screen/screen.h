@@ -49,7 +49,12 @@ public:
 	* @return 成功：true；失败：false
 	**/
 	virtual bool disconnet(NetServer::ISession* session, int type);
-
+	/**
+	* @brief 获取版本信息
+	* @param ver 版本信息
+	* @return 成功/失败
+	**/
+	virtual bool getVersion(std::string & ver);
 	/**
 	* @brief 消息推送
 	* @param buf 消息内容

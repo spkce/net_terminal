@@ -695,16 +695,16 @@ int COrderSysterm::getLicenseInfo(Json::Value &request, Json::Value &response)
 
 		Json::Value licenseList = Json::nullValue;
 
-		for (int i = 0; i < ceritfyNum; i++)
+		for (int i = 1; i <= ceritfyNum; i++)
 		{
 			Ceritfy_t ceritfy = {0};
 			
-			if (!CAdapter::instance()->getCeritfy(request["id"].asUInt(), &ceritfy))
+			if (!CAdapter::instance()->getCeritfy(i, &ceritfy))
 			{
-				return AE_SYS_UNKNOWN_ERROR;
+				continue;
 			}
 
-			if (!licenseFill(licenseList[i], &ceritfy))
+			if (!licenseFill(licenseList[i - 1], &ceritfy))
 			{
 				return AE_SYS_UNKNOWN_ERROR;
 			}
@@ -715,7 +715,8 @@ int COrderSysterm::getLicenseInfo(Json::Value &request, Json::Value &response)
 	else
 	{
 		Ceritfy_t ceritfy = {0};
-		if (!CAdapter::instance()->getCeritfy(request["id"].asUInt(), &ceritfy))
+		ceritfy.id = request["id"].asUInt();
+		if (!CAdapter::instance()->getCeritfy(0, &ceritfy))
 		{
 			return AE_SYS_UNKNOWN_ERROR;
 		}
@@ -802,12 +803,16 @@ int COrderSysterm::getAreaInfo(Json::Value &request, Json::Value &response)
 			}
 			else if (area.type == 3)
 			{
-				areaInfo["lineWidth"] = area.lineWidth;
+				areaInfo["lineWidth"] = area.lineWidth[0];
 				for (int i = 0; i < (int)area.pointNum; i++)
 				{
 					areaInfo["pointList"][i]["pointLong"] = area.inflctPoint[i].longtitude;
 					areaInfo["pointList"][i]["pointLat"] = area.inflctPoint[i].latitude;
 				}
+			}
+			else
+			{
+				continue;
 			}
 		}
 		

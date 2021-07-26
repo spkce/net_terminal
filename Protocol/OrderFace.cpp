@@ -35,7 +35,7 @@ int COrderFace::getFaceInfo(Json::Value &request, Json::Value &response)
 			response["listing"][i]["faceID"] = info.faceID;
 			response["listing"][i]["name"] = std::string(info.name);
 			response["listing"][i]["identityID"] = std::string(info.identityID);
-			response["listing"][i]["FaceUrl"] = std::string(info.path);
+			response["listing"][i]["faceUrl"] = std::string(info.path);
 			response["listing"][i]["licenseNum"] = std::string(info.license);
 		}
 	}
@@ -128,16 +128,19 @@ int COrderFace::setOverTimeDrivingSetting(Json::Value &request, Json::Value &res
 
 int COrderFace::faceContrast(Json::Value &request, Json::Value &response)
 {
-	if (!request.isMember("chanNo") || !request["chanNo"].isInt())
+	//AE_FACE_CONTRAST
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
+		|| !request.isMember("pic") || !request["pic"].isString()
+	)
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
 
-	response["list"][0]["infoList"][0]["x"] = 1;
-	response["list"][0]["infoList"][0]["y"] = 1;
-	response["list"][0]["infoList"][0]["identityID"] = "5xxxxx"; 
-	response["list"][0]["infoList"][0]["similarity"] = 80; 
-	return AE_SYS_NOERROR;
+	if (CAdapter::instance()->faceContrast(request["pic"].asString().c_str()))
+	{
+		return AE_SYS_NOERROR;
+	}
+	return AE_SYS_UNKNOWN_ERROR;
 }
 
 }//Screen

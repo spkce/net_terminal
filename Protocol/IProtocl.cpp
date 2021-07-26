@@ -55,4 +55,13 @@ IProtocl::~IProtocl()
 
 }
 
+/**
+* @brief 获取版本信息
+* @param ver 版本信息
+**/
+void IProtocl::getVersion(std::string & ver)
+{
+	ver = m_version;
+}
+
 }//Screen

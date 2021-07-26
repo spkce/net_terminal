@@ -51,7 +51,23 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 	}
 	else
 	{
-		return handShake(session, buf, len);
+		if (handShake(session, buf, len))
+		{
+			Json::Value send = Json::nullValue;
+			send["msgId"] = IOrder::AE_GET_APP_INFO;
+			send["token"] = m_tokenId;
+		
+			Param_t stParam;
+			stParam.uTokenId = htonl(m_tokenId);
+			stParam.uMsgId = htonl(IOrder::AE_GET_APP_INFO);
+			stParam.uReqIdx = 0;
+			stParam.uEncrypt = 0;
+
+			Info("NetTerminal","send = %s\n", send.toStyledString().c_str());
+
+			return sendPacket(session, &stParam, send.toStyledString().c_str(), send.toStyledString().length());
+		}
+		return false;
 	}
 }
 
@@ -116,70 +132,77 @@ bool CNetProtocl::notify(NetServer::ISession* session, char* buf, int len)
 **/
 bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int len)
 {
-		unsigned int uReqIdx = 0;
-		unsigned int uDateLen = 0;
-		if (!headerCheck(buf, &uReqIdx, &uDateLen))
+	unsigned int uReqIdx = 0;
+	unsigned int uDateLen = 0;
+	if (!headerCheck(buf, &uReqIdx, &uDateLen))
+	{
+		Error("NetTerminal", "header Check err\n");
+		return false;
+	}
+
+	char dataBuf[NET_APP_RECV_SIZE] = {0};
+	int uLen = 0;
+	decrypt(buf + sizeof(struct msgHeader), uDateLen, dataBuf, &uLen);
+	std::string recv = dataBuf;
+	Json::String errs;
+	Json::Value request;
+	Json::CharReaderBuilder readerBuilder;
+	std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
+	bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
+	if (!res || !errs.empty())
+	{
+		Error("NetTerminal", "json parse err:%s\n", errs.c_str());
+		return false;
+	}
+
+	Info("NetTerminal","request = %s\n", request.toStyledString().c_str());
+
+	if (request.isMember("msgId") && request["msgId"].isInt() && request.isMember("token") && request["token"].isInt())
+	{
+		if (request["msgId"].asInt() == IOrder::AE_GET_APP_INFO)
 		{
-			Error("NetTerminal", "header Check err\n");
-			return false;
+			m_version = request["param"]["version"].asString();
+			Trace("NetTerminal", "version:%s\n", m_version.c_str());
+			return true;
 		}
 
-		char dataBuf[NET_APP_RECV_SIZE] = {0};
-		int uLen = 0;
-		decrypt(buf + sizeof(struct msgHeader), uDateLen, dataBuf, &uLen);
-		std::string recv = dataBuf;
-		Json::String errs;
-		Json::Value request;
-		Json::CharReaderBuilder readerBuilder;
-		std::unique_ptr<Json::CharReader> const jsonReader(readerBuilder.newCharReader());
-		bool res = jsonReader->parse(recv.c_str(), recv.c_str() + recv.length(), &request, &errs);
-		if (!res || !errs.empty())
+		Json::Value response = Json::nullValue;
+		Param_t stParam;
+		stParam.uTokenId = (unsigned int)request["token"].asInt();
+		stParam.uMsgId = (unsigned int)request["msgId"].asInt();
+		stParam.uReqIdx = uReqIdx;
+		stParam.uEncrypt = 0;
+
+		if (request["token"].asInt() == m_tokenId)
 		{
-			Error("NetTerminal", "json parse err:%s\n", errs.c_str());
-			return false;
-		}
-	
-		Info("NetTerminal","request = %s\n", request.toStyledString().c_str());
-
-		if (request.isMember("msgId") && request["msgId"].isInt() && request.isMember("token") && request["token"].isInt())
-		{
-			Json::Value response = Json::nullValue;
-			Param_t stParam;
-			stParam.uTokenId = (unsigned int)request["token"].asInt();
-			stParam.uMsgId = (unsigned int)request["msgId"].asInt();
-			stParam.uReqIdx = uReqIdx;
-			stParam.uEncrypt = 0;
-
-			if (request["token"].asInt() == m_tokenId)
-			{
-				msgHub(session, stParam.uMsgId, request, response);
-			}
-			else
-			{
-				response["rval"] = IOrder::AE_SYS_INVALID_TOKEN;
-				response["msgId"] = stParam.uMsgId;
-				response["token"] = stParam.uTokenId;
-				Warning("NetTerminal","invalid token\n");
-			}
-
-			Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
-			std::ostringstream os;
-			Json::StreamWriterBuilder writerBuilder;
-			writerBuilder["indentation"] = "";
-			writerBuilder["emitUTF8"] = true;
-			std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
-			jsonWriter->write(response, &os);
-			std::string reString = os.str();
-			reString += " ";
-
-			//reply(session, &stParam, reString.c_str(), reString.length());
-			return sendPacket(session, &stParam, reString.c_str(), reString.length());
+			msgHub(session, stParam.uMsgId, request, response);
 		}
 		else
 		{
-			Error("NetTerminal", "request format err!\n");
-			return false;
+			response["rval"] = IOrder::AE_SYS_INVALID_TOKEN;
+			response["msgId"] = stParam.uMsgId;
+			response["token"] = stParam.uTokenId;
+			Warning("NetTerminal","invalid token\n");
 		}
+
+		Info("NetTerminal","response = %s\n", response.toStyledString().c_str());
+		std::ostringstream os;
+		Json::StreamWriterBuilder writerBuilder;
+		writerBuilder["indentation"] = "";
+		writerBuilder["emitUTF8"] = true;
+		std::unique_ptr<Json::StreamWriter> const jsonWriter(writerBuilder.newStreamWriter());
+		jsonWriter->write(response, &os);
+		std::string reString = os.str();
+		reString += " ";
+
+		//reply(session, &stParam, reString.c_str(), reString.length());
+		return sendPacket(session, &stParam, reString.c_str(), reString.length());
+	}
+	else
+	{
+		Error("NetTerminal", "request format err!\n");
+		return false;
+	}
 }
 
 /**
@@ -247,6 +270,7 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 **/
 bool CNetProtocl::logout(NetServer::ISession* session)
 {
+	m_version.clear();
 	session->logout();
 
 	return m_pTerminal->disconnet(session, emProtocl_hk);
@@ -440,7 +464,7 @@ bool CNetProtocl::reply(NetServer::ISession* session, Param_t* param, const char
 	unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
 	char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
 
-	if (buf == NULL || len <= 0)
+	if (param == NULL || buf == NULL || len <= 0)
 	{
 		return false;
 	}
@@ -488,7 +512,7 @@ bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const
 	//unsigned char sAesOut[AES_MAX_OUT_LEN] = {0};
 	//char sendbuf[AES_MAX_OUT_LEN_BASE64] = {0};
 
-	if (buf == NULL || len <= 0)
+	if (param == NULL || buf == NULL || len <= 0)
 	{
 		return false;
 	}
@@ -506,6 +530,7 @@ bool CNetProtocl::sendPacket(NetServer::ISession* session, Param_t* param, const
 	{
 		delete[] sAesOut;
 		delete[] sendbuf;
+		Error("NetTerminal", "encrypt fail\n");
 		return false;
 	}
 

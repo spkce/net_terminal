@@ -15,8 +15,8 @@ extern "C" {
 #define CAM_MAX 8
 #define CERTIFY_MAX_LEN 256
 #define MAX_POLYGON_VERTEX_NUM 30		/*最大多边形顶点数目*/
-#define MAX_INFLECTION_POINT_NUM 20		/*最大拐点数目*/
-
+#define MAX_INFLECTION_POINT_NUM 50		/*最大拐点数目*/
+#define MAX_AREA_NUM 50					/*最大区域数目*/
 /**
  * @brief 获取设备信息
  */
@@ -107,22 +107,33 @@ typedef struct tagWarnInfo
 
 typedef struct tagFaceInfo
 {
-	int faceID;
-	char name[FACE_NAME_LEN];
-	char identityID[FACE_IDENTITY_LEN];
-	char path[PATH_MAX_LEN];
-	char license[FACE_LICENSE_LEN];
+	int faceID;							/*人脸ID*/
+	char name[FACE_NAME_LEN];			/*姓名*/
+	char identityID[FACE_IDENTITY_LEN];	/*身份证*/
+	char path[PATH_MAX_LEN];			/*人脸路径*/
+	char license[FACE_LICENSE_LEN];		/*许可证号*/
 }FACE_INFO_T, *PFACE_INFO_T;
 
-typedef struct tagADASAlarm
+typedef struct tagAlarm
 {
 	int detailType;
 	int channel;
-	int result;
+	char stime[NET_APP_DATE_LEN];
 	char picName[PATH_MAX_LEN];
-	char vIdeoName[PATH_MAX_LEN];
-	
-}ADAS_INFO_T,PADAS_INFO_T;
+	char videoName[PATH_MAX_LEN];
+}ALARM_INFO_T,*PALARM_INFO_T;
+
+typedef struct tagPeriheralState
+{
+	int state;
+	char deviceName[CONTENT_MAX_LEN];
+}PERI_STATE_T, *PPERI_STATE_T;
+
+typedef struct tagVehicleNotify
+{
+	int state;
+}VEHICLE_NOTIFY_T, *PVEHICLE_NOTIFY_T;
+
 typedef struct tagPhotoTaken
 {
 	int type;
@@ -132,14 +143,35 @@ typedef struct tagPhotoTaken
 	char path[PATH_MAX_LEN];
 	char thmPath[PATH_MAX_LEN];
 	char startTime[NET_APP_DATE_LEN];
-}PHOTO_TAKEN_T,PPHOTO_TAKEN_T;
+}PHOTO_TAKEN_T, *PPHOTO_TAKEN_T;
+
+typedef struct tagfaceContrast
+{
+	int result;
+	unsigned int similarity;
+}FACE_CONTRAST_T, *PFACE_CONTRAST_T;
+
+typedef struct tagUpgradeReq
+{
+	char* url;
+}UPGRADE_REQ_T, *PUPGRADE_REQ_T;
+
+typedef struct tagGear
+{
+	unsigned int gear;
+}GEAR_T, *PGEAR_T;
 
 typedef struct tagNotification
 {
 	char type[32];
 	union {
-		ADAS_INFO_T adasAlarm;
+		ALARM_INFO_T alarm;
+		PERI_STATE_T peripheral;
+		VEHICLE_NOTIFY_T vehicle;
 		PHOTO_TAKEN_T photoTaken;
+		FACE_CONTRAST_T faceResult;
+		UPGRADE_REQ_T upgrade;
+		GEAR_T gear;
 	};
 }NOTIFICATION_T, *PNOTIFICATION_T;
 
@@ -191,15 +223,15 @@ typedef struct tagRectArea
 
 typedef struct tagPolygonArea
 {
-	unsigned int num;
 	GPS_POINT vertex[MAX_POLYGON_VERTEX_NUM];
+	unsigned int num;
 }POLYGON_AREA_T, *PPOLYGON_AREA_T;
 
 typedef struct tagRouteArea
 {
-	unsigned int width;
-	unsigned int num;
 	GPS_POINT inflctPoint[MAX_INFLECTION_POINT_NUM];
+	unsigned int width[MAX_INFLECTION_POINT_NUM];
+	unsigned int num;
 }ROUTE_AREA_T, *PROUTE_AREA_T;
 
 typedef struct tagArea
@@ -223,10 +255,17 @@ typedef struct tagArea
 	unsigned int id;			/*区域ID*/
 	unsigned int property;		/*区域属性*/
 	unsigned int type;			/*区域类型*/
-	unsigned int operate;		/*操作*/
+	
 	char startTime[NET_APP_DATE_LEN];
 	char endTime[NET_APP_DATE_LEN];
 }AREA_T, *PAREA_T;
+
+typedef struct tagAreaInfo
+{
+	int operate;		/*操作*/
+	unsigned int areaNum; /*区域数量*/
+	AREA_T area[MAX_AREA_NUM];
+}AREA_INFO_T, *PAREA_INFO_T;
 
 /*外部接口函数*/
 typedef struct tagAdapterFunc
@@ -241,12 +280,14 @@ typedef struct tagAdapterFunc
 	int (*get_face_total_number)(void);
 	int (*get_face_info)(int index, PFACE_INFO_T pInfo);
 	int (*set_face_info)(int index, PFACE_INFO_T pInfo);
+	int (*faceContrast)(const char* pic);
 	int (*take_photo)(int channel, int type);
 	int (*checkSelf)(void);
 	int (*get_ceritfy_Num)(void);
 	int (*get_ceritfy)(unsigned int id, PCERITFY_T pCeritfy);
 	int (*get_area_Num)(void);
 	int (*get_area)(unsigned int id, PAREA_T pArea);
+	int (*upgrade_result)(unsigned int result, unsigned int progress);
 }ADAPTER_T, *PADAPTER_T;
 
 
@@ -260,6 +301,29 @@ void net_termianl_init();
  * @return 适配器指针
  */
 PADAPTER_T net_terminal_adapter_get();
+
+/**
+ * @brief 获取适配器指针
+ * @param mod 模块名字
+ * @param level 等级 4:关闭，3:所有等级 2:trace及以上 1:warning及以上 0:error
+ * @return 成功：返回true；失败：返回false
+ */
+int net_terminal_debug_set(const char* mod, int level);
+
+/**
+ * @brief 获取版本信息
+ * @param buf 缓冲区 
+ * @param len 消息缓长度
+ * @return 成功：返回true；失败：返回false
+ */
+int net_terminal_get_version(char* buf, unsigned int len);
+
+/**
+ * @brief 升级包是否合法
+ * @param url 升级包路径 
+ * @return 成功：返回true；失败：返回false
+ */
+int net_terminal_upgrade_check(const char* url);
 
 /**
  * @brief 消息推送
@@ -276,6 +340,56 @@ int net_terminal_notify(char* buf, int len);
  * @return 成功：返回true；失败：返回false
  */
 int net_terminal_pushGPS(char* buf, int len);
+
+/**
+ * @brief 人脸对比结果发送
+ * @param result 对比结果
+ * @param similarity 相似度
+ * @return 成功：返回true；失败：返回false
+ */
+void net_terminal_face_contrast_result(int result, unsigned int similarity);
+
+/**
+ * @brief 设置圆形电子围栏
+ * @param operate :操作
+ * @param p :电子围栏信息
+ * @return 成功，返回true；失败，返回false
+ */
+int net_terminal_circle_area_set(int operate, void* p);
+
+/**
+ * @brief 设置矩形电子围栏
+ * @param operate :操作
+ * @param p :电子围栏信息
+ * @return 成功，返回true；失败，返回false
+ */
+int net_terminal_rect_area_set(int operate, void* p);
+
+/**
+ * @brief 设置多边形电子围栏
+ * @param operate :操作
+ * @param p :电子围栏信息
+ * @return 成功，返回true；失败，返回Efalse
+ */
+int net_terminal_polygon_area_set(int operate, void* p);
+
+/**
+ * @brief 设置路线
+ * @param operate :操作
+ * @param p :路线信息
+ * @return 成功，返回true；失败，返回false
+ */
+int net_terminal_line_area_set(int operate, void* p);
+
+/**
+ * @brief 删除电子围栏
+ * @param type :电子围栏属性
+ * @param total :删除总数
+ * @param pId :删除ID列表
+ * @return 成功，返回true；失败，返回false
+ */
+int net_terminal_area_delete(int type, unsigned int total, unsigned int * pId);
+
 
 #ifdef __cplusplus
 }

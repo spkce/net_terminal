@@ -60,6 +60,9 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_SET_FACE_INFO:
 			res = COrderFace::setFaceInfo(reqParam, resParam);
 			break;
+		case AE_FACE_CONTRAST:
+			res = COrderFace::faceContrast(reqParam, resParam);
+			break;
 		case AE_TAKE_PHOTO:
 			res = COrderMedia::takePhoto(reqParam, resParam);
 			break;
@@ -102,7 +105,7 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 bool IOrder::notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send)
 {
 	int res = AE_SYS_NOERROR;
-	if (msgID == 601)
+	if (msgID == AE_NOTIFICATION)
 	{
 		res = CPushNotification::notification(buf, len, send);
 	}
@@ -118,7 +121,19 @@ bool IOrder::notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send
 				res = CPushNotification::sendCheckInfo(buf, len, param);
 				break;
 			case AE_SEND_CLIENT_MESSAGE:
-				res = CPushNotification::sendCheckInfo(buf, len, param);
+				res = CPushNotification::sendClientMessage(buf, len, param);
+				break;
+			case AE_SEND_LICENSE:
+				res = CPushNotification::sendLicense(buf, len, param);
+				break;
+			case AE_SEND_AREA_INFO:
+				res = CPushNotification::sendArea(buf, len, param);
+				break;
+			case AE_CLEAR_ALL_AREA_INFO:
+				res = CPushNotification::sendClearArea(buf, len, param);
+				break;
+			default:
+				res = AE_SYS_UNKNOWN_ERROR;
 				break;
 		}
 	}

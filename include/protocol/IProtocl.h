@@ -1,6 +1,8 @@
 #ifndef __I_PROTOCL_H__
 #define __I_PROTOCL_H__
 
+#include <string>
+
 namespace NetServer {
 	class ISession;
 }
@@ -64,6 +66,14 @@ public:
 	* @return 成功/失败
 	**/
 	virtual bool notify(NetServer::ISession* session, char* buf, int len) = 0;
+	/**
+	* @brief 获取版本信息
+	* @param ver 版本信息
+	**/
+	void getVersion(std::string & ver);
+
+protected:
+	std::string m_version;
 };
 
 

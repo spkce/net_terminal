@@ -164,6 +164,21 @@ bool CScreen::disconnet(ISession* session, int type)
 }
 
 /**
+* @brief 获取版本信息
+* @param ver 版本信息
+* @return 成功/失败
+**/
+bool CScreen::getVersion(std::string & ver)
+{
+	if (m_mainSession != NULL && m_mainSession->getState() == ISession::emStateLogin)
+	{
+		m_protocl->getVersion(ver);
+		return true;
+	}
+	return false;
+}
+
+/**
 * @brief 消息推送
 * @param buf 消息内容
 * @param len 消息长度

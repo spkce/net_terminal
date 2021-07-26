@@ -23,9 +23,11 @@ using WarnInfo_t = WARN_INFO_T;
 using PtrWarnInfo_t = PWARN_INFO_T;
 using FaceInfo_t = FACE_INFO_T;
 using PtrFaceInfo_t = PFACE_INFO_T;
-using AadaAlarm_t = ADAS_INFO_T;
-using PtrAadaAlarm_t = PADAS_INFO_T;
+using AlarmInfo_t = ALARM_INFO_T;
+using PtrAlarmInfo_t = PALARM_INFO_T;
 using PhotoTaken_t = PHOTO_TAKEN_T;
+using FaceContrast_t = FACE_CONTRAST_T;
+using PtrFaceContrast_t = PFACE_CONTRAST_T;
 using PtrPhotoTaken_t = PPHOTO_TAKEN_T;
 using Notification_t = NOTIFICATION_T;
 using PtrNotification_t = PNOTIFICATION_T;
@@ -47,6 +49,8 @@ using RouteArea_t = ROUTE_AREA_T;
 using PtrRouteArea_t = PROUTE_AREA_T;
 using Area_t = AREA_T;
 using PtrArea_t = PAREA_T;
+using AreaInfo_t = AREA_INFO_T;
+using PtrAreaInfo_t = PAREA_INFO_T;
 
 using AdptrFun_t = ADAPTER_T;
 using PtrAdptrFun_t = ADAPTER_T;
@@ -69,12 +73,15 @@ public:
 	int getFaceNum();
 	bool getFaceInfo(int index, FaceInfo_t* pInfo);
 	bool setFaceInfo(int index, FaceInfo_t* pInfo);
+	bool faceContrast(const char* pic);
 	bool takePhoto(int channel, int type);
 	bool checkSelf();
 	int getCeritfyNum();
 	bool getCeritfy(unsigned int id, Ceritfy_t* pCeritfy);
 	int getAreaNum();
 	bool getArea(unsigned int id, Area_t* pArea);
+	bool upgradeResult(unsigned int result, unsigned int progress);
+
 private:
 	AdptrFun_t m_adapter;
 };
