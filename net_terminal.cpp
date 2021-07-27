@@ -49,6 +49,25 @@ PADAPTER_T net_terminal_adapter_get()
 }
 
 /**
+ * @brief 获取安卓屏连接状态
+ * @return 在线：true；离线：false
+ */
+int net_termianl_is_inline()
+{
+	if (g_pScreen == NULL)
+	{
+		return false;
+	}
+
+	if (g_pScreen->getState() == Terminal::ITerminal::emInline)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * @brief 获取适配器指针
  * @param mod 模块名字
  * @param level 等级 4:关闭，3:所有等级 2:trace及以上 1:warning及以上 0:error
@@ -126,7 +145,7 @@ int net_terminal_upgrade_check(const char* url)
 
 	std::string urlStr(url);
 	std::string filename = urlStr.substr(urlStr.find_last_of('/') + 1);
-	printf("\033[35m""filename = %s""\033[0m\n", filename.c_str());
+	Trace("NetTerminal", "filename = %s\n", filename.c_str());
 
 	if (filename.find("update") != filename.npos)
 	{

@@ -75,6 +75,9 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_START_SELF_CHECKING:
 			res = COrderSysterm::checkSelf(reqParam, resParam);
 			break;
+		case AE_SEND_APP_INFO:
+			res = COrderNotify::sendVersion(reqParam, resParam);
+			break;
 		case AE_GET_AREA_INFO:
 			res = COrderSysterm::getAreaInfo(reqParam, resParam);
 			break;

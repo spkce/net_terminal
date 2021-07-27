@@ -14,6 +14,7 @@ public:
 
 	static int sendTouchInfo(Json::Value &request, Json::Value &response);
 	static int sendUpgradeResult(Json::Value &request, Json::Value &response);
+	static int sendVersion(Json::Value &request, Json::Value &response);
 };
 
 }//Screen

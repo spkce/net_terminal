@@ -303,6 +303,12 @@ void net_termianl_init();
 PADAPTER_T net_terminal_adapter_get();
 
 /**
+ * @brief 获取安卓屏连接状态
+ * @return 在线：true；离线：false
+ */
+int net_termianl_is_inline();
+
+/**
  * @brief 获取适配器指针
  * @param mod 模块名字
  * @param level 等级 4:关闭，3:所有等级 2:trace及以上 1:warning及以上 0:error

@@ -51,23 +51,7 @@ bool CNetProtocl::parse(ISession * session, char* buf, int len)
 	}
 	else
 	{
-		if (handShake(session, buf, len))
-		{
-			Json::Value send = Json::nullValue;
-			send["msgId"] = IOrder::AE_GET_APP_INFO;
-			send["token"] = m_tokenId;
-		
-			Param_t stParam;
-			stParam.uTokenId = htonl(m_tokenId);
-			stParam.uMsgId = htonl(IOrder::AE_GET_APP_INFO);
-			stParam.uReqIdx = 0;
-			stParam.uEncrypt = 0;
-
-			Info("NetTerminal","send = %s\n", send.toStyledString().c_str());
-
-			return sendPacket(session, &stParam, send.toStyledString().c_str(), send.toStyledString().length());
-		}
-		return false;
+		return handShake(session, buf, len);
 	}
 }
 
@@ -159,19 +143,18 @@ bool CNetProtocl::messageProcess(NetServer::ISession* session, char* buf, int le
 
 	if (request.isMember("msgId") && request["msgId"].isInt() && request.isMember("token") && request["token"].isInt())
 	{
-		if (request["msgId"].asInt() == IOrder::AE_GET_APP_INFO)
-		{
-			m_version = request["param"]["version"].asString();
-			Trace("NetTerminal", "version:%s\n", m_version.c_str());
-			return true;
-		}
-
 		Json::Value response = Json::nullValue;
 		Param_t stParam;
 		stParam.uTokenId = (unsigned int)request["token"].asInt();
 		stParam.uMsgId = (unsigned int)request["msgId"].asInt();
 		stParam.uReqIdx = uReqIdx;
 		stParam.uEncrypt = 0;
+
+		if (stParam.uMsgId == IOrder::AE_SEND_APP_INFO)
+		{
+			m_version = request["param"]["version"].asString();
+			Trace("NetTerminal", "version:%s\n", m_version.c_str());
+		}
 
 		if (request["token"].asInt() == m_tokenId)
 		{

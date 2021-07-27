@@ -17,6 +17,12 @@ public:
 		emTerminalScree,
 	}Terminal_t;
 
+	enum
+	{
+		emInline,
+		emOffline,
+	};
+
 protected:
 	ITerminal();
 	virtual ~ITerminal();
@@ -25,6 +31,8 @@ public:
 	static ITerminal* createTerminal(Terminal_t type);
 
 	virtual bool init() = 0;
+
+	virtual int getState() = 0;
 
 	virtual bool connect(NetServer::ISession* session, int type) = 0;
 

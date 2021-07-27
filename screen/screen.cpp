@@ -59,6 +59,21 @@ bool CScreen::init()
 }
 
 /**
+* @brief 获取状态
+* @return 状态
+**/
+int CScreen::getState()
+{
+	//只判断主连接
+	if (m_mainSession != NULL && m_mainSession->getState() == ISession::emStateLogin)
+	{
+		return ITerminal::emInline;
+	}
+
+	return ITerminal::emOffline;
+}
+
+/**
 * @brief session 连接
 * @param session 会话指针
 * @param type 协议类型

@@ -82,4 +82,14 @@ int COrderNotify::sendUpgradeResult(Json::Value &request, Json::Value &response)
 	return AE_SYS_UNKNOWN_ERROR;
 }
 
+int COrderNotify::sendVersion(Json::Value &request, Json::Value &response)
+{
+	//AE_SEND_APP_INFO
+	if (!request.isMember("version") || !request["version"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+	return AE_SYS_NOERROR;
+}
+
 }//Screen

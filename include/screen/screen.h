@@ -35,6 +35,12 @@ public:
 	virtual bool init();
 
 	/**
+	* @brief 获取状态
+	* @return 状态
+	**/
+	virtual int getState();
+
+	/**
 	* @brief session 连接
 	* @param session 会话指针
 	* @param type 协议类型
