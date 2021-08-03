@@ -247,7 +247,7 @@ bool CSession::unbind()
 	m_sendThread.stop(true);
 	m_proc.unbind();
 	
-	if (m_timer.isRun())
+	if (m_timeout > 0 && m_timer.isRun())
 	{
 		m_timer.stop();
 	}
@@ -400,6 +400,13 @@ int CSession::send(const char* buf, int len)
 		else
 		{
 			Error("NetTerminal","send err : %s\n", strerror(errno));
+			if (m_timeout == -1)
+			{
+				//无超时的session，发送失败便关闭连接
+				//有超时的session， 由定时器关闭
+				close();
+			}
+
 			return -1;
 		}
 	}

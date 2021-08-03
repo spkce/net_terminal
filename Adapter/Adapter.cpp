@@ -188,3 +188,23 @@ bool CAdapter::upgradeResult(unsigned int result, unsigned int progress)
 
 	return m_adapter.upgrade_result(result, progress) == 0;
 }
+
+void* CAdapter::getFileList(unsigned int type, FileCriteria_t* pCriteria, unsigned int* pNum)
+{
+	if (m_adapter.file_list_get == NULL || pCriteria == NULL || pNum == NULL)
+	{
+		return NULL;
+	}
+
+	return m_adapter.file_list_get(type, pCriteria, pNum);
+}
+
+bool CAdapter::searchFileNext(int reverse, void *pHandle, FileInfo_t* pFileInfo)
+{
+	if (m_adapter.search_file_next == NULL || pHandle == NULL || pFileInfo == NULL)
+	{
+		return false;
+	}
+
+	return m_adapter.search_file_next(reverse, pHandle, pFileInfo) == 0;
+}

@@ -267,6 +267,25 @@ typedef struct tagAreaInfo
 	AREA_T area[MAX_AREA_NUM];
 }AREA_INFO_T, *PAREA_INFO_T;
 
+typedef struct tagFileCriteria
+{
+	int type;	/*录像类型。0-普通录像，1-紧急录像，2-手动录像(平台下发)，3-告警录像，9-全部录像(包括0,1,2,3)*/
+	int channel;/*通道号，从0开始*/
+	char startTime[NET_APP_DATE_LEN];
+	char stopTime[NET_APP_DATE_LEN];
+}FILE_CRITERIA_T, *PFILE_CRITERIA_T;
+
+typedef struct tagFileInfo
+{
+	int lockState;
+	unsigned int duration;
+	unsigned int size;
+	unsigned char type;
+	char name[CONTENT_MAX_LEN];
+	char startTime[NET_APP_DATE_LEN];
+	
+}FILE_INFO_T, *PFILE_INFO_T;
+
 /*外部接口函数*/
 typedef struct tagAdapterFunc
 {
@@ -288,6 +307,8 @@ typedef struct tagAdapterFunc
 	int (*get_area_Num)(void);
 	int (*get_area)(unsigned int id, PAREA_T pArea);
 	int (*upgrade_result)(unsigned int result, unsigned int progress);
+	void* (*file_list_get)(unsigned int type, PFILE_CRITERIA_T pCriteria, unsigned int* num);
+	int (*search_file_next)(int reverse, void *h, PFILE_INFO_T pFileInfo);
 }ADAPTER_T, *PADAPTER_T;
 
 

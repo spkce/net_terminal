@@ -115,4 +115,88 @@ int COrderMedia::takePhoto(Json::Value &request, Json::Value &response)
 	return AE_SYS_UNKNOWN_ERROR;
 }
 
+int COrderMedia::getVideoFileList(Json::Value &request, Json::Value &response)
+{
+	//AE_GET_VIDEO_FILE_LIST
+	if (!request.isMember("index") || !request["index"].isUInt()
+		|| !request.isMember("type") || !request["type"].isInt()
+		|| !request.isMember("chanNo") || !request["chanNo"].isInt()
+		|| !request.isMember("pageSize") || !request["pageSize"].isUInt()
+		|| !request.isMember("order") || !request["order"].isInt()
+		|| !request.isMember("startTime") || !request["startTime"].isString()
+		|| !request.isMember("stopTime") || !request["stopTime"].isString())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	FileCriteria_t fileCriteria = {0};
+	fileCriteria.type = request["type"].asInt();
+	fileCriteria.channel = request["chanNo"].asInt();
+	strncpy(fileCriteria.startTime, request["startTime"].asCString(), sizeof(fileCriteria.startTime));
+	strncpy(fileCriteria.stopTime, request["stopTime"].asCString(), sizeof(fileCriteria.stopTime));
+	unsigned int fileNume = 0;
+
+	void* pHandle = CAdapter::instance()->getFileList(0, &fileCriteria, &fileNume);
+	if (pHandle == NULL)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	const size_t index = request["index"].asUInt();
+	const size_t pageSize = request["pageSize"].asUInt();
+	const int reverse =  request["order"].asInt();
+
+	response["index"] = index;
+
+	for (size_t i = 0; i < fileNume; i++)
+	{
+		if (i < index)
+		{
+			FileInfo_t fileInfo = {0};
+			if (CAdapter::instance()->searchFileNext(reverse, pHandle, &fileInfo))
+			{
+				return AE_SYS_UNKNOWN_ERROR;
+			}
+		}
+		else if (i < index + pageSize)
+		{
+			Json::Value info = Json::nullValue;
+			FileInfo_t fileInfo = {0};
+			if (CAdapter::instance()->searchFileNext(reverse, pHandle, &fileInfo))
+			{
+				return AE_SYS_UNKNOWN_ERROR;
+			}
+			
+			std::string fileName(fileInfo.name);
+			std::string thumbnail = fileName;
+			std::string gps = fileName;
+			thumbnail.replace(thumbnail.find_last_of('.') + 1, thumbnail.length() - thumbnail.find_last_of('.'), "thm");
+			gps.replace(gps.find_last_of('.') + 1, gps.length() - gps.find_last_of('.'), "txt");
+
+			info["type"] = fileCriteria.type;
+			info["chanNo"] = fileCriteria.channel;
+			info["lock"] = fileInfo.lockState;
+			info["fileSize"] = fileInfo.size;
+			info["duration"] = fileInfo.duration;
+			info["startTime"] = std::string(fileInfo.startTime);
+			info["name"] = fileName;
+			info["startLon"] = 0;
+			info["startLat"] = 0;
+		
+			info["thumbnail"] = thumbnail;
+			info["gps"] = gps;
+			response["listing"].append(info);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	
+	response["totalFileNum"] = response["listing"].size();
+
+	return AE_SYS_NOERROR;
+}
+
 }//Screen

@@ -134,7 +134,7 @@ bool CMediaProtocl::notify(NetServer::ISession* session, char* buf, int len)
 	pResHdr->packetSzie = htonl(copyLen);
 
 	copyLen += sizeof(MediaResHder);
-	return sendPacket(session, sendDate, copyLen);
+	return reply(session, sendDate, copyLen);
 }
 
 /**

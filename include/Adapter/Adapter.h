@@ -51,6 +51,10 @@ using Area_t = AREA_T;
 using PtrArea_t = PAREA_T;
 using AreaInfo_t = AREA_INFO_T;
 using PtrAreaInfo_t = PAREA_INFO_T;
+using FileCriteria_t = FILE_CRITERIA_T;
+using PtrFileCriteria_t = PFILE_CRITERIA_T;
+using FileInfo_t = FILE_INFO_T;
+using PtrFileInfo_t = PFILE_INFO_T;
 
 using AdptrFun_t = ADAPTER_T;
 using PtrAdptrFun_t = ADAPTER_T;
@@ -81,6 +85,8 @@ public:
 	int getAreaNum();
 	bool getArea(unsigned int id, Area_t* pArea);
 	bool upgradeResult(unsigned int result, unsigned int progress);
+	void* getFileList(unsigned int type, FileCriteria_t* pCriteria, unsigned int* pNum);
+	bool searchFileNext(int reverse, void *pHandle, FileInfo_t* pFileInfo);
 
 private:
 	AdptrFun_t m_adapter;

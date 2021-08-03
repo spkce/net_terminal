@@ -81,7 +81,12 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_GET_AREA_INFO:
 			res = COrderSysterm::getAreaInfo(reqParam, resParam);
 			break;
-			
+		case AE_SEND_UPGRADE_RESULT:
+			res = COrderNotify::sendUpgradeResult(reqParam, resParam);
+			break;
+		case AE_GET_VIDEO_FILE_LIST:
+			res = COrderMedia::getVideoFileList(reqParam, resParam);
+			break;
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;
 			break;

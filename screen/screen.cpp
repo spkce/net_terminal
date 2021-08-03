@@ -276,7 +276,7 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 **/
 void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 {
-	if (m_gpsSession != NULL)
+	if (m_gpsSession != NULL && m_gpsSession->getState() == ISession::emStateLogin)
 	{
 		Warning("NetTerminal", "Gps Session was registered !\n");
 		return;
