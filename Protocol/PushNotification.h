@@ -57,6 +57,7 @@ public:
 	**/
 	static int sendLicense(char* buf, int len, Json::Value &send);
 
+#ifdef CONFIG_FENCE
 	/**
 	* @brief 电子围栏通知
 	* @param buf 推送内容
@@ -74,6 +75,16 @@ public:
 	* @return 错误码
 	**/
 	static int sendClearArea(char* buf, int len, Json::Value &send);
+#endif
+
+	/**
+	* @brief 发送日志上传命令
+	* @param buf 推送内容
+	* @param len 推送内容
+	* @param send 推送报文
+	* @return 错误码
+	**/
+	static int sendLogUpload(char* buf, int len, Json::Value &send);
 };
 
 }//Screen

@@ -4,6 +4,9 @@
 #include "thread.h"
 #include "terminal.h"
 #include "MsgQueue.h"
+#ifdef CONFIG_FENCE
+#include "FenceManager.h"
+#endif
 
 struct sockaddr_in;
 
@@ -81,8 +84,9 @@ public:
 	* @brief 服务器回调函数
 	* @param sockfd 套接字句柄
 	* @param addr 对端套接字地址
+	* @return 成功：true；失败：false
 	**/
-	void serverTask(int sockfd, struct sockaddr_in* addr);
+	bool serverTask(int sockfd, struct sockaddr_in* addr);
 	
 	/**
 	* @brief 会话回调函数
@@ -96,8 +100,9 @@ public:
 	* @brief GPS务器回调函数
 	* @param sockfd 套接字句柄
 	* @param addr 对端套接字地址
+	* @return 成功：true；失败：false
 	**/
-	void servGpsTask(int sockfd, struct sockaddr_in* addr);
+	bool servGpsTask(int sockfd, struct sockaddr_in* addr);
 	
 	/**
 	* @brief 会话回调函数
@@ -106,6 +111,16 @@ public:
 	* @param len 消息长度
 	**/
 	void pushGpsTask(NetServer::ISession* session, char* buf, int len);
+
+#ifdef CONFIG_FENCE
+	/**
+	* @brief 围栏信息回调函数
+	* @param session 会话指针
+	* @param buf 消息内容
+	* @param len 消息长度
+	**/
+	void fenceTask(int event, int param1, int param2, void* p);
+#endif
 
 private:
 #define PORT_MAIN 7877

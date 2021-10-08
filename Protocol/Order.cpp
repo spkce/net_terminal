@@ -78,14 +78,22 @@ bool IOrder::orderHub(unsigned int msgID, Json::Value &request, Json::Value &res
 		case AE_SEND_APP_INFO:
 			res = COrderNotify::sendVersion(reqParam, resParam);
 			break;
+#ifdef CONFIG_FENCE
 		case AE_GET_AREA_INFO:
 			res = COrderSysterm::getAreaInfo(reqParam, resParam);
+#endif
 			break;
 		case AE_SEND_UPGRADE_RESULT:
 			res = COrderNotify::sendUpgradeResult(reqParam, resParam);
 			break;
 		case AE_GET_VIDEO_FILE_LIST:
 			res = COrderMedia::getVideoFileList(reqParam, resParam);
+			break;
+		case AE_GET_IMAGE_FILE_LIST:
+			res = COrderMedia::getImageFileList(reqParam, resParam);
+			break;
+		case AE_GET_STRING_MAP:
+			res = COrderMedia::getStringFile(reqParam, resParam);
 			break;
 		default:
 			res = AE_SYS_UNKNOWN_ERROR;
@@ -134,11 +142,16 @@ bool IOrder::notifyHub(unsigned int msgID, char* buf, int len, Json::Value &send
 			case AE_SEND_LICENSE:
 				res = CPushNotification::sendLicense(buf, len, param);
 				break;
+#ifdef CONFIG_FENCE
 			case AE_SEND_AREA_INFO:
 				res = CPushNotification::sendArea(buf, len, param);
 				break;
 			case AE_CLEAR_ALL_AREA_INFO:
 				res = CPushNotification::sendClearArea(buf, len, param);
+				break;
+#endif
+			case AE_SEND_LOG_UPLOAD:
+				res = CPushNotification::sendLogUpload(buf, len, param);
 				break;
 			default:
 				res = AE_SYS_UNKNOWN_ERROR;

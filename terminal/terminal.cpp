@@ -5,7 +5,8 @@
 namespace Terminal
 {
 
-ITerminal::ITerminal()
+ITerminal::ITerminal(Terminal_t type)
+:m_type(type)
 {
 }
 

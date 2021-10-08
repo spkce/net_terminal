@@ -7,6 +7,8 @@
 #include "IProtocl.h"
 #include "Log.h"
 #include "ctime.h"
+#include "Adapter.h"
+#include "Order.h"
 
 using namespace std;
 using namespace Terminal;
@@ -18,7 +20,8 @@ namespace Screen
 * @brief 构造函数
 **/
 CScreen::CScreen()
-:m_maxSession(MAX_SESSION_MAIN)
+:ITerminal::ITerminal(ITerminal::emTerminalScree)
+,m_maxSession(MAX_SESSION_MAIN)
 ,m_maxGpsSession(MAX_SESSION_GPS)
 ,m_portMain(PORT_MAIN)
 ,m_portGps(PORT_GPS)
@@ -27,7 +30,6 @@ CScreen::CScreen()
 ,m_gpsSession(NULL)
 ,m_mainSession(NULL)
 {
-	m_type = ITerminal::emTerminalScree;
 	m_protocl = IProtocl::createInstance(IProtocl::emProtocl_hk, this);
 	m_protoclGps = IProtocl::createInstance(IProtocl::emProtocl_media, this);
 }
@@ -37,6 +39,10 @@ CScreen::CScreen()
 **/
 CScreen::~CScreen()
 {
+#ifdef CONFIG_FENCE
+	Fence::CFenceManager::instance()->detach(Fence::CFenceManager::Observer_t(&CScreen::fenceTask, this));
+#endif
+
 	m_pServGps->stop();
 	m_pServMain->stop();
 	IProtocl::cancelInstance(m_protocl);
@@ -55,6 +61,9 @@ bool CScreen::init()
 
 	m_pServGps = INetServer::create(m_portGps, INetServer::emTCPServer);
 	m_pServGps->attach(INetServer::ServerProc_t(&CScreen::servGpsTask, this));
+#ifdef CONFIG_FENCE
+	Fence::CFenceManager::instance()->attach(Fence::CFenceManager::Observer_t(&CScreen::fenceTask, this));
+#endif
 	return true;
 }
 
@@ -83,19 +92,17 @@ bool CScreen::connect(ISession* session, int type)
 {
 	if (session == NULL)
 	{
+		Error("NetTerminal", "input session null !!!\n");
 		return false;
 	}
 
 	if (type == IProtocl::emProtocl_hk)
 	{
-		if (m_mainSession == NULL || m_mainSession->getState() != ISession::emStateLogin)
+		if (CSessionManager::instance()->getState(m_mainSession) != ISession::emStateLogin)
 		{
-			if (m_mainSession != NULL)
-			{
-				m_mainSession->close();
-			}
-
+			CSessionManager::instance()->cancelSession(m_mainSession);
 			m_mainSession = session;
+
 			if (!m_pServGps->isRun())
 			{
 				Trace("NetTerminal", "GPS Server run\n");
@@ -103,25 +110,27 @@ bool CScreen::connect(ISession* session, int type)
 			}
 			return true;
 		}
+		Error("NetTerminal", "main session is login!!!\n");
 	}
 	else if (type == IProtocl::emProtocl_media)
 	{
-		if (m_mainSession == NULL || m_mainSession->getState() != ISession::emStateLogin)
+		if (CSessionManager::instance()->getState(m_mainSession) != ISession::emStateLogin)
 		{
 			Error("NetTerminal", "main session need connect first!\n");
+			CSessionManager::instance()->cancelSession(session);
 			return false;
 		}
 
-		if (m_gpsSession == NULL || m_gpsSession->getState() != ISession::emStateLogin)
+		if (CSessionManager::instance()->getState(m_gpsSession) != ISession::emStateLogin)
 		{
 			Trace("NetTerminal", "GPS session connect\n");
-			if (m_gpsSession != NULL)
-			{
-				m_gpsSession->close();
-			}
-
 			m_gpsSession = session;
 			return true;
+		}
+		else
+		{
+			Trace("NetTerminal", "GPS session already connect\n");
+			CSessionManager::instance()->cancelSession(session);
 		}
 	}
 	
@@ -150,17 +159,15 @@ bool CScreen::disconnet(ISession* session, int type)
 		}
 
 		Trace("NetTerminal", "main session disconnet\n");
-		m_mainSession->close();
+		CSessionManager::instance()->cancelSession(m_mainSession);
 		m_mainSession = NULL;
 
 		if (m_pServGps->isRun())
 		{
 			m_pServGps->stop();
 			Trace("NetTerminal", "GPS Server stop\n");
-			if (m_gpsSession != NULL)
-			{
-				m_gpsSession->close();
-			}
+			CSessionManager::instance()->cancelSession(m_gpsSession);
+			m_gpsSession = NULL;
 		}
 		return true;
 	}
@@ -169,7 +176,7 @@ bool CScreen::disconnet(ISession* session, int type)
 		if (m_gpsSession == session)
 		{
 			Trace("NetTerminal", "GPS session disconnet\n");
-			session->close();
+			CSessionManager::instance()->cancelSession(session);
 			m_gpsSession = NULL;
 			return true;
 		}
@@ -185,7 +192,7 @@ bool CScreen::disconnet(ISession* session, int type)
 **/
 bool CScreen::getVersion(std::string & ver)
 {
-	if (m_mainSession != NULL && m_mainSession->getState() == ISession::emStateLogin)
+	if (CSessionManager::instance()->getState(m_mainSession) == ISession::emStateLogin)
 	{
 		m_protocl->getVersion(ver);
 		return true;
@@ -207,7 +214,7 @@ bool CScreen::notify(char* buf, int len)
 		return false;
 	}
 
-	if (m_mainSession == NULL)
+	if (CSessionManager::instance()->getState(m_mainSession) != ISession::emStateLogin)
 	{
 		Error("NetTerminal", "screen connection dropped\n");
 		return false;
@@ -224,7 +231,17 @@ bool CScreen::notify(char* buf, int len)
 **/
 bool CScreen::pushGps(char* buf, int len)
 {
-	if (m_gpsSession != NULL)
+	if (CSessionManager::instance()->getState(m_mainSession) != ISession::emStateLogin)
+	{
+		if (CSessionManager::instance()->getState(m_gpsSession) == ISession::emStateLogin)
+		{
+			CSessionManager::instance()->cancelSession(m_gpsSession);
+		}
+		return false;
+	}
+
+	
+	if (CSessionManager::instance()->getState(m_gpsSession) == ISession::emStateLogin)
 	{
 		return m_protoclGps->notify(m_gpsSession, buf, len);
 	}
@@ -237,21 +254,25 @@ bool CScreen::pushGps(char* buf, int len)
 * @param sockfd 套接字句柄
 * @param addr 对端套接字地址
 **/
-void CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
+bool CScreen::serverTask(int sockfd, struct sockaddr_in* addr)
 {
-	if (m_mainSession != NULL && m_mainSession->getState() == ISession::emStateLogin)
+	if (CSessionManager::instance()->getState(m_mainSession) == ISession::emStateLogin)
 	{
 		Warning("NetTerminal", "Gps Session was registered !\n");
-		return;
+		return false;
 	}
 
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr, 15);
 	if (pSession == NULL)
 	{
-		return ;
+		return false;
 	}
 
-	pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this));
+	if (!pSession->bind(ISession::SessionProc_t(&CScreen::sessionTask, this)))
+	{
+		CSessionManager::instance()->cancelSession(pSession);
+	}
+	return true;
 }
 
 /**
@@ -274,21 +295,26 @@ void CScreen::sessionTask(NetServer::ISession* session, char* buf, int len)
 * @param sockfd 套接字句柄
 * @param addr 对端套接字地址
 **/
-void CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
+bool CScreen::servGpsTask(int sockfd, struct sockaddr_in* addr)
 {
-	if (m_gpsSession != NULL && m_gpsSession->getState() == ISession::emStateLogin)
+	if (CSessionManager::instance()->getState(m_gpsSession) == ISession::emStateLogin)
 	{
 		Warning("NetTerminal", "Gps Session was registered !\n");
-		return;
+		return false;
 	}
 
 	ISession* pSession = CSessionManager::instance()->createSession(sockfd, addr);
 	if (pSession == NULL)
 	{
-		return ;
+		return false;
 	}
 
-	pSession->bind(ISession::SessionProc_t(&CScreen::pushGpsTask, this));
+	if (!pSession->bind(ISession::SessionProc_t(&CScreen::pushGpsTask, this)))
+	{
+		CSessionManager::instance()->cancelSession(pSession);
+	}
+
+	return true;
 }
 
 /**
@@ -307,4 +333,57 @@ void CScreen::pushGpsTask(NetServer::ISession* session, char* buf, int len)
 	m_protoclGps->parse(session, buf, len);
 }
 
+#ifdef CONFIG_FENCE
+void CScreen::fenceTask(int event, int param1, int param2, void *p)
+{
+	switch (event)
+	{
+	case emFenceEvent_add:
+	case emFenceEvent_mod:
+	case emFenceEvent_del:
+	{
+		char msg[sizeof(MsgHdr_t) + sizeof(AreaInfo_t)] = {0};
+		PtrMsgHdr_t phdr = (PtrMsgHdr_t)msg;
+		phdr->msgID = IOrder::AE_SEND_AREA_INFO;
+
+		PtrAreaInfo_t pArea = (PtrAreaInfo_t)(msg + sizeof(MsgHdr_t));
+		pArea->event = event;
+		pArea->type = param1;
+		pArea->id = param2;
+
+		if (notify(msg, sizeof(MsgHdr_t) + sizeof(AreaInfo_t)))
+		{
+			Trace("NetTerminal", "send fence success\n");
+		}
+		else
+		{
+			Error("NetTerminal", "send fence fail\n");
+		}
+	}
+	break;
+	case emFenceEvent_clr:
+	{
+		char msg[sizeof(MsgHdr_t) + sizeof(AreaInfo_t)] = {0};
+		PtrMsgHdr_t phdr = (PtrMsgHdr_t)msg;
+		phdr->msgID = IOrder::AE_CLEAR_ALL_AREA_INFO;
+
+		PtrAreaInfo_t pArea = (PtrAreaInfo_t)(msg + sizeof(MsgHdr_t));
+		pArea->event = event;
+		pArea->type = param1;
+		pArea->id = 0;
+
+		if (notify(msg, sizeof(MsgHdr_t) + sizeof(AreaInfo_t)))
+		{
+			Trace("NetTerminal", "send clear fence success\n");
+		}
+		else
+		{
+			Error("NetTerminal", "send clear fence fail\n");
+		}
+	}
+	break;
+	default: break;
+	}
+}
+#endif
 } // Screen

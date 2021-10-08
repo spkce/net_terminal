@@ -231,6 +231,8 @@ public:
 	* @return 错误码
 	**/
 	static int startSelfChecking(Json::Value &request, Json::Value &response);
+
+#ifdef CONFIG_FENCE
 	/**
 	* @brief 获取电子围栏信息
 	* @param request 请求报文
@@ -238,6 +240,8 @@ public:
 	* @return 错误码
 	**/
 	static int getAreaInfo(Json::Value &request, Json::Value &response);
+#endif
+
 	/**
 	* @brief 获取电子围栏信息
 	* @param request 请求报文

@@ -205,6 +205,24 @@ void CSession::set(int sockfd, struct sockaddr_in* addr, int timeout)
 	m_sockfd = sockfd;
 	memcpy(&m_addr, addr, sizeof(struct sockaddr_in));
 	m_timeout = timeout;
+
+	struct timeval _timeout = {3,0}; //默认3秒超时
+	if (timeout != -1)
+	{
+		_timeout.tv_sec = timeout;
+	}
+
+	if (setsockopt(m_sockfd, SOL_SOCKET, SO_RCVTIMEO,(char*)&_timeout,sizeof(struct timeval)) == -1)
+	{
+		Error("NetTerminal","setsockopt error : %s\n", strerror(errno));
+		return;
+	}
+	
+	if (setsockopt(m_sockfd, SOL_SOCKET, SO_SNDTIMEO,(char*)&_timeout,sizeof(struct timeval)) == -1)
+	{
+		Error("NetTerminal","setsockopt error : %s\n", strerror(errno));
+		return;
+	}
 }
 
 /**
@@ -385,9 +403,11 @@ int CSession::send(const char* buf, int len)
 
 	char* p = (char*)buf;
 
+	Debug("NetTerminal", "send len : %d -> %s:%d\n", len, (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
+
 	while (len > 0)
 	{
-		int sendlen = ::send(m_sockfd, p, len, MSG_NOSIGNAL);
+		int sendlen = ::send(m_sockfd, p, len, 0);
 		if (sendlen > 0 )
 		{
 			len -= sendlen;
@@ -402,8 +422,7 @@ int CSession::send(const char* buf, int len)
 			Error("NetTerminal","send err : %s\n", strerror(errno));
 			if (m_timeout == -1)
 			{
-				//无超时的session，发送失败便关闭连接
-				//有超时的session， 由定时器关闭
+				//无超时的session，发送失败便登出
 				close();
 			}
 
@@ -457,7 +476,6 @@ void CSession::replyProc(void* arg)
 
 	if (len <= 0 || m_proc.isEmpty())
 	{
-		// len == 0时关闭为对端关闭
 		return;
 	}
 
@@ -475,7 +493,6 @@ void CSession::sendProc(void* arg)
 	struct sendPacket packet = {0}; // todo use heap
 	if (m_queue.output((char *)&packet, sizeof(struct sendPacket), 300) > 0)
 	{
-		Debug("NetTerminal", "send len : %d -> %s:%d\n", packet.len, (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
 		send((const char*)(packet.buf), packet.len);
 		return ;
 	}
@@ -492,7 +509,7 @@ void CSession::timerProc(unsigned long long arg)
 	if (isTimeout())
 	{
 		Debug("NetTerminal", "Session:%s:%d time out\n", (char*)inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
-		logout();
+		close();
 	}
 }
 
@@ -563,6 +580,11 @@ ISession* CSessionManager::createSession(int sockfd, struct sockaddr_in* addr, i
 **/
 bool CSessionManager::isSessionRegister(ISession* session)
 {
+	if (session == NULL)
+	{
+		return false;
+	}
+
 	Infra::CGuard<Infra::CMutex> guard(m_mutex);
 	std::vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
 
@@ -570,19 +592,55 @@ bool CSessionManager::isSessionRegister(ISession* session)
 }
 
 /**
-* @brief 取消session
+* @brief 关闭session
 * @param session 会话基类指针
 **/
 bool CSessionManager::cancelSession(ISession* session)
 {
-	//if (session == NULL)
-	//{
-	//	return false;
-	//}
-//
-	//session->destroy();
+	if (session == NULL)
+	{
+		return false;
+	}
 
-	return true;
+	Infra::CGuard<Infra::CMutex> guard(m_mutex);
+
+	std::vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
+
+	if (iter != m_vecSession.end())
+	{
+		session->close();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+/**
+* @brief 查询session状态
+* @param session 指针
+* @return 状态
+**/
+int CSessionManager::getState(ISession* session)
+{
+	if (session == NULL)
+	{
+		return ISession::emStateNone;
+	}
+
+	Infra::CGuard<Infra::CMutex> guard(m_mutex);
+
+	std::vector<ISession*>::iterator iter = find(m_vecSession.begin(), m_vecSession.end(), session);
+
+	if (iter != m_vecSession.end())
+	{
+		return session->getState();
+	}
+	else
+	{
+		return ISession::emStateNone;
+	}
 }
 
 /**
@@ -618,8 +676,8 @@ void CSessionManager::timerProc(unsigned long long arg)
 		ISession* p = *it;
 		if (p->getState() == ISession::emStateClose)
 		{
-			p->destroy(); 
 			it = m_vecSession.erase(it);
+			p->destroy(); 
 		}
 		else
 		{

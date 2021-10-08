@@ -3,6 +3,9 @@
 #include "Adapter.h"
 #include <regex>
 #include <vector>
+#ifdef CONFIG_FENCE
+#include "FenceManager.h"
+#endif
 
 namespace Screen
 {
@@ -149,6 +152,33 @@ int COrderSysterm::getDeviceInfo(Json::Value &request, Json::Value &response)
 		{
 			response["GPSVersion"] = stDevInfo.sGpsVer;
 		}
+
+		response["peripheralDeviceList"][0]["name"] = "strKey.audioVersion";
+		response["peripheralDeviceList"][0]["version"] = "AUDIOALARM_2021.3.5";
+
+		response["peripheralDeviceList"][1]["name"] = "strKey.ledVersion";
+		response["peripheralDeviceList"][1]["version"] = "v1.2";
+#if 0
+		AudioInfo_t audioInfo = {0};
+		if (CAdapter::instance()->getAudioAlarmInfo(&audioInfo))
+		{
+			Json::Value audio = Json::nullValue;
+			audio["name"] = "strKey.audioVersion";
+			audio["version"] = std::string(audioInfo.ver);
+
+			response["peripheralDeviceList"].append(audio);
+		}
+
+		LED_INFO_T ledInfo = {0};
+		if (CAdapter::instance()->getLedScreenInfo(&ledInfo))
+		{
+			Json::Value led = Json::nullValue;
+			led["name"] = "strKey.ledVersion";
+			led["version"] = std::string(ledInfo.ver);
+
+			response["peripheralDeviceList"].append(led);
+		}
+#endif
 		return AE_SYS_NOERROR;
 	}
 
@@ -380,9 +410,17 @@ int COrderSysterm::getVehicleStatus(Json::Value &request, Json::Value &response)
 			{
 				response["lockStatus"] = stVehStatus.lockStatus;
 			}
-			else if (request["type"][i].asString() == "maintainMode" && stVehStatus.maintainMode != -1)
+			else if (request["type"][i].asString() == "maintainMode")
 			{
-				response["maintainMode"] = stVehStatus.maintainMode;
+				if (stVehStatus.maintainMode)
+				{
+					response["maintainMode"] = 1;
+				}
+				else
+				{
+					response["maintainMode"] = 0;
+				}
+				response["maintainValue"] = stVehStatus.maintainMode;
 			}
 			else if (request["type"][i].asString() == "speedLimitThreshold" && stVehStatus.speedLimitThreshold != -1)
 			{
@@ -742,6 +780,7 @@ int COrderSysterm::startSelfChecking(Json::Value &request, Json::Value &response
 	return AE_SYS_NOERROR;
 }
 
+#ifdef CONFIG_FENCE
 /**
 * @brief 获取电子围栏信息
 * @param request 请求报文
@@ -751,76 +790,120 @@ int COrderSysterm::startSelfChecking(Json::Value &request, Json::Value &response
 int COrderSysterm::getAreaInfo(Json::Value &request, Json::Value &response)
 {
 	//AE_GET_AREA_INFO
-	const int areaNum = CAdapter::instance()->getAreaNum();
-	response["tatalCount"] = areaNum;
+	if (!request.isMember("index") || !request["index"].isUInt()
+		|| !request.isMember("type") || !request["type"].isUInt()
+		|| !request.isMember("pageSize") || !request["pageSize"].isUInt())
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	const unsigned int type = request["type"].asUInt();
+	const unsigned int index = request["index"].asUInt();
+	const unsigned int pageSize = request["pageSize"].asUInt();
+	const int areaNum = Fence::CFenceManager::instance()->getFenceNumber((Fence::FenceType_t)type);
+	
 	if (areaNum == 0)
 	{
-		response["tatalCount"] = 0;
+		response["totalCount"] = 0;
 		return AE_SYS_NOERROR;
 	}
 	else if (areaNum > 0)
 	{
-		Area_t area = {0};
-		for (size_t i = 0; i < (size_t)areaNum; i++)
+		Json::Value fenceInfo = Json::nullValue;
+		
+
+		for (size_t i = index; i < (size_t)areaNum && i < index + pageSize; i++)
 		{
-			Json::Value & areaInfo = response["areaList"][(int)i];
-			if (!CAdapter::instance()->getArea(i, &area))
+			Json::Value  areaInfo = Json::nullValue;
+			
+			Fence::fence_t info;
+			memset(&info, 0, sizeof(info));
+
+			if (!Fence::CFenceManager::instance()->getFence((Fence::FenceType_t)type, i, &info))
 			{
-				return AE_SYS_UNKNOWN_ERROR;
+				break;
 			}
 
-			areaInfo["areaType"] = area.type;
-			areaInfo["id"] = area.id;
-			areaInfo["property"] = area.property;
+			areaInfo["areaType"] = info.type;
+			areaInfo["id"] = info.id;
+			areaInfo["property"] = info.property;
 
-			if (area.property != 0)
+			switch(info.property >> 11 & 0x07)
 			{
-				areaInfo["startTime"] = std::string(area.startTime);
-				areaInfo["endTime"] = std::string(area.endTime);
-			}
-
-			if (area.type == 0)
-			{
-				areaInfo["centerLong"] = area.center.longtitude;
-				areaInfo["centerLat"] = area.center.latitude;
-				areaInfo["radius"] = area.radius;
-			}
-			else if (area.type == 1)
-			{
-				areaInfo["startPointLong"] = area.leftPoint.longtitude;
-				areaInfo["startPointLat"] = area.leftPoint.latitude;
-				areaInfo["endPointLong"] = area.rightPoint.longtitude;
-				areaInfo["endPointLat"] = area.rightPoint.latitude;
-			}
-			else if (area.type == 2)
-			{
-				areaInfo["polygonVertexCount"] = area.vertexNum;
-				for (int i = 0; i< (int)area.vertexNum; i++)
+				case 1:/*装货区*/
+					areaInfo["areaName"] = "strKey.fenceType1";
+					break;
+				case 2: /*禁区*/
+					areaInfo["areaName"] = "strKey.fenceType2";
+					break;
+				case 3: /*卸货区*/
+					areaInfo["areaName"] = "strKey.fenceType3";
+					break;
+				case 4: /*限速区*/
+					areaInfo["areaName"] = "strKey.fenceType4";
+					break;
+				case 5: /*停车区*/
+					areaInfo["areaName"] = "strKey.fenceType5";
+					break;
+				case 6: /*路线*/
+					areaInfo["areaName"] = "strKey.fenceType6";
+					break;
+				default:
 				{
-					areaInfo["pointList"][i]["pointLong"] = area.vertex[i].longtitude;
-					areaInfo["pointList"][i]["pointLat"] = area.vertex[i].latitude;
+					std::string name = info.name;
+					if (name != "")
+					{
+						areaInfo["areaName"] = name;
+					}
+				}
+				break;
+			}
+
+			if (info.type == emFenceType_circle)
+			{
+				areaInfo["centerLong"] = info.shape.circle.centre.y;
+				areaInfo["centerLat"] = info.shape.circle.centre.x;
+				areaInfo["radius"] = info.shape.circle.radius;
+			}
+			else if (info.type == emFenceType_rect)
+			{
+				areaInfo["startPointLat"] = info.shape.rect.leftPoint.x;
+				areaInfo["startPointLong"] = info.shape.rect.leftPoint.y;
+				areaInfo["endPointLat"] = info.shape.rect.rightPoint.x;
+				areaInfo["endPointLong"] = info.shape.rect.rightPoint.y;
+			}
+			else if (info.type == emFenceType_polygon)
+			{
+				areaInfo["polygonVertexCount"] = info.shape.polygon.num;
+				for (int i = 0; i< (int)info.shape.polygon.num; i++)
+				{
+					areaInfo["pointList"][i]["pointLat"] = info.shape.polygon.vertex[i].x;
+					areaInfo["pointList"][i]["pointLong"] = info.shape.polygon.vertex[i].y;
 				}
 			}
-			else if (area.type == 3)
+			else if (info.type == emFenceType_line)
 			{
-				areaInfo["lineWidth"] = area.lineWidth[0];
-				for (int i = 0; i < (int)area.pointNum; i++)
+				for (int i = 0; i < (int)info.shape.line.num; i++)
 				{
-					areaInfo["pointList"][i]["pointLong"] = area.inflctPoint[i].longtitude;
-					areaInfo["pointList"][i]["pointLat"] = area.inflctPoint[i].latitude;
+					areaInfo["pointList"][i]["pointLat"] = info.shape.line.segment[i].inflctPoint.x;
+					areaInfo["pointList"][i]["pointLong"] = info.shape.line.segment[i].inflctPoint.y;
 				}
 			}
 			else
 			{
 				continue;
 			}
+
+			fenceInfo["areaList"].append(areaInfo);
 		}
-		
+		fenceInfo["totalCount"] = fenceInfo["areaList"].size();
+		response.swap(fenceInfo);
 		return AE_SYS_NOERROR;
 	}
 
 	return AE_SYS_UNKNOWN_ERROR;
 }
+#endif
 
 int COrderSysterm::checkSelf(Json::Value &request, Json::Value &response)
 {
@@ -840,6 +923,11 @@ bool COrderSysterm::licenseFill(Json::Value &license, PtrCeritfy_t pCeritfy)
 	char timeBuf[32] = {0};
 	tmp = pCeritfy->startTime;
 	struct tm *info = gmtime(&tmp);
+	if (info == NULL)
+	{
+		return false;
+	}
+
 	snprintf(timeBuf, sizeof(timeBuf), "%4d-%02d-%02d %02d:%02d:%02d", 
 			info->tm_year + 1900, 
 			info->tm_mon + 1,

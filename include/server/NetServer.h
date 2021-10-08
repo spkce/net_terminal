@@ -19,7 +19,7 @@ public:
 	* @param fd 套接字句柄
 	* @param addr 对端地址
 	**/
-	typedef Infra::TFuncation2<void, int, struct sockaddr_in*> ServerProc_t;
+	typedef Infra::TFuncation2<bool, int, struct sockaddr_in*> ServerProc_t;
 	/**
 	* @brief 服务器类型枚举
 	**/

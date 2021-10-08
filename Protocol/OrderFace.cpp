@@ -50,8 +50,8 @@ int COrderFace::setFaceInfo(Json::Value &request, Json::Value &response)
 	//AE_SET_FACE_INFO
 	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
 		||!request.isMember("faceID") || !request["faceID"].isInt()
-		||!request.isMember("name") || !request["name"].isString()
-		||!request.isMember("identityID") || !request["identityID"].isString()
+		||!request.isMember("name") || !request["name"].isString() || request["name"].asCString() == NULL
+		||!request.isMember("identityID") || !request["identityID"].isString() || request["identityID"].asCString() == NULL
 		||!request.isMember("mod") || !request["mod"].isInt())
 	{
 		return AE_SYS_UNKNOWN_ERROR;
@@ -59,11 +59,15 @@ int COrderFace::setFaceInfo(Json::Value &request, Json::Value &response)
 
 	if (request["mod"].asInt() == 0)
 	{
+		if (!request.isMember("licenseNum") || !request["licenseNum"].isString() || request["licenseNum"].asCString() == NULL)
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
 		FaceInfo_t info = {0};
 		info.faceID = request["faceID"].asInt();
-		strncpy(info.name, request["name"].asCString(), sizeof(info.name));
-		strncpy(info.identityID, request["identityID"].asCString(), sizeof(info.identityID));
-		strncpy(info.license, request["licenseNum"].asCString(), sizeof(info.license));
+		strncpy(info.name, request["name"].asCString(), sizeof(info.name) - 1);
+		strncpy(info.identityID, request["identityID"].asCString(), sizeof(info.identityID) - 1);
+		strncpy(info.license, request["licenseNum"].asCString(), sizeof(info.license) - 1);
 		if (CAdapter::instance()->setFaceInfo(-1, &info))
 		{
 			return AE_SYS_NOERROR;
@@ -71,11 +75,16 @@ int COrderFace::setFaceInfo(Json::Value &request, Json::Value &response)
 	}
 	else if (request["mod"].asInt() == 1)
 	{
+		if (!request.isMember("licenseNum") || !request["licenseNum"].isString() || request["licenseNum"].asCString() == NULL)
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+
 		FaceInfo_t info = {0};
 		info.faceID = request["faceID"].asInt();
-		strncpy(info.name, request["name"].asCString(), sizeof(info.name));
-		strncpy(info.identityID, request["identityID"].asCString(), sizeof(info.identityID));
-		strncpy(info.license, request["licenseNum"].asCString(), sizeof(info.license));
+		strncpy(info.name, request["name"].asCString(), sizeof(info.name) - 1);
+		strncpy(info.identityID, request["identityID"].asCString(), sizeof(info.identityID) - 1);
+		strncpy(info.license, request["licenseNum"].asCString(), sizeof(info.license) - 1);
 		if (CAdapter::instance()->setFaceInfo(info.faceID, &info))
 		{
 			return AE_SYS_NOERROR;
@@ -129,18 +138,27 @@ int COrderFace::setOverTimeDrivingSetting(Json::Value &request, Json::Value &res
 int COrderFace::faceContrast(Json::Value &request, Json::Value &response)
 {
 	//AE_FACE_CONTRAST
-	if (!request.isMember("chanNo") || !request["chanNo"].isInt()
-		|| !request.isMember("pic") || !request["pic"].isString()
-	)
+	if (!request.isMember("chanNo") || !request["chanNo"].isInt())
 	{
 		return AE_SYS_UNKNOWN_ERROR;
 	}
 
-	if (CAdapter::instance()->faceContrast(request["pic"].asString().c_str()))
+	if (request.isMember("pic") && request["pic"].isString())
 	{
-		return AE_SYS_NOERROR;
+		if (CAdapter::instance()->faceContrast(request["pic"].asString().c_str()))
+		{
+			return AE_SYS_NOERROR;
+		}
+		return AE_SYS_UNKNOWN_ERROR;
 	}
-	return AE_SYS_UNKNOWN_ERROR;
+	else
+	{
+		if (CAdapter::instance()->faceContrast(NULL))
+		{
+			return AE_SYS_NOERROR;
+		}
+		return AE_SYS_UNKNOWN_ERROR;
+	}
 }
 
 }//Screen

@@ -5,6 +5,10 @@
 
 using DevInfo_t = DEV_INFO_T;
 using PtrDevInfo_t = DEV_INFO_T;
+using AudioInfo_t = AUDIO_INFO_T;
+using PtrAudioInfo_t = PAUDIO_INFO_T;
+using LedInfo_t = LED_INFO_T;
+using PtrLedInfo_t = PLED_INFO_T;
 using DevStatus_t = DEV_STATUS_T;
 using PtrDevStatus_t = PDEV_STATUS_T;
 using VehStatus_t = VEH_STATUS_T;
@@ -37,24 +41,14 @@ using MessageInfo_t = MESSAGE_INFO_T;
 using PtrMessageInfo_t = PMESSAGE_INFO_T;
 using Ceritfy_t = CERITFY_T;
 using PtrCeritfy_t = PCERITFY_T;
-using GpsPoint = GPS_POINT;
-using PtrGpsPoint = PGPS_POINT;
-using CircleArea_t= CIRCLE_AREA_T;
-using PtrCircleArea_t = PCIRCLE_AREA_T;
-using RectArea_t = RECT_AREA_T;
-using PtrRectArea_t = PRECT_AREA_T;
-using PolygonArea_t = POLYGON_AREA_T;
-using PtrPolygonArea_t = PPOLYGON_AREA_T;
-using RouteArea_t = ROUTE_AREA_T;
-using PtrRouteArea_t = PROUTE_AREA_T;
-using Area_t = AREA_T;
-using PtrArea_t = PAREA_T;
 using AreaInfo_t = AREA_INFO_T;
 using PtrAreaInfo_t = PAREA_INFO_T;
 using FileCriteria_t = FILE_CRITERIA_T;
 using PtrFileCriteria_t = PFILE_CRITERIA_T;
 using FileInfo_t = FILE_INFO_T;
 using PtrFileInfo_t = PFILE_INFO_T;
+using FtpSrvInfo_t = FTP_SERVER_INFO_T;
+using PtrFtpSrvInfo_t = PFTP_SERVER_INFO_T;
 
 using AdptrFun_t = ADAPTER_T;
 using PtrAdptrFun_t = ADAPTER_T;
@@ -68,6 +62,8 @@ public:
 	static CAdapter* instance();
 	AdptrFun_t* getAdapter();
 	bool getDeviceInfo(DevInfo_t* pdevInfo);
+	bool getAudioAlarmInfo(AudioInfo_t* pInfo);
+	bool getLedScreenInfo(LedInfo_t* pInfo);
 	bool getDeviceStatus(DevStatus_t* pdevStatus);
 	bool getVehicleStatus(VehStatus_t* pVehStatus);
 	bool getPeripheralStatus(PeriStatus_t* pPeriStatus);
@@ -82,12 +78,11 @@ public:
 	bool checkSelf();
 	int getCeritfyNum();
 	bool getCeritfy(unsigned int id, Ceritfy_t* pCeritfy);
-	int getAreaNum();
-	bool getArea(unsigned int id, Area_t* pArea);
 	bool upgradeResult(unsigned int result, unsigned int progress);
 	void* getFileList(unsigned int type, FileCriteria_t* pCriteria, unsigned int* pNum);
 	bool searchFileNext(int reverse, void *pHandle, FileInfo_t* pFileInfo);
-
+	bool searchHandleRelease(void *pHandle);
+	const char* getStringFile();
 private:
 	AdptrFun_t m_adapter;
 };

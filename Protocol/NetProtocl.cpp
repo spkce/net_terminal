@@ -234,6 +234,7 @@ bool CNetProtocl::login(ISession* session, Json::Value &request, Json::Value &re
 	int iRet = app_rsa_encode(rsaKey.c_str(), sKeyStr, (unsigned char *)sRsaEncodeKey);
 	if (iRet < 0)
 	{
+		Error("NetTerminal", "encode fail\n");
 		return false;
 	}
 

@@ -19,6 +19,8 @@ public:
 	static int audioRecordStop(Json::Value &request, Json::Value &response);
 	static int takePhoto(Json::Value &request, Json::Value &response);
 	static int getVideoFileList(Json::Value &request, Json::Value &response);
+	static int getImageFileList(Json::Value &request, Json::Value &response);
+	static int getStringFile(Json::Value &request, Json::Value &response);
 };
 
 }//Screen

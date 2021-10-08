@@ -53,7 +53,7 @@ class CNetProtocl: public IProtocl
 		unsigned int uMsgConstant;    /*起始码ABBC*/
 		unsigned int uMsgIndex;       /*消息编号，1...n，与消息类型ID不同*/
 		unsigned int uMsgLength;      /*消息报文长度*/
-	}msgHeader;
+	};
 public:
 	/**
 	* @brief 构造函数，

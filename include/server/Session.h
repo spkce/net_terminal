@@ -28,6 +28,7 @@ public:
 		emStateLogout,
 		emStateLogin,
 		emStateClose,
+		emStateNone,
 	}state_t;
 protected:
 	/**
@@ -142,24 +143,28 @@ public:
 	**/
 	ISession* createSession(int sockfd, struct sockaddr_in* addr, int timeout = -1);
 	/**
+	* @brief 取消session
+	* @param session 会话基类指针
+	**/
+	bool cancelSession(ISession* session);
+	/**
 	* @brief 查询session是否注册中
 	* @param session 指针
 	* @return 是否注册
 	**/
 	bool isSessionRegister(ISession* session);
+	/**
+	* @brief 查询session状态
+	* @param session 指针
+	* @return 状态
+	**/
+	int getState(ISession* session);
 private:
 	/**
 	* @brief 注册session
 	* @param session 会话基类指针
 	**/
 	void registerSession(ISession* session);
-	
-	/**
-	* @brief 取消session
-	* @param session 会话基类指针
-	**/
-	bool cancelSession(ISession* session);
-
 	/**
 	* @brief 定时器回调函数
 	* @param arg 时间，系统运行时间毫秒

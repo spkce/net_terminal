@@ -257,9 +257,9 @@ void CTcpServer::server_task(void* arg)
 		return;
 	}
 	Debug("NetTerminal", "port:%d connect:%s:%d\n", m_port, (char*)inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
-	if (!m_proc.isEmpty())
+	if (m_proc.isEmpty() || !m_proc(sock, &cliaddr))
 	{
-		m_proc(sock, &cliaddr);
+		close(sock);
 	}
 }
 

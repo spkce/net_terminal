@@ -4,6 +4,8 @@
 extern "C" {
 #endif //__cplusplus
 
+#ifdef CONFIG_NET_TERMINAL
+
 #define NET_APP_DEV_INFO_LEN 16
 #define NET_APP_VERSION_LEN 32
 #define NET_APP_DATE_LEN 24      /*时间，时区字符串最大长度*/
@@ -17,6 +19,10 @@ extern "C" {
 #define MAX_POLYGON_VERTEX_NUM 30		/*最大多边形顶点数目*/
 #define MAX_INFLECTION_POINT_NUM 50		/*最大拐点数目*/
 #define MAX_AREA_NUM 50					/*最大区域数目*/
+#define NET_ADDRESS_LEN 32
+#define PASSWORD_LEN 32
+#define USERNAME_LEN 32
+
 /**
  * @brief 获取设备信息
  */
@@ -39,6 +45,18 @@ typedef struct tagDevInfo
 	char  sGpsVer[NET_APP_VERSION_LEN];/*GPS版本号*/
 }DEV_INFO_T, *PDEV_INFO_T;
 
+typedef struct tagAudioInfo
+{
+	int isConnect;
+	char ver[NET_APP_VERSION_LEN];
+}AUDIO_INFO_T, *PAUDIO_INFO_T;
+
+typedef struct tagLedInfo
+{
+	int isConnect;
+	char ver[NET_APP_VERSION_LEN];
+}LED_INFO_T, *PLED_INFO_T;
+
 typedef struct tagDevStatus
 {
 	int accStatus;/*acc 状态*/
@@ -60,7 +78,7 @@ typedef struct tagVehStatus
 	int liftLimitStatus;/*限举状态*/
 	int rotateLimitStatus;/*限转状态*/
 	int lockStatus;/*锁车状态*/
-	int maintainMode;/*维护模式*/
+	unsigned int maintainMode;/*维护模式*/
 	int speedLimitThreshold;/*限速阈值*/
 }VEH_STATUS_T, *PVEH_STATUS_T;
 
@@ -132,6 +150,7 @@ typedef struct tagPeriheralState
 typedef struct tagVehicleNotify
 {
 	int state;
+	int value;
 }VEHICLE_NOTIFY_T, *PVEHICLE_NOTIFY_T;
 
 typedef struct tagPhotoTaken
@@ -175,6 +194,14 @@ typedef struct tagNotification
 	};
 }NOTIFICATION_T, *PNOTIFICATION_T;
 
+typedef struct tagFtpSrvInfo
+{
+	unsigned int port;
+	char ip[NET_ADDRESS_LEN];
+	char user[USERNAME_LEN];
+	char password[PASSWORD_LEN];
+}FTP_SERVER_INFO_T, *PFTP_SERVER_INFO_T;
+
 typedef struct tagMsgInfo
 {
 	int msgType;
@@ -203,68 +230,12 @@ typedef struct tagCertify
 	char detail[CERTIFY_MAX_LEN];
 }CERITFY_T, *PCERITFY_T;
 
-typedef struct tagGpsPoint
-{
-	unsigned int latitude; 			/* 纬度*/
-	unsigned int longtitude;		/*经度*/
-}GPS_POINT, *PGPS_POINT;
-
-typedef struct tagCircleArea
-{
-	unsigned int radius;
-	GPS_POINT center;			/*中心点*/
-}CIRCLE_AREA_T, *PCIRCLE_AREA_T;
-
-typedef struct tagRectArea
-{
-	GPS_POINT leftPoint;		/*左上点*/
-	GPS_POINT rightPoint;	/*右下点*/
-}RECT_AREA_T, *PRECT_AREA_T;
-
-typedef struct tagPolygonArea
-{
-	GPS_POINT vertex[MAX_POLYGON_VERTEX_NUM];
-	unsigned int num;
-}POLYGON_AREA_T, *PPOLYGON_AREA_T;
-
-typedef struct tagRouteArea
-{
-	GPS_POINT inflctPoint[MAX_INFLECTION_POINT_NUM];
-	unsigned int width[MAX_INFLECTION_POINT_NUM];
-	unsigned int num;
-}ROUTE_AREA_T, *PROUTE_AREA_T;
-
-typedef struct tagArea
-{
-#define radius circle.radius
-#define center circle.center
-#define leftPoint rect.leftPoint
-#define rightPoint rect.rightPoint
-#define vertex polygon.vertex
-#define vertexNum polygon.num
-#define inflctPoint line.inflctPoint
-#define lineWidth line.width
-#define pointNum line.num
-
-	union {
-		CIRCLE_AREA_T circle;
-		RECT_AREA_T rect;
-		POLYGON_AREA_T polygon;
-		ROUTE_AREA_T line;
-	};
-	unsigned int id;			/*区域ID*/
-	unsigned int property;		/*区域属性*/
-	unsigned int type;			/*区域类型*/
-	
-	char startTime[NET_APP_DATE_LEN];
-	char endTime[NET_APP_DATE_LEN];
-}AREA_T, *PAREA_T;
-
 typedef struct tagAreaInfo
 {
-	int operate;		/*操作*/
-	unsigned int areaNum; /*区域数量*/
-	AREA_T area[MAX_AREA_NUM];
+	int event;		/*事件*/
+	int type;		/*区域类型*/
+	int id; /*区域id*/
+	
 }AREA_INFO_T, *PAREA_INFO_T;
 
 typedef struct tagFileCriteria
@@ -290,6 +261,8 @@ typedef struct tagFileInfo
 typedef struct tagAdapterFunc
 {
 	int (*device_info_get)(PDEV_INFO_T pstDevInfo);
+	int (*audioAlarm_info_get)(PAUDIO_INFO_T pstAudioInfo);
+	int (*led_info_get)(PLED_INFO_T pstLedInfo);
 	int (*device_status_get)(PDEV_STATUS_T pstDevStatus);
 	int (*vehicle_status_get)(PVEH_STATUS_T pstVehStatus);
 	int (*peripheral_status_get)(PPERI_STATUS_T pstPeriStatus);
@@ -304,11 +277,11 @@ typedef struct tagAdapterFunc
 	int (*checkSelf)(void);
 	int (*get_ceritfy_Num)(void);
 	int (*get_ceritfy)(unsigned int id, PCERITFY_T pCeritfy);
-	int (*get_area_Num)(void);
-	int (*get_area)(unsigned int id, PAREA_T pArea);
 	int (*upgrade_result)(unsigned int result, unsigned int progress);
 	void* (*file_list_get)(unsigned int type, PFILE_CRITERIA_T pCriteria, unsigned int* num);
 	int (*search_file_next)(int reverse, void *h, PFILE_INFO_T pFileInfo);
+	void (*search_handle_release)(void *h);
+	const char* (*get_string_file)(void);
 }ADAPTER_T, *PADAPTER_T;
 
 
@@ -376,47 +349,8 @@ int net_terminal_pushGPS(char* buf, int len);
  */
 void net_terminal_face_contrast_result(int result, unsigned int similarity);
 
-/**
- * @brief 设置圆形电子围栏
- * @param operate :操作
- * @param p :电子围栏信息
- * @return 成功，返回true；失败，返回false
- */
-int net_terminal_circle_area_set(int operate, void* p);
 
-/**
- * @brief 设置矩形电子围栏
- * @param operate :操作
- * @param p :电子围栏信息
- * @return 成功，返回true；失败，返回false
- */
-int net_terminal_rect_area_set(int operate, void* p);
-
-/**
- * @brief 设置多边形电子围栏
- * @param operate :操作
- * @param p :电子围栏信息
- * @return 成功，返回true；失败，返回Efalse
- */
-int net_terminal_polygon_area_set(int operate, void* p);
-
-/**
- * @brief 设置路线
- * @param operate :操作
- * @param p :路线信息
- * @return 成功，返回true；失败，返回false
- */
-int net_terminal_line_area_set(int operate, void* p);
-
-/**
- * @brief 删除电子围栏
- * @param type :电子围栏属性
- * @param total :删除总数
- * @param pId :删除ID列表
- * @return 成功，返回true；失败，返回false
- */
-int net_terminal_area_delete(int type, unsigned int total, unsigned int * pId);
-
+#endif //CONFIG_NET_TERMINAL
 
 #ifdef __cplusplus
 }

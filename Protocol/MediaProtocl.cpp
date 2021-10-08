@@ -56,10 +56,11 @@ bool CMediaProtocl::parse(NetServer::ISession* session, char* buf, int len)
 	//resHdr.packetSzie = 0;
 	//resHdr.totalSzie = 0;
 
-	char path[116] = {0};
+	char path[128] = {0};
 
 	len = len - sizeof(MediaReqHder);
-	int copylen = len < (int)sizeof(path) ? len : sizeof(path);
+
+	int copylen = len < (int)sizeof(path) - 1 ? len : sizeof(path) - 1;
 	strncpy(path, buf + sizeof(MediaReqHder), copylen);
 
 

@@ -3,6 +3,9 @@
 #include "Adapter.h"
 #include <regex>
 #include <vector>
+#ifdef CONFIG_FENCE
+#include "FenceManager.h"
+#endif
 
 namespace Screen
 {
@@ -82,12 +85,39 @@ int CPushNotification::notification(char* buf, int len, Json::Value &send)
 		ret = AE_SYS_NOERROR;
 	}
 	else if (notifyType == "liftStatus" || notifyType == "hermeticStatus"
-		|| notifyType == "carryStatus" || notifyType == "speedLimitStatus"
-		|| notifyType == "liftLimitStatus" || notifyType == "rotateLimitStatus"
-		|| notifyType == "lockStatus")
+		|| notifyType == "carryStatus" || notifyType == "liftLimitStatus" 
+		|| notifyType == "rotateLimitStatus" || notifyType == "lockStatus")
 	{
 		send["type"] = notifyType;
 		send["param"][0]["status"] = p->vehicle.state;
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "speedLimitStatus")
+	{
+		send["type"] = notifyType;
+		if (p->vehicle.state != 0)
+		{
+			send["param"][0]["speed"] = p->vehicle.state;
+			send["param"][0]["status"] = 1;
+		}
+		else
+		{
+			send["param"][0]["status"] = 0;
+		}
+		ret = AE_SYS_NOERROR;
+	}
+	else if (notifyType == "vehicleControl")
+	{
+		send["type"] = notifyType;
+		if (p->vehicle.state != 0)
+		{
+			send["param"][0]["value"] = p->vehicle.state;
+			send["param"][0]["status"] = 1;
+		}
+		else
+		{
+			send["param"][0]["status"] = 0;
+		}
 		ret = AE_SYS_NOERROR;
 	}
 
@@ -192,6 +222,11 @@ int CPushNotification::sendLicense(char* buf, int len, Json::Value &send)
 	char timeBuf[32] = {0};
 	tmp = p->startTime;
 	struct tm *info = gmtime(&tmp);
+	if (info == NULL)
+	{
+		return false;
+	}
+
 	snprintf(timeBuf, sizeof(timeBuf), "%4d-%02d-%02d %02d:%02d:%02d", 
 			info->tm_year + 1900, 
 			info->tm_mon + 1,
@@ -278,6 +313,7 @@ int CPushNotification::sendLicense(char* buf, int len, Json::Value &send)
 	return AE_SYS_NOERROR;
 }
 
+#ifdef CONFIG_FENCE
 /**
 * @brief 电子围栏通知
 * @param buf 推送内容
@@ -287,78 +323,115 @@ int CPushNotification::sendLicense(char* buf, int len, Json::Value &send)
 **/
 int CPushNotification::sendArea(char* buf, int len, Json::Value &send)
 {
-	if (buf == NULL || len < (int)sizeof(AREA_INFO_T))
+	if (buf == NULL || len < (int)sizeof(AreaInfo_t))
 	{
 		return AE_SYS_UNKNOWN_ERROR; 
 	}
 
 	PtrAreaInfo_t p = (PtrAreaInfo_t)buf;
-	send["tatalCount"] = p->areaNum;
-	if (p->operate == 3)
+
+	if (p->event == emFenceEvent_add || p->event == emFenceEvent_mod)
 	{
-		for (int i= 0; i < (int)p->areaNum; i++)
+		Fence::fence_t info;
+		memset(&info, 0, sizeof(info));
+		if (!Fence::CFenceManager::instance()->queryFence((Fence::FenceType_t)(p->type), (unsigned int)(p->id), &info))
 		{
-			Json::Value & areaInfo = send["areaList"][i];
-			Area_t & area = p->area[i];
-			areaInfo["type"] = p->operate;
-			areaInfo["areaType"] = area.type;
-			areaInfo["id"] = area.id;
+			return AE_SYS_UNKNOWN_ERROR;
 		}
+		
+		Json::Value areaInfo = Json::nullValue;
+		areaInfo["type"] = p->event;
+		areaInfo["areaType"] = p->type;
+		areaInfo["id"] = p->id;
+		areaInfo["property"] = info.property;
+
+		switch(info.property >> 11 & 0x07)
+		{
+			case 1:/*装货区*/
+				areaInfo["areaName"] = "strKey.fenceType1";
+				break;
+			case 2: /*禁区*/
+				areaInfo["areaName"] = "strKey.fenceType2";
+				break;
+			case 3: /*卸货区*/
+				areaInfo["areaName"] = "strKey.fenceType3";
+				break;
+			case 4: /*限速区*/
+				areaInfo["areaName"] = "strKey.fenceType4";
+				break;
+			case 5: /*停车区*/
+				areaInfo["areaName"] = "strKey.fenceType5";
+				break;
+			case 6: /*路线*/
+				areaInfo["areaName"] = "strKey.fenceType6";
+				break;
+			default:
+			{
+				std::string name = info.name;
+				if (name != "")
+				{
+					areaInfo["areaName"] = name;
+				}
+			}
+			break;
+		}
+
+		//areaInfo["startTime"] = Infra::CDate(info.startTime).str();
+		//areaInfo["endTime"] = Infra::CDate(info.endTime).str();;
+		
+		if (p->type == emFenceType_circle)
+		{
+			areaInfo["centerLong"] = info.shape.circle.centre.y;
+			areaInfo["centerLat"] = info.shape.circle.centre.x;
+			areaInfo["radius"] = info.shape.circle.radius;
+		}
+		else if (p->type == emFenceType_rect)
+		{
+			areaInfo["startPointLat"] = info.shape.rect.leftPoint.x;
+			areaInfo["startPointLong"] = info.shape.rect.leftPoint.y;
+			areaInfo["endPointLat"] = info.shape.rect.rightPoint.x;
+			areaInfo["endPointLong"] = info.shape.rect.rightPoint.y;
+		}
+		else if (p->type == emFenceType_polygon)
+		{
+			areaInfo["polygonVertexCount"] = info.shape.polygon.num;
+			for (int i = 0; i< (int)info.shape.polygon.num; i++)
+			{
+				areaInfo["pointList"][i]["pointLat"] = info.shape.polygon.vertex[i].x;
+				areaInfo["pointList"][i]["pointLong"] = info.shape.polygon.vertex[i].y;
+			}
+		}
+		else if (p->type == emFenceType_line)
+		{
+			for (int i = 0; i < (int)info.shape.line.num; i++)
+			{
+				areaInfo["pointList"][i]["pointLat"] = info.shape.line.segment[i].inflctPoint.x;
+				areaInfo["pointList"][i]["pointLong"] = info.shape.line.segment[i].inflctPoint.y;
+			}
+		}
+		else
+		{
+			return AE_SYS_UNKNOWN_ERROR;
+		}
+
+		send["areaList"].append(areaInfo);
+		send["tatalCount"] = send["areaList"].size();
+	}
+	else if (p->event == emFenceEvent_del)
+	{
+		Json::Value areaInfo;
+		areaInfo["type"] = p->event;
+		areaInfo["areaType"] = p->type;
+		areaInfo["id"] = p->id;
+
+		send["areaList"].append(areaInfo);
+		send["tatalCount"] = send["areaList"].size();
 	}
 	else
 	{
-		for (int i= 0; i < (int)p->areaNum; i++)
-		{
-			Json::Value & areaInfo = send["areaList"][i];
-			Area_t & area = p->area[i];
-			areaInfo["type"] = p->operate;
-			areaInfo["areaType"] = area.type;
-			areaInfo["id"] = area.id;	
-			areaInfo["property"] = area.property;
-
-			if (area.property != 0)
-			{
-				areaInfo["startTime"] = std::string(area.startTime);
-				areaInfo["endTime"] = std::string(area.endTime);
-			}
-			
-			if (area.type == 0)
-			{
-				areaInfo["centerLong"] =area.center.longtitude;
-				areaInfo["centerLat"] = area.center.latitude;
-				areaInfo["radius"] = area.radius;
-			}
-			else if (area.type == 1)
-			{
-				areaInfo["startPointLong"] = area.leftPoint.longtitude;
-				areaInfo["startPointLat"] = area.leftPoint.latitude;
-				areaInfo["endPointLong"] = area.rightPoint.longtitude;
-				areaInfo["endPointLat"] = area.rightPoint.latitude;
-			}
-			else if (area.type == 2)
-			{
-				areaInfo["polygonVertexCount"] = area.vertexNum;
-				for (int i = 0; i< (int)area.vertexNum; i++)
-				{
-					areaInfo["pointList"][i]["pointLong"] = area.vertex[i].longtitude;
-					areaInfo["pointList"][i]["pointLat"] = area.vertex[i].latitude;
-				}
-			}
-			else if (area.type == 3)
-			{
-				areaInfo["lineWidth"] = area.lineWidth[0];
-				for (int i = 0; i < (int)area.pointNum; i++)
-				{
-					areaInfo["pointList"][i]["pointLong"] = area.inflctPoint[i].longtitude;
-					areaInfo["pointList"][i]["pointLat"] = area.inflctPoint[i].latitude;
-				}
-			}
-			else
-			{
-				continue;
-			}
-		}
+		return AE_SYS_UNKNOWN_ERROR;
 	}
+
 	return AE_SYS_NOERROR;
 }
 
@@ -371,12 +444,45 @@ int CPushNotification::sendArea(char* buf, int len, Json::Value &send)
 **/
 int CPushNotification::sendClearArea(char* buf, int len, Json::Value &send)
 {
-	if (buf == NULL || len < (int)sizeof(MSG_HDR_T))
+	if (buf == NULL || len < (int)sizeof(MsgHdr_t))
 	{
 		return AE_SYS_UNKNOWN_ERROR; 
 	}
 
+	PtrAreaInfo_t p = (PtrAreaInfo_t)buf;
+
+	if (p->event != emFenceEvent_clr)
+	{
+		return AE_SYS_UNKNOWN_ERROR;
+	}
+
+	send["areaType"] = p->type;
+
 	return AE_SYS_NOERROR;
 }
+#endif
 
+/**
+* @brief 发送日志上传命令
+* @param buf 推送内容
+* @param len 推送内容
+* @param send 推送报文
+* @return 错误码
+**/
+int CPushNotification::sendLogUpload(char* buf, int len, Json::Value &send)
+{
+	//AE_SEND_LOG_UPLOAD
+	if (buf == NULL || len < (int)sizeof(MsgHdr_t))
+	{
+		return AE_SYS_UNKNOWN_ERROR; 
+	}
+
+	PtrFtpSrvInfo_t p = (PtrFtpSrvInfo_t)buf;
+	send["ip"] = std::string(p->ip);
+	send["userName"] = std::string(p->user);
+	send["password"] = std::string(p->password);
+	send["port"] = p->port;
+
+	return AE_SYS_NOERROR;
+}
 }//Screen
